@@ -1,11 +1,15 @@
 reporting_contract_version: "1.0"
 language: "zh-CN"
 file_names:
+  stage_0_environment_data: "阶段0_环境数据与基础设施验收报告.docx"
   stage_model_results: "阶段{stage}_模型与优化结果报告.docx"
   stage_issue_acceptance: "阶段{stage}_问题修复与验收报告.docx"
   run_summary: "运行_{run_id}_结果摘要.docx"
 source_of_truth:
   - "run_manifest.json"
+  - "environment.csv"
+  - "input_hashes.csv"
+  - "数据审计.csv"
   - "acceptance/acceptance_results.csv"
   - "iterations/iteration_summary.csv"
   - "indices/variable_index.csv"

@@ -1,0 +1,7 @@
+run_id,check_id,component,expected,actual,status,available,checked_at,details
+20260718_161942_stage_0_e0522686,MATLAB_RELEASE,MATLAB,R2024a,24.1.0.2537033 (R2024a) (2024a),PASS,true,2026-07-19T00:19:44+08:00,arch=win64
+20260718_161942_stage_0_e0522686,SPARSE_MLDIVIDE,稀疏线性代数,sparse=true; relative residual <= 1e-12,sparse=1; nnz=7; relative_residual=0,PASS,true,2026-07-19T00:19:44+08:00,deterministic tridiagonal system
+20260718_161942_stage_0_e0522686,SPARSE_LDL,稀疏 LDL,sparse factor; reconstruction residual <= 1e-12,L_sparse=1; relative_residual=0,PASS,true,2026-07-19T00:19:44+08:00,single deterministic factorization
+20260718_161942_stage_0_e0522686,PCT_INSTALLED,Parallel Computing Toolbox,installed,Parallel Computing Toolbox 24.1 ((R2024a)),PASS,true,2026-07-19T00:19:44+08:00,ver('parallel')
+20260718_161942_stage_0_e0522686,PCT_LICENSE,Parallel Computing Toolbox 许可证,available,license_test=1,PASS,true,2026-07-19T00:19:44+08:00,"license('test','Distrib_Computing_Toolbox')"
+20260718_161942_stage_0_e0522686,PCT_WORKER,并行 worker 实测,parfeval result = 42,worker_result=42; workers=1,PASS,true,2026-07-19T00:19:44+08:00,Processes pool and parfeval completed

@@ -1,0 +1,32 @@
+git_available: true
+git_commit: e052268683ccc2c00558c0e9439cd0fe06a2d1c4
+git_status:
+## stage_0
+ M config/reporting.yaml
+ M config/stage_0.yaml
+ M "stages/stage_0/\351\230\266\346\256\2650_\347\212\266\346\200\201\344\270\216\345\206\263\347\255\226\346\227\245\345\277\227.md"
+?? main_stage_0.m
+?? src/artifacts/
+?? src/data/compute_sha256_file.m
+?? src/data/load_project_data.m
+?? src/data/locate_labeled_table.m
+?? src/data/verify_input_hashes.m
+?? src/diagnostics/aggregate_stage_status.m
+?? src/diagnostics/append_stage0_issue.m
+?? src/diagnostics/initialize_stage0_acceptance.m
+?? src/diagnostics/inspect_stage0_environment.m
+?? src/diagnostics/new_stage0_issue_log.m
+?? src/diagnostics/run_stage0_acceptance.m
+?? src/diagnostics/set_stage0_acceptance_result.m
+?? src/indexing/
+?? src/reporting/generate_stage0_reports.m
+?? src/reporting/validate_docx_package.m
+?? templates/csv/environment.csv
+?? templates/csv/input_hashes.csv
+?? "templates/csv/\346\225\260\346\215\256\345\256\241\350\256\241.csv"
+?? tests/integration/test_run_context.m
+?? tests/integration/test_stage0_report.m
+?? tests/run_stage_0_tests.m
+?? tests/unit/test_canonical_index_framework.m
+?? tests/unit/test_stage0_data_reader.m
+?? tests/unit/test_stage0_environment.m

@@ -1,0 +1,7 @@
+check_id,status,actual_value,passed
+variable_global_contiguous,PASS,"first=1,last=544,count=544",true
+constraint_global_contiguous,PASS,"first=1,last=1150,count=1150",true
+variable_keys_unique,PASS,"unique=544,total=544",true
+constraint_ids_unique,PASS,"unique=1150,total=1150",true
+fixed_zero_exactly_removed,PASS,fixed_zero_rows=60,true
+permutation_bijective,PASS,"variable,equality,inequality",true
