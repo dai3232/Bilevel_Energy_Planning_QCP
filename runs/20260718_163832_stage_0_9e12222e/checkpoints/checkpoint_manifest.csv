@@ -1,0 +1,2 @@
+run_id,stage_id,solve_pass,iteration,model_contract_version,input_hashes,index_contract_version,solver_version,path,sha256,created_at
+20260718_163832_stage_0_9e12222e,stage_0,none,0,1.0,"{""base_parameters"":""aebb35fa80e6ba2fb8d4534b09a141feaedcb2b9d027e9924e7a0091943c4277"",""timeseries"":""10baac1dc5d0b07dbbb9d2fe8f9aac82f071e43d4fb9901ff7ba0b467d05c186""}",1.0-stage0-framework,NOT_APPLICABLE,checkpoints/stage0_normalized_data.mat,fc6705a5d4d51789f8c48733f8cce80c2ce24ba72ba8b9a42e43da097b9cbee7,2026-07-19T00:39:01+08:00

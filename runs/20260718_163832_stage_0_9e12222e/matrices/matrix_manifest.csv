@@ -1,0 +1,1 @@
+run_id,solve_pass,iteration,matrix_name,block_id,day,hour_start,hour_end,rows,columns,nnz,row_global_start,row_global_end,column_global_start,column_global_end,symmetry_error,rank_estimate,condition_estimate,inertia_positive,inertia_negative,inertia_zero,storage_format,relative_path,sha256

@@ -1,0 +1,1 @@
+run_id,stage_id,solve_pass,iteration,objective_total,primal_eq_inf,primal_ineq_inf,dual_inf,complementarity_gap,mu,alpha_primal,alpha_dual,accepted_step,wall_time_seconds,status

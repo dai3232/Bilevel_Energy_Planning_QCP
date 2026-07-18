@@ -1,0 +1,11 @@
+test_id,requirement,threshold,actual_value,comparison,status,blocking,evidence_path,checked_at
+S0-ENV-001,MATLAB R2024a可启动并报告版本,R2024a或用户批准兼容版本,24.1.0.2537033 (R2024a) (2024a); sparse=1; nnz=7; relative_residual=0; L_sparse=1; relative_residual=0,R2024a and deterministic sparse checks passed,PASS,true,environment.csv,2026-07-19T00:25:48+08:00
+S0-ENV-002,Parallel Computing Toolbox可用,available,Parallel Computing Toolbox 24.1 ((R2024a)); license_test=1; worker_result=42; workers=1,installed + license test + real worker execution,PASS,true,environment.csv,2026-07-19T00:25:48+08:00
+S0-DATA-001,输入文件哈希与清单一致,equal,基础参数.xlsx=aebb35fa80e6ba2fb8d4534b09a141feaedcb2b9d027e9924e7a0091943c4277; 输入数据.xlsx=10baac1dc5d0b07dbbb9d2fe8f9aac82f071e43d4fb9901ff7ba0b467d05c186,actual SHA256 equals controlled manifest,PASS,true,input_hashes.csv,2026-07-19T00:25:48+08:00
+S0-DATA-002,工作表和审计范围正确,基础参数 A1:P45; Sheet1 A1:AA5492,基础参数.xlsx/基础参数 A1:P45; 输入数据.xlsx/Sheet1 A1:AA5492,sheet + semantic range + label/header audit,PASS,true,数据审计.csv,2026-07-19T00:25:54+08:00
+S0-DATA-003,设备数量正确,4/4/5/5/2,4/4/5/5/2,equals 4/4/5/5/2,PASS,true,数据审计.csv,2026-07-19T00:25:54+08:00
+S0-DATA-004,时序规模正确,365x24; dt=1h,365x24; 60 min; dt=1 h,equals 365x24; 60 min; dt=1 h,PASS,true,数据审计.csv,2026-07-19T00:25:54+08:00
+S0-DATA-005,计划曲线按10000MW换算,2070到9860MW范围审计,"base=10000 MW; converted range=[2070, 9860] MW",Pplan = 10000 * Pplan_hat; range 2070..9860 MW,PASS,true,数据审计.csv,2026-07-19T00:25:54+08:00
+S0-IDX-001,索引框架可生成且无重叠/缺口,PASS,variables=544; constraints=1150; fixed_zero=60; all gap/overlap/permutation audits PASS,canonical framework audit,PASS,true,indices/index_audit.csv,2026-07-19T00:25:55+08:00
+S0-ART-001,唯一run_id目录不可覆盖,PASS,run_id=20260718_162525_stage_0_6a88ecee; duplicate guard=PASS; JSON/CSV/MAT present,explicit duplicate run_id rejected without overwrite,PASS,true,run_manifest.json; checkpoints/checkpoint_manifest.csv,2026-07-19T00:25:56+08:00
+S0-RPT-001,可从样例证据生成中文Word,PASS,three Chinese DOCX packages generated and structurally validated,real current-run evidence clone; no optimization values fabricated,PASS,true,reports/阶段0_环境数据与基础设施验收报告.docx; reports/阶段0_问题修复与验收报告.docx,2026-07-19T00:25:58+08:00

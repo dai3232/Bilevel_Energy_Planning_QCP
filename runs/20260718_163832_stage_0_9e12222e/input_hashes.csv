@@ -1,0 +1,3 @@
+run_id,file_name,relative_path,expected_bytes,actual_bytes,expected_sha256,actual_sha256,status,checked_at
+20260718_163832_stage_0_9e12222e,基础参数.xlsx,inputs/raw/基础参数.xlsx,14585,14585,aebb35fa80e6ba2fb8d4534b09a141feaedcb2b9d027e9924e7a0091943c4277,aebb35fa80e6ba2fb8d4534b09a141feaedcb2b9d027e9924e7a0091943c4277,PASS,2026-07-19T00:38:54+08:00
+20260718_163832_stage_0_9e12222e,输入数据.xlsx,inputs/raw/输入数据.xlsx,821811,821811,10baac1dc5d0b07dbbb9d2fe8f9aac82f071e43d4fb9901ff7ba0b467d05c186,10baac1dc5d0b07dbbb9d2fe8f9aac82f071e43d4fb9901ff7ba0b467d05c186,PASS,2026-07-19T00:38:54+08:00
