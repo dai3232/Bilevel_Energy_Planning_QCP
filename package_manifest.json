@@ -1,0 +1,851 @@
+{
+  "package_name": "递推降阶解耦_Codex启动资料包",
+  "version": "1.0",
+  "generated_at": "2026-07-18T09:10:44.252003+00:00",
+  "current_stage": "stage_0",
+  "first_task": "交给Codex的首次任务.md",
+  "validation_status": "PASS",
+  "file_count": 168,
+  "files": [
+    {
+      "path": ".codex/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".codex/README_本地环境配置说明.md",
+      "bytes": 546,
+      "sha256": "0402d48b6d7eb8899797c8dbcaaaa506f895e98c8f0f81351bd3431b526778ab"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 383,
+      "sha256": "3abbebe33284ec6ac6db6d9589aa53eeb8704bdc7104171fa8c2a9cc501917f0"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 4136,
+      "sha256": "0a5fb847ea202dc5c5a40a40a034ac22ff10dd977b1104f720c00e2b436c3274"
+    },
+    {
+      "path": "CURRENT_STAGE.md",
+      "bytes": 322,
+      "sha256": "000358f379c5f851b292ee585657e0795466748750cc74c9112825ca05da1b38"
+    },
+    {
+      "path": "Codex项目启动资料说明.docx",
+      "bytes": 40665,
+      "sha256": "cc940ba4d881dd34f20dac075bfe9bd55f441bfc284ca603472dc5981b10bb16"
+    },
+    {
+      "path": "PACKAGE_VALIDATION.txt",
+      "bytes": 128,
+      "sha256": "9ccecd52927b9bdbcc1d325fc02d1b1a8eaaa2f043e230e1bce6f951500c72a8"
+    },
+    {
+      "path": "README_从这里开始.md",
+      "bytes": 2287,
+      "sha256": "08a9e4596717ecf6bf473499d34ede5a4ff3548a38ae7f71c99faf7cacd526a5"
+    },
+    {
+      "path": "config/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "config/model.yaml",
+      "bytes": 967,
+      "sha256": "59a1f44a4947a5b228d33522837fb95ae93323462c002f9396f262839e0f97b5"
+    },
+    {
+      "path": "config/reporting.yaml",
+      "bytes": 553,
+      "sha256": "04ef52ebea61a79d039574c9bff7c9ed3b23f61600cfe7455cf87d8b3af6a22f"
+    },
+    {
+      "path": "config/solver.yaml",
+      "bytes": 1035,
+      "sha256": "9c713a05c05de323c07d80ce67336171275d54fb51685582cf22b208584a168a"
+    },
+    {
+      "path": "config/stage_0.yaml",
+      "bytes": 180,
+      "sha256": "971306bdf6cda9fd16a4f3cc80b0a9501dc4b22b99b265d50fdee290a9adc654"
+    },
+    {
+      "path": "config/stage_A1.yaml",
+      "bytes": 171,
+      "sha256": "c43767309e957812b5043552d6fde2c44f50537cd559838221f0f298e3251f15"
+    },
+    {
+      "path": "config/stage_A2.yaml",
+      "bytes": 248,
+      "sha256": "bcbec4167f02c16bf0a06c24a4464969b1206f4871568e6e3cbe458cc8db3598"
+    },
+    {
+      "path": "config/stage_A3.yaml",
+      "bytes": 267,
+      "sha256": "2859d1548f59a1225525115bb2e17104f53bff3e688fbd8930f8a0101077d085"
+    },
+    {
+      "path": "config/stage_A4.yaml",
+      "bytes": 262,
+      "sha256": "a5fb250e047d6ef005261935325b6a254fd0fad601192ff9581ff734c44623cb"
+    },
+    {
+      "path": "config/stage_B.yaml",
+      "bytes": 277,
+      "sha256": "04823cc2d2547f5dc4770b5fab06986a77c96e5cbc4433e88aaafa563c0747ef"
+    },
+    {
+      "path": "config/stage_C1.yaml",
+      "bytes": 269,
+      "sha256": "95dbde141ea3399107f278491d54a45d854955a42b4723d446501630183ad51d"
+    },
+    {
+      "path": "config/stage_C2.yaml",
+      "bytes": 273,
+      "sha256": "af5a564c547c5b1d826b4c0c6eed5731e9fb7ff0a02338c18624af594d1a1c57"
+    },
+    {
+      "path": "config/stage_D1.yaml",
+      "bytes": 257,
+      "sha256": "c5ba06eaced97f2ee48c7d5d9a84fe2231f939c61d08557a2a230ceb3c643760"
+    },
+    {
+      "path": "config/stage_D2.yaml",
+      "bytes": 296,
+      "sha256": "b9dac7a2141aa7f90bd6d4bc32288bbc9f4bc3eb7d6346179dbbf4ed0407662c"
+    },
+    {
+      "path": "config/stage_D3.yaml",
+      "bytes": 1960,
+      "sha256": "d2b761073b2126df86123509ea5d6ba10caee5c7fb1f0fe895ecb6a79fef906e"
+    },
+    {
+      "path": "config/stage_E.yaml",
+      "bytes": 2055,
+      "sha256": "36e0306f6238f03c6530114f1432dbba14ff60a7c5dfde347c224f070c2373a5"
+    },
+    {
+      "path": "config/stage_F.yaml",
+      "bytes": 1965,
+      "sha256": "06c0e723829140d2ef9ebc26b78dc68457f074f31a049991d00a751613dc28f3"
+    },
+    {
+      "path": "docs/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/00_用户确认的模型口径_v1.0.md",
+      "bytes": 1912,
+      "sha256": "adc0a6291c39e65039298314ff4cd1bc918c2f7e212a79207da2cfc164699bc4"
+    },
+    {
+      "path": "docs/01_项目总任务书.md",
+      "bytes": 1085,
+      "sha256": "d8a8e7e58e8446d5e8f25a11aee5618608379e2e48adbe6824adaba7ef3e2dec"
+    },
+    {
+      "path": "docs/02_最终模型合同_v1.0.md",
+      "bytes": 3998,
+      "sha256": "703c1e9bed310c772ee56d024d2df18c5ed153005ff620c9c948a43d94239320"
+    },
+    {
+      "path": "docs/03_阶段模型启用矩阵.csv",
+      "bytes": 1399,
+      "sha256": "6b73deac3cec15ad0086b04fd30658aa04be4a19c398780811e15a5a43e16c36"
+    },
+    {
+      "path": "docs/04_目标函数与约束注册表.csv",
+      "bytes": 4012,
+      "sha256": "d0a4e77e8ecdba38e88ef29609299ef28ccedb1c5c568917ac28670cbd62d691"
+    },
+    {
+      "path": "docs/05_资料优先级与冲突处理规则.md",
+      "bytes": 1564,
+      "sha256": "8e2efe87de421e88fdacf23cf42c06bc6f1a4ed7546481f5cd5151d40f321a1b"
+    },
+    {
+      "path": "docs/06_数据字典与单位合同.md",
+      "bytes": 1353,
+      "sha256": "c255c85c237362b5cd6359f01ec9a40615105d90364f50b0cd4abf6d1605fefb"
+    },
+    {
+      "path": "docs/07_变量约束索引合同.md",
+      "bytes": 1433,
+      "sha256": "537763a9a4e3dcd99d34fac85c6f3aeaaf13751de91f936128774d6a1ab554d0"
+    },
+    {
+      "path": "docs/08_矩阵分块与回代合同.md",
+      "bytes": 2276,
+      "sha256": "e0543f53dde40b75e3555dea9787af3b6365bea3e42c674922ebe6b1315c50c6"
+    },
+    {
+      "path": "docs/09_验收总则.md",
+      "bytes": 1461,
+      "sha256": "36f1f4bef6557480d95d66773bdc9afddf864356661fe21d7898a3929af67a1a"
+    },
+    {
+      "path": "docs/10_停止重试阻塞与升级规则.md",
+      "bytes": 1298,
+      "sha256": "46dbc51f85020195adeaba479a62129b5565beb5076d5b429113cf5ab6478e46"
+    },
+    {
+      "path": "docs/11_输出工件与文件命名规范.md",
+      "bytes": 1209,
+      "sha256": "ec8587d619d6deb01f09d1fe7be89ae241d7fc1cdb4034f55f5f80d707d19db5"
+    },
+    {
+      "path": "docs/12_性能基准测试规范.md",
+      "bytes": 1069,
+      "sha256": "fc92160a2694f7e012e066692feba249540ef67d9bd76edaa9d3635070e1eec9"
+    },
+    {
+      "path": "docs/13_技术债务与后续约束清单.md",
+      "bytes": 889,
+      "sha256": "eaa5cde1c8396246a684dc6fd884ab8ef35f26fcae19024a0eb1e1c5b5547b1c"
+    },
+    {
+      "path": "docs/14_变更记录.md",
+      "bytes": 376,
+      "sha256": "d8f7551d37dc42cdb2f3fb63fa9b82029093bb74e2d53d6e895aca12030ccbce"
+    },
+    {
+      "path": "docs/15_复现说明.md",
+      "bytes": 769,
+      "sha256": "ee067440f6e0899ef8c621e97368304a608f9b2ebb48188a1e35917fd41167d8"
+    },
+    {
+      "path": "docs/16_Codex执行边界与安全.md",
+      "bytes": 539,
+      "sha256": "f965aa5b42627f6a40bf7ce320fbcab794750047ac9fd713af14a6e543e41005"
+    },
+    {
+      "path": "docs/17_待用户决策清单.csv",
+      "bytes": 601,
+      "sha256": "8396ebc9fce6b0c4658e5a502cbf755396e582251bb7a32f39af2e6401c76539"
+    },
+    {
+      "path": "inputs/AGENTS.md",
+      "bytes": 488,
+      "sha256": "0af65e8bcc2f9f04ec90028b5919d1dbdc300760383a804d9f69024d20de509c"
+    },
+    {
+      "path": "inputs/raw/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "inputs/raw/基础参数.xlsx",
+      "bytes": 14585,
+      "sha256": "aebb35fa80e6ba2fb8d4534b09a141feaedcb2b9d027e9924e7a0091943c4277"
+    },
+    {
+      "path": "inputs/raw/输入数据.xlsx",
+      "bytes": 821811,
+      "sha256": "10baac1dc5d0b07dbbb9d2fe8f9aac82f071e43d4fb9901ff7ba0b467d05c186"
+    },
+    {
+      "path": "inputs/参数数据字典.csv",
+      "bytes": 1479,
+      "sha256": "f320aa19d9c312d6a460adcca7cf1c4e2aa5044524265162b8156f647715b950"
+    },
+    {
+      "path": "inputs/数据文件清单与SHA256.csv",
+      "bytes": 293,
+      "sha256": "7562d94dde26e9940450c986b757de0579cf0febc4342e81c01c77ed8de28544"
+    },
+    {
+      "path": "inputs/时序数据字典.csv",
+      "bytes": 1980,
+      "sha256": "a3a7f10973055f842980355f51c985280e16406d4b8b2fe3036a9c75bdd7f0c2"
+    },
+    {
+      "path": "references/README_参考资料索引.md",
+      "bytes": 517,
+      "sha256": "e307d5693a42a1c95b294b0330d0913d90c17fc8e3444cc405d4eeb8d30aee43"
+    },
+    {
+      "path": "references/controlled/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/controlled/双层模型_目标函数单位化.docx",
+      "bytes": 164805,
+      "sha256": "55a3ed1129990a70d5b765608f50bd68e7266c1e26fe057b9830fbd2af7aa261"
+    },
+    {
+      "path": "references/controlled/求解暂态稳定约束最优潮流模型的递推降阶解耦算法_阳育德.pdf",
+      "bytes": 430200,
+      "sha256": "88eb43d8334b9030ecdc371393c3c21d0864da273f1e4926c7b7d52da7c16945"
+    },
+    {
+      "path": "references/controlled/风光水火储新型递推降阶解耦算法_完整推导与验证.docx",
+      "bytes": 296492,
+      "sha256": "d137f9721763a31b3f949d9023bcfd6832693d8714030e7399d18b201237ef42"
+    },
+    {
+      "path": "references/deprecated/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/deprecated/README_不得作为当前模型依据.md",
+      "bytes": 261,
+      "sha256": "aae71387f7b4f93fb8acd24cadfa6a6e94312284b54c4ef4d89369e59b3b1bb1"
+    },
+    {
+      "path": "references/openai/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/openai/Codex官方实践摘要.md",
+      "bytes": 1538,
+      "sha256": "6981b9eaeaa42f7a155194411e894e1a1ef8391c5522f87c561ee66e7f591188"
+    },
+    {
+      "path": "references/参考资料索引.csv",
+      "bytes": 1578,
+      "sha256": "7aa382db202b85a46a09316e952a26b8464b9c143a8fe7852920c74a8ebfeace"
+    },
+    {
+      "path": "runs/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/README_运行工件不可覆盖.md",
+      "bytes": 200,
+      "sha256": "fd573eb5ddd5837ffc63802ff2e6ee15cdd244cc11f81995f62d06e7f94d316e"
+    },
+    {
+      "path": "schemas/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "schemas/acceptance_result.schema.json",
+      "bytes": 761,
+      "sha256": "f2917cf9b3596f5ad0848b6d649710cc50cd418779f34f718e8670c80656b97f"
+    },
+    {
+      "path": "schemas/checkpoint_manifest.schema.json",
+      "bytes": 880,
+      "sha256": "f1dd1f3e156c19a0577eef78fd4d953855832d48f83c013040d49bb62155cc6c"
+    },
+    {
+      "path": "schemas/issue_log.schema.json",
+      "bytes": 1123,
+      "sha256": "21a421f2bc6eb8155f304b1524a3410873f905e027e7670c8a78a1ebe951f471"
+    },
+    {
+      "path": "schemas/iteration_summary.schema.json",
+      "bytes": 1131,
+      "sha256": "59d7b1a978142ed5855cb0c219108fd48ddcbcceb90134d82d7fe73ea3cefcc5"
+    },
+    {
+      "path": "schemas/matrix_manifest.schema.json",
+      "bytes": 1668,
+      "sha256": "f37db6f6209af71b30a1490e905e6e9ced1335b5af3d2541422edaa316c76bc7"
+    },
+    {
+      "path": "schemas/run_manifest.schema.json",
+      "bytes": 1056,
+      "sha256": "1c57a9ae9a435601739231b94571f28015e0b5a7abcc5007f754be98e912e7f3"
+    },
+    {
+      "path": "scripts/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "scripts/validate_starter_package.py",
+      "bytes": 2041,
+      "sha256": "0f5dc99e4d72560652ec3c7d38b9ee907778d2a0b75917aa676ed88c4809c339"
+    },
+    {
+      "path": "src/README_代码接口约定.md",
+      "bytes": 1198,
+      "sha256": "a9527394017571f9dd215a28038b4b099f15c39c111ab082b878676edd652cd9"
+    },
+    {
+      "path": "src/data/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/diagnostics/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/ipm/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/linearization/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/model/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/model/AGENTS.md",
+      "bytes": 591,
+      "sha256": "d6072c9b216ac5581d5b13d722368f9ab94e37e0c559db3a7797ec2a8ca70b17"
+    },
+    {
+      "path": "src/reporting/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/reporting/AGENTS.md",
+      "bytes": 438,
+      "sha256": "e09e2b08b37ee04b140a36632f2552f438cb6559289076a64f968faf77d5aea6"
+    },
+    {
+      "path": "src/solver/AGENTS.md",
+      "bytes": 551,
+      "sha256": "0c35667ec78a221c7b6597a7f1c78ff2eb27622e9a808a683208fb704bb860f6"
+    },
+    {
+      "path": "src/solver/full_kkt/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/solver/parallel_daily/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/solver/recursive_6hour/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/solver/recursive_hourly/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stages/stage_0/AGENTS.md",
+      "bytes": 580,
+      "sha256": "47f228e67d305ad4b983d74f3893ccb4324987497ca18b30ad56b7ca9fcc63cc"
+    },
+    {
+      "path": "stages/stage_0/阶段0_状态与决策日志.md",
+      "bytes": 384,
+      "sha256": "40eb93c5c04173c69b083f6b980da98e2731ca9c9ee9903a0a96ee4fd77cf287"
+    },
+    {
+      "path": "stages/stage_0/阶段0_长任务.md",
+      "bytes": 1705,
+      "sha256": "962386d88b3c3dee6f1d979706bffab82eca499d4b69001f458383a06092f555"
+    },
+    {
+      "path": "stages/stage_0/阶段0_验收矩阵.csv",
+      "bytes": 1147,
+      "sha256": "96f36abe41ef0410ae1fc87acb0eb36274973902a4c82be0553474a3ffe6dab6"
+    },
+    {
+      "path": "stages/stage_A1/AGENTS.md",
+      "bytes": 581,
+      "sha256": "1416cf11d6924e1c5d380f4b2586c284adb27f62edf9d0711ae042bb262b7f3a"
+    },
+    {
+      "path": "stages/stage_A1/阶段A1_状态与决策日志.md",
+      "bytes": 384,
+      "sha256": "a6b5c0dd32ec0a82bdea6f955f9dad46984dbda308d321fc2c7faef75f4a52ea"
+    },
+    {
+      "path": "stages/stage_A1/阶段A1_长任务.md",
+      "bytes": 1618,
+      "sha256": "5b2d1429f9a9a6b208d7622f8b15a0d3a0d92364bd06a80b83e5fcf3914dd3d5"
+    },
+    {
+      "path": "stages/stage_A1/阶段A1_验收矩阵.csv",
+      "bytes": 666,
+      "sha256": "1640520b4fb98d480c78d31a9e7738747740851637b58c0bd8bd3c0bf59caa7b"
+    },
+    {
+      "path": "stages/stage_A2/AGENTS.md",
+      "bytes": 579,
+      "sha256": "c978d2c25adcf633855139f4656e29fea85b6b8878dd55eb8b3589e1e7f9d69c"
+    },
+    {
+      "path": "stages/stage_A2/阶段A2_状态与决策日志.md",
+      "bytes": 382,
+      "sha256": "48001c99521e5bad63b569a1fb20db5be6f337dd7369c9e5fd40af3b4e3ce856"
+    },
+    {
+      "path": "stages/stage_A2/阶段A2_长任务.md",
+      "bytes": 1498,
+      "sha256": "f83c7d1a3b6778f9c6e9a58b93ed61935d544b19de7bb681c907a61cf34e4cb0"
+    },
+    {
+      "path": "stages/stage_A2/阶段A2_验收矩阵.csv",
+      "bytes": 690,
+      "sha256": "0290b15117238dd9e03170049c5ca53e189e4ece747c2465651e68ba95c70098"
+    },
+    {
+      "path": "stages/stage_A3/AGENTS.md",
+      "bytes": 579,
+      "sha256": "6b68a59194b950c9a5cbcc42913aae7eb146fdf1bab1d3d63c742f35b66e2be7"
+    },
+    {
+      "path": "stages/stage_A3/阶段A3_状态与决策日志.md",
+      "bytes": 382,
+      "sha256": "995d3f500df18a6102f4169b929f450293aa198303824f77ee86f94d419fe877"
+    },
+    {
+      "path": "stages/stage_A3/阶段A3_长任务.md",
+      "bytes": 1488,
+      "sha256": "78fd84eaf3f3adfc36c4520609518a6d3f7d08643bcf765b622c1626f4518d35"
+    },
+    {
+      "path": "stages/stage_A3/阶段A3_验收矩阵.csv",
+      "bytes": 687,
+      "sha256": "0fcb87492eb680be4aec3548e18ee576cd358b57fc2758098600fec10730c804"
+    },
+    {
+      "path": "stages/stage_A4/AGENTS.md",
+      "bytes": 580,
+      "sha256": "4a288ff4e659ceb4243d92f163d49bab210972aa9cb50a33a00195aaaf764ec9"
+    },
+    {
+      "path": "stages/stage_A4/阶段A4_状态与决策日志.md",
+      "bytes": 384,
+      "sha256": "fcc4f95d29f724b418373216ad39c55af4cd35239e63b3014e5badef19b46f6f"
+    },
+    {
+      "path": "stages/stage_A4/阶段A4_长任务.md",
+      "bytes": 1582,
+      "sha256": "7f25f289b5b3b3849c415ac5f8282bf37a26ea8494351d2b19072536794d07ef"
+    },
+    {
+      "path": "stages/stage_A4/阶段A4_验收矩阵.csv",
+      "bytes": 769,
+      "sha256": "fe362805dbeee0a2e6b51f1b531aebb657e87524f555bb3c5e3a826eec8117c7"
+    },
+    {
+      "path": "stages/stage_B/AGENTS.md",
+      "bytes": 577,
+      "sha256": "881523da7e15a85a48f44bd24aed00ae62c2a857a37c49364bab61337dfd50af"
+    },
+    {
+      "path": "stages/stage_B/阶段B_状态与决策日志.md",
+      "bytes": 381,
+      "sha256": "732efb633b7107cba1b5078f37e69cb24928e486e3c69311fe73bbb1e6473e3f"
+    },
+    {
+      "path": "stages/stage_B/阶段B_长任务.md",
+      "bytes": 1400,
+      "sha256": "cd2ae9c4ea2e3654ced95875eebfbe2d66601add016402fefa82cc72b6a14285"
+    },
+    {
+      "path": "stages/stage_B/阶段B_验收矩阵.csv",
+      "bytes": 543,
+      "sha256": "612506b63677aa9fcc306aef9d06f5a02223c98a1c7155c07cf22da6350348ce"
+    },
+    {
+      "path": "stages/stage_C1/AGENTS.md",
+      "bytes": 582,
+      "sha256": "2f044ded09b41a52dc33bde2abfa45f54a1fab75708c4f960b7c9df918a95f09"
+    },
+    {
+      "path": "stages/stage_C1/阶段C1_状态与决策日志.md",
+      "bytes": 385,
+      "sha256": "1d996c9e95f0521fbd3acb7ee63162df5c0a451f54447e958aaaf3a9c7e7df22"
+    },
+    {
+      "path": "stages/stage_C1/阶段C1_长任务.md",
+      "bytes": 1397,
+      "sha256": "18ce979bcb89e9ae35d3c0efeab9d816fca1dd43be4f47491f1867f6d7e56bbe"
+    },
+    {
+      "path": "stages/stage_C1/阶段C1_验收矩阵.csv",
+      "bytes": 523,
+      "sha256": "2b653c73782fd4e26f216283e302fe0548831dc7004783ca3171f454fbd8a121"
+    },
+    {
+      "path": "stages/stage_C2/AGENTS.md",
+      "bytes": 586,
+      "sha256": "06cec6340fafc9fd45295c0128baa203746e715dbcadb62c903c1ecd63d1fa27"
+    },
+    {
+      "path": "stages/stage_C2/阶段C2_状态与决策日志.md",
+      "bytes": 389,
+      "sha256": "5ee64e214b3327ac1bfa3ce6048805c32299792c283ad118f20a3f40647656c4"
+    },
+    {
+      "path": "stages/stage_C2/阶段C2_长任务.md",
+      "bytes": 1466,
+      "sha256": "f7d19ff30342651a40fd331bb7d00c11f7333a81f922fbcaf9c628c076801432"
+    },
+    {
+      "path": "stages/stage_C2/阶段C2_验收矩阵.csv",
+      "bytes": 544,
+      "sha256": "e64c2e6e154fa4a74c172462c7254b41e60aecd2139fb739d5212d9fe7645e52"
+    },
+    {
+      "path": "stages/stage_D1/AGENTS.md",
+      "bytes": 562,
+      "sha256": "12a23a7f0804604cc16d73a40a3f38c028b269793c634270310e5399cb9743da"
+    },
+    {
+      "path": "stages/stage_D1/阶段D1_状态与决策日志.md",
+      "bytes": 365,
+      "sha256": "ec0045f1d84defbd370cd4d1b982b5bec55b89ce4ebc8b97af72a40cf1161e14"
+    },
+    {
+      "path": "stages/stage_D1/阶段D1_长任务.md",
+      "bytes": 1346,
+      "sha256": "ccf6acc1789e547bee6ec3758ae25bad3b347005a714165602a5f2a399e6b6f6"
+    },
+    {
+      "path": "stages/stage_D1/阶段D1_验收矩阵.csv",
+      "bytes": 503,
+      "sha256": "046732dcdd8a814bb1f8e07517b9f2e0977fb5e9b702b1591298e0b96472385d"
+    },
+    {
+      "path": "stages/stage_D2/AGENTS.md",
+      "bytes": 568,
+      "sha256": "debfd27ec764d6be02653d60e4a91ff6fb3db5d63dbac2b1e141f6b1c426433d"
+    },
+    {
+      "path": "stages/stage_D2/阶段D2_状态与决策日志.md",
+      "bytes": 371,
+      "sha256": "1d67766717716f2c6cc5031d4ccce02df85659d5c0e2e57664950e38dce9dcd7"
+    },
+    {
+      "path": "stages/stage_D2/阶段D2_长任务.md",
+      "bytes": 1409,
+      "sha256": "242091960ac863f068f3d1f51e27412ebacaab87aad80d14679fc966d302e706"
+    },
+    {
+      "path": "stages/stage_D2/阶段D2_验收矩阵.csv",
+      "bytes": 565,
+      "sha256": "e4ac3fb5d01ccebae1f51e6381fd82f27e8255adb9d6ecf078d734fe82a516a6"
+    },
+    {
+      "path": "stages/stage_D3/AGENTS.md",
+      "bytes": 596,
+      "sha256": "5fef10ddebc8e01e847be50fa3f1c1900c8f7b95b133786a11a407baa5d01603"
+    },
+    {
+      "path": "stages/stage_D3/阶段D3_状态与决策日志.md",
+      "bytes": 385,
+      "sha256": "ed028990ab77eb09ae3d3d38da74b0d3623c4d18b50d7c19dc1b6c5a5b453f15"
+    },
+    {
+      "path": "stages/stage_D3/阶段D3_长任务.md",
+      "bytes": 1395,
+      "sha256": "b71d2a9a6b8ba45086d62e987bab15166377aa827890b9373fa95d5dacdebd13"
+    },
+    {
+      "path": "stages/stage_D3/阶段D3_验收矩阵.csv",
+      "bytes": 588,
+      "sha256": "1a135079dee7699276c42d76c140a48fb12cd783827f05e01108040af1125a2e"
+    },
+    {
+      "path": "stages/stage_E/AGENTS.md",
+      "bytes": 591,
+      "sha256": "acf7cf833361f36e52a6d24593bc763222dc5268090577709d8b624e40ef8a47"
+    },
+    {
+      "path": "stages/stage_E/阶段E_状态与决策日志.md",
+      "bytes": 384,
+      "sha256": "fc1303bce76b10a16be5fee2728afc86392a02ff10099cc6e7bed692365a1bc1"
+    },
+    {
+      "path": "stages/stage_E/阶段E_长任务.md",
+      "bytes": 1426,
+      "sha256": "f920cf5095135f1c68cee5796538fadb78cf0a2879d3a3578b8243c55e151f91"
+    },
+    {
+      "path": "stages/stage_E/阶段E_验收矩阵.csv",
+      "bytes": 605,
+      "sha256": "5f119dcbb4247d54bf74b0acc941920669d78a9e3aceefec6d84f4ddcbca3b98"
+    },
+    {
+      "path": "stages/stage_F/AGENTS.md",
+      "bytes": 587,
+      "sha256": "38a19ef9b49030308543c1c26cf4bbece135f439be3ac1850cff17a6e9e97391"
+    },
+    {
+      "path": "stages/stage_F/阶段F_状态与决策日志.md",
+      "bytes": 396,
+      "sha256": "b82fad982581ce4415bd9c4963224363c392d7ed9a025d81d9d2ba1fa3c85124"
+    },
+    {
+      "path": "stages/stage_F/阶段F_长任务.md",
+      "bytes": 1154,
+      "sha256": "d30a3c279116093cc2414899902162d8e5d7ea00d5e6dad79e19d700aac32275"
+    },
+    {
+      "path": "stages/stage_F/阶段F_验收矩阵.csv",
+      "bytes": 217,
+      "sha256": "2180c9ee699af6fc65e312564e61c1b34e545f64de439a7af912d1ed0ba019b6"
+    },
+    {
+      "path": "templates/csv/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "templates/csv/acceptance_results.csv",
+      "bytes": 99,
+      "sha256": "bbae0fa31135d0eab2aa1349fb6d60ed93c3b09d91192fc5d589f90aaa837266"
+    },
+    {
+      "path": "templates/csv/block_dimensions.csv",
+      "bytes": 123,
+      "sha256": "485223e757145e2eae203067de3b962cd104ab3a6782ac303ea3edb01fe72e8a"
+    },
+    {
+      "path": "templates/csv/block_index.csv",
+      "bytes": 110,
+      "sha256": "ef4c95902ddf7f195c0f3f5ebcf18af0d482f895d2a61836c86e63f3f4284b52"
+    },
+    {
+      "path": "templates/csv/checkpoint_manifest.csv",
+      "bytes": 138,
+      "sha256": "f3ea3feffd44840dd3b92a22bdbcd29ba10ced18a1d3090d9f95f9a2ba8280f7"
+    },
+    {
+      "path": "templates/csv/constraint_index.csv",
+      "bytes": 124,
+      "sha256": "b29cc001d09a8856ee5750dec2fb405f08493604a37445a60b5d9bdd54737afd"
+    },
+    {
+      "path": "templates/csv/decision_log.csv",
+      "bytes": 95,
+      "sha256": "11207d51432cc66c120f983e9fe2f32fd0eb6393b1c89c0e5e6d3ab222a01a0b"
+    },
+    {
+      "path": "templates/csv/fixed_zero_map.csv",
+      "bytes": 123,
+      "sha256": "743e5c161091bd824ccb8c4122d757812b505385d396fd0612f788a8160099ed"
+    },
+    {
+      "path": "templates/csv/issue_log.csv",
+      "bytes": 176,
+      "sha256": "4dcd666fc82109e2d73d9d55f4455dee6446ef7058d209ce825c890bc904909c"
+    },
+    {
+      "path": "templates/csv/iteration_summary.csv",
+      "bytes": 182,
+      "sha256": "d921baac2e505bcd7326db83c343d81657ef5ec1a3e7e535192ff7515f7e5aed"
+    },
+    {
+      "path": "templates/csv/matrix_manifest.csv",
+      "bytes": 295,
+      "sha256": "69d2c08e19d32598ef38640fd70ec868857f571856e5b3a416d6221a0bada692"
+    },
+    {
+      "path": "templates/csv/objective_components.csv",
+      "bytes": 116,
+      "sha256": "ebfd880f4c2ab601ccaf3b111881eedcb1f2a5b9fa0c4a3cb1bcbefe5e952374"
+    },
+    {
+      "path": "templates/csv/parallel_tasks.csv",
+      "bytes": 91,
+      "sha256": "a2ad9b530d5f61f75f9074530495e701e0e835d3218aad6aca1238e5898278e9"
+    },
+    {
+      "path": "templates/csv/permutation_map.csv",
+      "bytes": 75,
+      "sha256": "626bedfaa0bc65eabe28bf653ee0252bc7a3d98dbe34e86f4294e244948acadc"
+    },
+    {
+      "path": "templates/csv/thermal_mask.csv",
+      "bytes": 114,
+      "sha256": "63af9b4ba1c6b91613c1359db579da4ca03d2d2ceb62f87a01c5b0bbdd219792"
+    },
+    {
+      "path": "templates/csv/timing.csv",
+      "bytes": 95,
+      "sha256": "73be3d08a84c13e4aac31963efbf5098e66469981340b08335cffb8f8d0d5330"
+    },
+    {
+      "path": "templates/csv/variable_index.csv",
+      "bytes": 186,
+      "sha256": "da527a53c28cd0f03301311bb065e718266b78ade3633b02ce013435ede2e798"
+    },
+    {
+      "path": "templates/报告字段映射.csv",
+      "bytes": 682,
+      "sha256": "e3fb6f6232f654e51bd07ee0e8c67fe0c9043e2712ecdbb4b23506972182b256"
+    },
+    {
+      "path": "templates/模板_单次运行结果摘要.docx",
+      "bytes": 39136,
+      "sha256": "e7218ddda474aa8aaa1b6c1efacc11c17a438e8942b7378d3d73e4cffd19886e"
+    },
+    {
+      "path": "templates/模板_阶段模型与优化结果报告.docx",
+      "bytes": 41806,
+      "sha256": "7c45847d776fedb26453df6c5c0f668e86b8229d0d41d3be83b67c5579eda841"
+    },
+    {
+      "path": "templates/模板_阶段问题修复与验收报告.docx",
+      "bytes": 40324,
+      "sha256": "02b07c1bdc89466f318832f5dbd6108b1ffa1e2abc15d7059f044d7b22d25861"
+    },
+    {
+      "path": "tests/AGENTS.md",
+      "bytes": 448,
+      "sha256": "574c80c2eaca47f1d28c19570da82bb5e1198a5f4cf971b23c3324d768e630ef"
+    },
+    {
+      "path": "tests/README_测试分层与命名.md",
+      "bytes": 464,
+      "sha256": "1b5450683b0d4f4c5aba3a3321ddeeffaf8f5122a0efc9ed7719bce91ae691ca"
+    },
+    {
+      "path": "tests/equivalence/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/integration/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/performance/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/regression/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/unit/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "交给Codex的首次任务.md",
+      "bytes": 2372,
+      "sha256": "abe9f025e9966532b124468d42eeaaecdcdb122c527a3c4d580bcd24161b0bfe"
+    },
+    {
+      "path": "当前模型口径与阶段实施路线_v1.0.docx",
+      "bytes": 40203,
+      "sha256": "7df784748128f5cc032c5659bcb46f5cc5ff8090f611925c0ac2691a2140224e"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+﻿component_id,类型,中文名称,stage_0,stage_A1,stage_A2,stage_A3,stage_A4,stage_B,stage_C1,stage_C2,stage_D1,stage_D2,stage_D3,stage_E,stage_F
+INFRA_DATA,基础设施,数据、索引、工件、报告框架,INFRA,0,0,0,0,0,0,0,0,0,0,0,0
+OBJ_INVEST,目标,投资成本,0,1,1,1,1,1,1,1,1,1,1,1,1
+OBJ_OPERATING,目标,运行成本候选项,0,0,0,0,0,0,0,0,0,0,0,DECISION,DECISION
+CON_POWER_BAL,等式,小时功率平衡,0,1,1,1,1,1,1,1,1,1,1,1,1
+CON_SOC_DYN,等式,SOC日内递推,0,1,1,1,1,1,1,1,1,1,1,1,1
+CON_SOC_CLOSE,等式,每日0.5E首末闭合,0,1,1,1,1,1,1,1,1,1,1,1,1
+CON_DURATION,等式,两条储能时长等式,0,1,1,1,1,1,1,1,1,1,1,1,1
+CON_WIND_SOLAR,不等式,风光可用率容量界,0,1,1,1,1,1,1,1,1,1,1,1,1
+CON_HYDRO_HOURLY,不等式,水电小时出力界,0,1,1,1,1,1,1,1,1,1,1,1,1
+CON_HYDRO_WATER,不等式,水电每日用水上下限,0,0,0,0,0,1,1,1,1,1,1,1,1
+CON_FIRE_PASS1,不等式,第一次火电0到Pmax,0,1,1,1,1,1,1,0,0,0,0,0,0
+CON_FIRE_PASS2,不等式,第二次火电掩码与原始Pmin,0,0,0,0,0,0,0,1,1,1,1,1,1
+CON_STORAGE_BOUNDS,不等式,独立Pch/Pdis及SOC界,0,1,1,1,1,1,1,1,1,1,1,1,1
+CON_ANNUAL_AGG,年度边框,弃电率/占比/保供率,0,0,0,0,0,0,0,0,0,0,0,DECISION,DECISION
+CON_MIN_UP_DOWN,未来约束,最小开停机时间,0,0,0,0,0,0,0,0,0,0,0,0,DEFERRED
+OBJ_START_STOP,未来目标,启动/停机成本,0,0,0,0,0,0,0,0,0,0,0,0,DEFERRED

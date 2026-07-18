@@ -1,0 +1,7 @@
+﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
+SA3-MAT-001,矩阵,完整KKT维度,assert,18836,true,matrix_manifest.csv,NOT_RUN,
+SA3-DAY-001,响应,7个14x14日响应和14维右端,assert,7 sets,true,daily_responses,NOT_RUN,
+SA3-CORE-001,核心,核心维度,assert,16x16,true,global_core,NOT_RUN,
+SA3-EQ-001,等价,总体方向相对误差,2-norm,<=1e-10,true,acceptance_results.csv,NOT_RUN,
+SA3-EQ-002,等价,代回完整KKT相对残差,2-norm,<=1e-10,true,acceptance_results.csv,NOT_RUN,
+SA3-SUM-001,确定性,日响应按日期固定顺序汇总,repeat,identical within tolerance,true,regression_results.csv,NOT_RUN,

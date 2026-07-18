@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "迭代摘要行",
+  "type": "object",
+  "required": [
+    "run_id",
+    "stage_id",
+    "solve_pass",
+    "iteration",
+    "primal_eq_inf",
+    "dual_inf",
+    "complementarity_gap",
+    "status"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "stage_id": {
+      "type": "string"
+    },
+    "solve_pass": {
+      "type": "string"
+    },
+    "iteration": {
+      "type": "integer"
+    },
+    "objective_total": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "primal_eq_inf": {
+      "type": "number"
+    },
+    "primal_ineq_inf": {
+      "type": "number"
+    },
+    "dual_inf": {
+      "type": "number"
+    },
+    "complementarity_gap": {
+      "type": "number"
+    },
+    "mu": {
+      "type": "number"
+    },
+    "alpha_primal": {
+      "type": "number"
+    },
+    "alpha_dual": {
+      "type": "number"
+    },
+    "accepted_step": {
+      "type": "boolean"
+    },
+    "wall_time_seconds": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

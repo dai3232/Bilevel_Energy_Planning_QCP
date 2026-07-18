@@ -1,0 +1,6 @@
+﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
+SD3-DATA-001,规模,365日全部完成,row count,365,true,daily_status.csv,NOT_RUN,
+SD3-DET-001,确定性,相同条件重复结果,max diff,<=1e-12,true,repeatability.csv,NOT_RUN,
+SD3-CHK-001,恢复,中断后检查点恢复,integration,PASS,true,checkpoint_test.csv,NOT_RUN,
+SD3-PERF-001,性能,至少5次并报告中位数/范围,count,>=5,true,performance.csv,NOT_RUN,
+SD3-MEM-001,资源,峰值内存记录且无未解释增长,audit,reported,true,environment.csv,NOT_RUN,

@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "矩阵清单行",
+  "type": "object",
+  "required": [
+    "run_id",
+    "matrix_name",
+    "rows",
+    "columns",
+    "nnz",
+    "storage_format",
+    "relative_path",
+    "sha256"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "solve_pass": {
+      "type": "string"
+    },
+    "iteration": {
+      "type": "integer"
+    },
+    "matrix_name": {
+      "type": "string"
+    },
+    "block_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "day": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "hour_start": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "hour_end": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "rows": {
+      "type": "integer"
+    },
+    "columns": {
+      "type": "integer"
+    },
+    "nnz": {
+      "type": "integer"
+    },
+    "symmetry_error": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "rank_estimate": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "condition_estimate": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "inertia_positive": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "inertia_negative": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "inertia_zero": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "storage_format": {
+      "type": "string"
+    },
+    "relative_path": {
+      "type": "string"
+    },
+    "sha256": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

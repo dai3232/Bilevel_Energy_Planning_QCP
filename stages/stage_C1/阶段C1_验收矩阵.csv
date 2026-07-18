@@ -1,0 +1,5 @@
+﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
+SC1-CONV-001,收敛,第一次模型收敛,all residuals,<=1e-8,true,iteration_summary.csv,NOT_RUN,
+SC1-MASK-001,掩码,严格小于0.3Pmax时停机,unit/integration,PASS,true,thermal_mask.csv,NOT_RUN,
+SC1-MASK-002,掩码,等于0.3Pmax时开机,boundary test,PASS,true,regression_results.csv,NOT_RUN,
+SC1-MASK-003,掩码,掩码包含日/时/机组/阈值/结果/哈希,schema,PASS,true,thermal_mask.csv,NOT_RUN,

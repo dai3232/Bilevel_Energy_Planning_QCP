@@ -1,0 +1,7 @@
+﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
+SA1-MAT-001,矩阵,完整KKT维度,assert,471,true,matrix_manifest.csv,NOT_RUN,
+SA1-BLK-001,矩阵,小时块维度范围,assert,27-29,true,block_dimensions.csv,NOT_RUN,
+SA1-EQ-001,等价,总体方向相对误差,2-norm,<=1e-10,true,acceptance_results.csv,NOT_RUN,
+SA1-EQ-002,等价,递推方向代回完整KKT相对残差,2-norm,<=1e-10,true,acceptance_results.csv,NOT_RUN,
+SA1-IDX-001,索引,规范方向可逆恢复,unit/integration,PASS,true,indices,NOT_RUN,
+SA1-NUM-001,数值,无inv/pinv/lsqminnorm/正则化,code scan,PASS,true,test log,NOT_RUN,

@@ -1,0 +1,5 @@
+﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
+SC2-IDX-001,索引,停机火电删除并精确恢复0,audit,PASS,true,fixed_zero_map.csv,NOT_RUN,
+SC2-PMIN-001,物理,开机火电满足原始Pmin,max violation,<=1e-8,true,thermal_audit.csv,NOT_RUN,
+SC2-EQ-001,等价,第二次模型方向相对误差,2-norm,<=1e-10,true,acceptance_results.csv,NOT_RUN,
+SC2-FEAS-001,可行性,不可行时正确归因固定掩码,diagnostic,PASS or model infeasible with proof,true,issues,NOT_RUN,

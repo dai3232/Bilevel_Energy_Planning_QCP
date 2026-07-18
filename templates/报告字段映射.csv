@@ -1,0 +1,8 @@
+﻿报告章节,数据来源,必需字段,无数据处理
+文档控制,run_manifest.json,"run_id,stage_id,git_commit,input_hashes",缺失即阻断
+模型范围,阶段启用矩阵,"component_id,active",列出未启用项
+迭代过程,iteration_summary.csv,"iteration,residuals,mu,step",未运行写未运行
+矩阵结构,matrix_manifest.csv+block_dimensions.csv,"dimension,nnz,condition,inertia",不适用写不适用
+优化结果,结果MAT/CSV,"capacity,hourly dispatch,SOC",不得预测
+问题修复,issue_log.csv,"root_cause,fix,regression",无问题写无阻断问题
+验收结论,acceptance_results.csv,"status,actual,threshold,evidence",任一阻断FAIL则阶段失败

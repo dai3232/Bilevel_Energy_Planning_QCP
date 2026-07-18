@@ -1,0 +1,35 @@
+solver_contract_version: "1.0"
+matlab_target: "R2024a"
+initialization:
+  global_capacity: midpoint
+  daily_capacity_copy_equals_global: true
+  active_wind_solar_fraction_of_upper: 0.5
+  hydro_thermal_fraction_of_upper: 0.5
+  charge_discharge_fraction_of_power_capacity: 0.5
+  soc_fraction_of_energy_capacity: 0.5
+  equality_multipliers: 0.0
+  inequality_multiplier: 1.0
+  centering_sigma: 0.1
+  fraction_to_boundary: 0.9995
+convergence:
+  max_iterations: 100
+  primal_equality_inf: 1.0e-8
+  primal_inequality_inf: 1.0e-8
+  dual_inf: 1.0e-8
+  normalized_complementarity_gap: 1.0e-8
+equivalence:
+  direction_relative_2norm: 1.0e-10
+  recursive_direction_full_kkt_relative_residual: 1.0e-10
+linear_algebra:
+  local_factorization: "ldl_vector"
+  global_core_factorization: "ldl_vector"
+  multiple_rhs: true
+  explicit_inverse: false
+  pseudoinverse: false
+  least_norm_fallback: false
+  automatic_regularization: false
+  automatic_symmetrization: false
+logging:
+  float_format: "%.17g"
+  save_checkpoints: true
+  save_full_kkt_audit: true

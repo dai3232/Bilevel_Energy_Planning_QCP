@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "验收结果行",
+  "type": "object",
+  "required": [
+    "test_id",
+    "requirement",
+    "status",
+    "blocking",
+    "evidence_path"
+  ],
+  "properties": {
+    "test_id": {
+      "type": "string"
+    },
+    "requirement": {
+      "type": "string"
+    },
+    "threshold": {},
+    "actual_value": {},
+    "comparison": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "NOT_RUN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    "blocking": {
+      "type": "boolean"
+    },
+    "evidence_path": {
+      "type": "string"
+    },
+    "checked_at": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

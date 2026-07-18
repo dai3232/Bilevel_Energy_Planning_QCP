@@ -1,0 +1,3 @@
+﻿文件名,字节数,SHA256,工作表,审计范围,权限
+基础参数.xlsx,14585,aebb35fa80e6ba2fb8d4534b09a141feaedcb2b9d027e9924e7a0091943c4277,基础参数,A1:P45,只读
+输入数据.xlsx,821811,10baac1dc5d0b07dbbb9d2fe8f9aac82f071e43d4fb9901ff7ba0b467d05c186,Sheet1,A1:AA5492,只读

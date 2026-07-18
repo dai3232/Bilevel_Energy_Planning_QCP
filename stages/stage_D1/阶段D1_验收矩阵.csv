@@ -1,0 +1,5 @@
+﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
+SD1-EQ-001,并行,串行与按日并行完整方向,relative,<=1e-12,true,parallel_equivalence.csv,NOT_RUN,
+SD1-DET-001,确定性,重复运行固定顺序汇总,max diff,<=1e-12,true,repeatability.csv,NOT_RUN,
+SD1-PERF-001,性能,分项计时完整,field check,PASS,true,timing.csv,NOT_RUN,
+SD1-UTIL-001,并行,7个日任务状态和worker记录,row count,7,true,parallel_tasks.csv,NOT_RUN,

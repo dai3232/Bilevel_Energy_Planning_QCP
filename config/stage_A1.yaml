@@ -1,0 +1,7 @@
+stage_id: "stage_A1"
+status: "LOCKED"
+description: "1日3小时单次方向严格等价"
+days: [1]
+hours: [8, 9, 10]
+expected_full_kkt_dimension: 471
+parallel_mode: "off"

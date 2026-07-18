@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "运行清单",
+  "type": "object",
+  "required": [
+    "run_id",
+    "stage_id",
+    "status",
+    "started_at",
+    "model_contract_version",
+    "input_hashes",
+    "git_commit",
+    "effective_config"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "stage_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL_RETRYABLE",
+        "BLOCKED_EXTERNAL",
+        "NEEDS_MODEL_DECISION",
+        "RUNNING"
+      ]
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "ended_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "model_contract_version": {
+      "type": "string"
+    },
+    "input_hashes": {
+      "type": "object"
+    },
+    "git_commit": {
+      "type": "string"
+    },
+    "effective_config": {
+      "type": "string"
+    },
+    "thermal_pass": {
+      "enum": [
+        "none",
+        "pass_1",
+        "pass_2"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

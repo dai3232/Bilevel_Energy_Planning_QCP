@@ -1,0 +1,15 @@
+reporting_contract_version: "1.0"
+language: "zh-CN"
+file_names:
+  stage_model_results: "阶段{stage}_模型与优化结果报告.docx"
+  stage_issue_acceptance: "阶段{stage}_问题修复与验收报告.docx"
+  run_summary: "运行_{run_id}_结果摘要.docx"
+source_of_truth:
+  - "run_manifest.json"
+  - "acceptance/acceptance_results.csv"
+  - "iterations/iteration_summary.csv"
+  - "indices/variable_index.csv"
+  - "matrices/matrix_manifest.csv"
+  - "issues/issue_log.csv"
+prohibit_manual_numeric_fabrication: true
+include_inactive_components: true

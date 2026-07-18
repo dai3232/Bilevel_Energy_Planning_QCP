@@ -1,0 +1,34 @@
+﻿component_id,类型,中文名称,公式摘要,层级,单位,数据来源,启用阶段,状态,decision_id
+OBJ-01,目标,综合投资成本最低,c_q^T q,全局,元,基础参数.xlsx,阶段A-D启用,ACTIVE,
+OBJ-02,目标,综合度电成本最低,各电源电量乘度电成本,年度/小时聚合,元,基础参数.xlsx,阶段E候选,DECISION,DECISION-E-02
+OBJ-03,目标,新能源弃电率最低,可用新能源减实际出力的比值,年度聚合,比例,基础参数.xlsx+输入数据.xlsx,阶段E候选,DECISION,DECISION-E-02
+OBJ-04,目标,新能源电量占比最高,风光电量/计划总电量,年度聚合,比例,基础参数.xlsx+输入数据.xlsx,阶段E候选,DECISION,DECISION-E-02
+OBJ-05,目标,火电碳排放最低,煤耗函数乘排放系数,小时可加/年度聚合,kgCO2,基础参数.xlsx,阶段E候选,DECISION,DECISION-E-02
+OBJ-06,目标,水能利用率最高,给定水量减实际用水量,日/年度聚合,立方米,基础参数.xlsx+输入数据.xlsx,阶段E候选,DECISION,DECISION-E-02
+OBJ-07,目标,火电发电成本最低,煤耗函数乘燃料成本,小时可加,元,基础参数.xlsx,阶段E候选,DECISION,DECISION-E-02
+OBJ-08,目标,综合售电收益最高,销售电价乘计划/售电量,年度聚合,元,基础参数.xlsx,阶段E候选,DECISION,DECISION-E-02
+EQ-01,等式,小时功率平衡,风+光+水+火+放-充-计划=0,小时,MW,输入数据.xlsx,阶段A起,ACTIVE,
+EQ-02,等式,SOC递推,SOC_t-SOC_(t-1)-eta_ch Pch+Pdis/eta_dis=0,小时,MWh,基础参数.xlsx,阶段A起,ACTIVE,
+EQ-03,等式,每日SOC首端,SOC_1-0.5E-eta_ch Pch_1+Pdis_1/eta_dis=0,日,MWh,用户确认,阶段A起,ACTIVE,
+EQ-04,等式,每日SOC末端,SOC_24-0.5E=0,日,MWh,用户确认,阶段A起,ACTIVE,
+EQ-05,等式,储能时长,E-Tdur Q=0,全局,MWh,基础参数.xlsx,阶段A起,ACTIVE,
+EQ-06,等式,日容量绑定,q_d-q=0,日-全局接口,容量单位,阶段A技术依据,阶段A起,ACTIVE,
+INEQ-01,不等式,风电出力界,0<=PW<=kappaW QW,小时,MW,输入数据.xlsx+基础参数.xlsx,阶段A起,ACTIVE,
+INEQ-02,不等式,光伏出力界,0<=PP<=kappaP QP,小时,MW,输入数据.xlsx+基础参数.xlsx,阶段A起,ACTIVE,
+INEQ-03,不等式,水电出力界,0<=PH<=PHmax,小时,MW,基础参数.xlsx,阶段A起,ACTIVE,
+INEQ-04,不等式,水电每日用水界,Wmin<=sum(aP^2+bP+c)<=Wmax,日,立方米,输入数据.xlsx+基础参数.xlsx,阶段B起,ACTIVE_LATER,
+INEQ-05,不等式,第一次火电界,0<=PF<=Pmax,小时,MW,基础参数.xlsx,阶段A/C1,ACTIVE,
+RULE-01,外层规则,火电阈值掩码,PF1<0.3Pmax -> off,小时,布尔掩码,用户确认,阶段C1,ACTIVE_LATER,
+INEQ-06,不等式,第二次火电界,off固定0；on用Pmin到Pmax,小时,MW,基础参数.xlsx,阶段C2起,ACTIVE_LATER,
+INEQ-07,不等式,储能充电界,0<=Pch<=QS,小时,MW,基础参数.xlsx,阶段A起,ACTIVE,
+INEQ-08,不等式,储能放电界,0<=Pdis<=QS,小时,MW,基础参数.xlsx,阶段A起,ACTIVE,
+INEQ-09,不等式,SOC界,0.1E<=SOC<=0.9E,小时,MWh,基础参数.xlsx,阶段A起,ACTIVE,
+INEQ-10,不等式,容量界,qmin<=q<=qmax,全局,MW/MWh,基础参数.xlsx,阶段A起,ACTIVE,
+INEQ-11,不等式,年度弃电率,年度弃电率上下界,年度,比例,基础参数.xlsx,阶段E,DECISION,DECISION-E-03
+INEQ-12,不等式,年度新能源占比,年度新能源占比上下界,年度,比例,基础参数.xlsx,阶段E,DECISION,DECISION-E-03
+INEQ-13,不等式,保供率,单时段/日/年度保供率,小时/日/年度,比例,基础参数.xlsx,阶段E,DECISION,DECISION-E-03
+FUTURE-UC-01,未来约束,最小开机时间,待建模,跨小时,小时,基础参数.xlsx,阶段F,DEFERRED,
+FUTURE-UC-02,未来约束,最小停机时间,待建模,跨小时,小时,基础参数.xlsx,阶段F,DEFERRED,
+FUTURE-UC-03,未来目标,启动成本,待建模,跨小时,元,基础参数.xlsx,阶段F,DEFERRED,
+FUTURE-UC-04,未来目标,停机成本,待建模,跨小时,元,待补,阶段F,DEFERRED,
+FUTURE-UC-05,未来规则,掩码连续时段修复,待建模,跨小时,布尔,用户确认待后续,阶段F,DEFERRED,

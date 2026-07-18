@@ -1,0 +1,2 @@
+﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
+SF-GATE-001,门禁,用户批准UC方案并更新模型合同,decision,CLOSED,true,decision_log.csv,NOT_RUN,

@@ -1,0 +1,6 @@
+﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
+SD2-BLK-001,分块,每天4个连续6小时块,assert,28 tasks,true,parallel_tasks.csv,NOT_RUN,
+SD2-IF-001,接口,每日日内6个内部SOC标量,assert,6,true,block_interface.csv,NOT_RUN,
+SD2-EQ-001,等价,6小时块与小时递推方向,relative,<=1e-10,true,block_equivalence.csv,NOT_RUN,
+SD2-NEST-001,并行,无嵌套parfor,code scan,PASS,true,test log,NOT_RUN,
+SD2-PERF-001,性能,与D1分项比较,benchmark,reported,true,performance.csv,NOT_RUN,

@@ -1,0 +1,6 @@
+﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
+SE-DEC-001,决策,DECISION-E-01/02/03全部关闭,decision log,CLOSED,true,decision_log.csv,NOT_RUN,
+SE-DER-001,导数,年度目标/约束导数检查,relative error,<=1e-7,true,derivative_check.csv,NOT_RUN,
+SE-EQ-001,等价,可审计窗口方向等价,relative,<=1e-10,true,acceptance_results.csv,NOT_RUN,
+SE-PHY-001,物理,年度累计约束,max violation,<=1e-8,true,annual_audit.csv,NOT_RUN,
+SE-RPT-001,报告,最终完整中文模型与结果报告,file check,PASS,true,reports,NOT_RUN,

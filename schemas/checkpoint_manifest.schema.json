@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "检查点清单",
+  "type": "object",
+  "required": [
+    "run_id",
+    "stage_id",
+    "iteration",
+    "model_contract_version",
+    "input_hashes",
+    "index_contract_version",
+    "solver_version",
+    "path",
+    "sha256"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "stage_id": {
+      "type": "string"
+    },
+    "iteration": {
+      "type": "integer"
+    },
+    "thermal_pass": {
+      "type": "string"
+    },
+    "model_contract_version": {
+      "type": "string"
+    },
+    "input_hashes": {
+      "type": "object"
+    },
+    "index_contract_version": {
+      "type": "string"
+    },
+    "solver_version": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "sha256": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

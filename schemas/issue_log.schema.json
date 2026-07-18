@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "问题日志行",
+  "type": "object",
+  "required": [
+    "issue_id",
+    "run_id",
+    "stage_id",
+    "symptom",
+    "status"
+  ],
+  "properties": {
+    "issue_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "stage_id": {
+      "type": "string"
+    },
+    "first_seen_iteration": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "test_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "symptom": {
+      "type": "string"
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "root_cause": {
+      "type": "string"
+    },
+    "proposed_solution": {
+      "type": "string"
+    },
+    "implemented_change": {
+      "type": "string"
+    },
+    "git_commit": {
+      "type": "string"
+    },
+    "regression_test": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "OPEN",
+        "FIXED",
+        "BLOCKED",
+        "WONT_FIX"
+      ]
+    },
+    "evidence_path": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

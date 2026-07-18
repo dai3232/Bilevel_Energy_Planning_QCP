@@ -1,0 +1,7 @@
+﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
+SA2-MAT-001,矩阵,完整KKT维度,assert,2749,true,matrix_manifest.csv,NOT_RUN,
+SA2-ZERO-001,活动集,第14日19时风3固定零,assert,fixed,true,fixed_zero_map.csv,NOT_RUN,
+SA2-ZERO-002,活动集,夜间5个光伏固定零,assert,fixed,true,fixed_zero_map.csv,NOT_RUN,
+SA2-EQ-001,等价,总体方向相对误差,2-norm,<=1e-10,true,acceptance_results.csv,NOT_RUN,
+SA2-EQ-002,等价,代回完整KKT相对残差,2-norm,<=1e-10,true,acceptance_results.csv,NOT_RUN,
+SA2-PHY-001,物理,每日末端SOC等式正确进入最后小时,audit,PASS,true,constraint_index.csv,NOT_RUN,

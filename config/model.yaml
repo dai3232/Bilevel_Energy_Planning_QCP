@@ -1,0 +1,43 @@
+model_contract_version: "1.0"
+model_name: "wind_solar_hydro_thermal_storage_recursive_kkt"
+model_level: "single_layer_annual"
+input_files:
+  base_parameters: "inputs/raw/基础参数.xlsx"
+  timeseries: "inputs/raw/输入数据.xlsx"
+time:
+  full_days: 365
+  hours_per_day: 24
+  step_minutes: 60
+  dt_hours: 1.0
+capacity_order:
+  - QW1
+  - QW2
+  - QW3
+  - QW4
+  - QW5
+  - QP1
+  - QP2
+  - QP3
+  - QP4
+  - QP5
+  - QS1
+  - QS2
+  - ES1
+  - ES2
+storage:
+  daily_initial_soc_fraction: 0.5
+  daily_terminal_soc_fraction: 0.5
+  cross_day_soc_link: false
+  use_separate_charge_discharge_variables: true
+  allow_simultaneous_charge_discharge: true
+  create_net_storage_power_variable: false
+thermal:
+  pass_1_lower_bound_mode: zero
+  shutdown_threshold_fraction_of_pmax: 0.3
+  threshold_equality_is_on: true
+  pass_2_on_lower_bound_mode: original_pmin
+  min_up_down_enabled: false
+  startup_shutdown_cost_enabled: false
+plan_power:
+  input_is_per_unit: true
+  base_mw: 10000.0

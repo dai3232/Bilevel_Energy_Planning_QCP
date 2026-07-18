@@ -1,0 +1,11 @@
+﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
+S0-ENV-001,环境,MATLAB R2024a可启动并报告版本,MATLAB命令,R2024a或用户批准兼容版本,true,environment.csv,NOT_RUN,
+S0-ENV-002,环境,Parallel Computing Toolbox可用,license/test,available,true,environment.csv,NOT_RUN,
+S0-DATA-001,数据,输入文件哈希与清单一致,SHA256,equal,true,input_hashes.csv,NOT_RUN,
+S0-DATA-002,数据,工作表和审计范围正确,reader audit,基础参数 A1:P45; Sheet1 A1:AA5492,true,数据审计.csv,NOT_RUN,
+S0-DATA-003,数据,设备数量正确,assert,4/4/5/5/2,true,数据审计.csv,NOT_RUN,
+S0-DATA-004,数据,时序规模正确,assert,365x24; dt=1h,true,数据审计.csv,NOT_RUN,
+S0-DATA-005,数据,计划曲线按10000MW换算,assert,2070到9860MW范围审计,true,数据审计.csv,NOT_RUN,
+S0-IDX-001,索引,索引框架可生成且无重叠/缺口,unit test,PASS,true,tests,NOT_RUN,
+S0-ART-001,工件,唯一run_id目录不可覆盖,integration test,PASS,true,runs,NOT_RUN,
+S0-RPT-001,报告,可从样例证据生成中文Word,smoke test,PASS,true,reports,NOT_RUN,

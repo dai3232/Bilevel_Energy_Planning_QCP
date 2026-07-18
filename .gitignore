@@ -1,0 +1,21 @@
+# MATLAB / editor
+*.asv
+*.autosave
+*.mex*
+.mlxbackup/
+.vscode/
+.idea/
+
+# Large generated numerical artifacts
+runs/**/checkpoints/*.mat
+runs/**/matrices/**/*.mat
+runs/**/matrices/**/*.mtx
+runs/**/matrices/**/*.npz
+runs/**/raw_console/*.log
+
+# Keep CSV/JSON/Word evidence under runs versionable if desired
+# Do not ignore inputs/raw or references/controlled.
+
+# OS
+.DS_Store
+Thumbs.db
