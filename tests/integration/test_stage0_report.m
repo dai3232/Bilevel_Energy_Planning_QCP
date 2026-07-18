@@ -49,6 +49,10 @@ verifySubstring(testCase, issueDetails.document_text, '无效尝试');
 verifySubstring(testCase, issueDetails.document_text, '最终修复');
 verifySubstring(testCase, issueDetails.document_text, '回归测试');
 verifySubstring(testCase, issueDetails.document_text, '未解决项');
+
+[~, summaryDetails] = validate_docx_package(paths.run_summary);
+verifySubstring(testCase, summaryDetails.document_text, ...
+    '阶段0_单次运行结果摘要');
 end
 
 function testNeverOverwritesExistingReports(testCase)
