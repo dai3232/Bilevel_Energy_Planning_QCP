@@ -1,5 +1,5 @@
 stage_id: "stage_0"
-status: "READY"
+status: "PASS"
 description: "环境、数据、索引、工件、报告基础设施"
 days: []
 hours: []
