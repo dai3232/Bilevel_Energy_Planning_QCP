@@ -10,6 +10,8 @@ function manifest = initialize_run_manifest(runContext, varargin)
     addParameter(parser, 'InputHashes', struct(), @(x) isstruct(x) && isscalar(x));
     addParameter(parser, 'GitCommit', 'NOT_AVAILABLE', ...
         @(x) ischar(x) || (isstring(x) && isscalar(x)));
+    addParameter(parser, 'Metadata', struct(), ...
+        @(x) isstruct(x) && isscalar(x));
     parse(parser, varargin{:});
 
     manifestPath = runContext.run_manifest_path;
@@ -31,6 +33,20 @@ function manifest = initialize_run_manifest(runContext, varargin)
     manifest.git_commit = char(string(parser.Results.GitCommit));
     manifest.effective_config = 'effective_config.yaml';
     manifest.thermal_pass = 'none';
+
+    metadata = parser.Results.Metadata;
+    protected = {'run_id', 'stage_id', 'status', 'started_at', 'ended_at', ...
+        'model_contract_version', 'input_hashes', 'git_commit', ...
+        'effective_config', 'thermal_pass'};
+    metadataNames = fieldnames(metadata);
+    forbidden = intersect(metadataNames, protected, 'stable');
+    if ~isempty(forbidden)
+        error('stage0:artifacts:ReservedManifestMetadata', ...
+            'Manifest metadata cannot replace reserved field: %s', forbidden{1});
+    end
+    for k = 1:numel(metadataNames)
+        manifest.(metadataNames{k}) = metadata.(metadataNames{k});
+    end
 
     write_json_file(manifestPath, manifest);
 end

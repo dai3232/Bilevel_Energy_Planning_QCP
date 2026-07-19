@@ -1,26 +1,15 @@
-function manifest = finalize_run_manifest(runContext, finalStatus, updates)
-%FINALIZE_RUN_MANIFEST Transition a RUNNING manifest to one terminal state.
+function manifest = update_running_run_manifest(runContext, updates)
+%UPDATE_RUNNING_RUN_MANIFEST Persist observed facts before terminalization.
 %
-% manifest = finalize_run_manifest(context, status) accepts only PASS,
-% FAIL_RETRYABLE, BLOCKED_EXTERNAL, or NEEDS_MODEL_DECISION. Optional scalar
-% struct updates are merged before status and ended_at are set. Run identity
-% and lifecycle fields cannot be changed through updates.
+% Only a RUNNING manifest can be updated. Run identity and lifecycle fields
+% remain immutable; use finalize_run_manifest for the one terminal state
+% transition. This supports evidence-driven report generation without
+% declaring PASS before the report package has itself been validated.
 
-    if nargin < 3
-        updates = struct();
-    end
     if ~isstruct(runContext) || ~isscalar(runContext) || ...
-            ~isfield(runContext, 'run_manifest_path')
+            ~isfield(runContext, 'run_manifest_path') || ...
+            ~isfield(runContext, 'run_id') || ~isfield(runContext, 'stage_id')
         error('stage0:artifacts:InvalidRunContext', 'Invalid run context.');
-    end
-    if ~(ischar(finalStatus) || (isstring(finalStatus) && isscalar(finalStatus)))
-        error('stage0:artifacts:InvalidFinalStatus', 'Final status must be text.');
-    end
-    finalStatus = char(string(finalStatus));
-    allowed = {'PASS', 'FAIL_RETRYABLE', 'BLOCKED_EXTERNAL', 'NEEDS_MODEL_DECISION'};
-    if ~ismember(finalStatus, allowed)
-        error('stage0:artifacts:InvalidFinalStatus', ...
-            'Invalid terminal status: %s', finalStatus);
     end
     if ~isstruct(updates) || ~isscalar(updates)
         error('stage0:artifacts:InvalidManifestUpdates', ...
@@ -39,16 +28,12 @@ function manifest = finalize_run_manifest(runContext, finalStatus, updates)
             'Could not decode run manifest %s: %s', manifestPath, exception.message);
     end
     if ~isfield(manifest, 'status') || ~strcmp(manifest.status, 'RUNNING')
-        statusText = '<missing>';
-        if isfield(manifest, 'status')
-            statusText = char(string(manifest.status));
-        end
         error('stage0:artifacts:ManifestAlreadyFinal', ...
-            'Run manifest is not RUNNING (current status: %s).', statusText);
+            'Only a RUNNING run manifest can be updated.');
     end
-    if ~isfield(manifest, 'run_id') || ~isfield(runContext, 'run_id') || ...
+    if ~isfield(manifest, 'run_id') || ...
             ~strcmp(char(string(manifest.run_id)), char(string(runContext.run_id))) || ...
-            ~isfield(manifest, 'stage_id') || ~isfield(runContext, 'stage_id') || ...
+            ~isfield(manifest, 'stage_id') || ...
             ~strcmp(char(string(manifest.stage_id)), char(string(runContext.stage_id)))
         error('stage0:artifacts:ManifestIdentityMismatch', ...
             'Run context identity does not match the persisted run manifest.');
@@ -68,8 +53,5 @@ function manifest = finalize_run_manifest(runContext, finalStatus, updates)
     for k = 1:numel(updateNames)
         manifest.(updateNames{k}) = updates.(updateNames{k});
     end
-
-    manifest.status = finalStatus;
-    manifest.ended_at = current_utc_iso8601();
     write_json_file(manifestPath, manifest);
 end

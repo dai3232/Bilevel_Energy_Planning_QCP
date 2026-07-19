@@ -11,6 +11,7 @@ function context = create_run_context(projectRoot, stageId, varargin)
 %   ModelContractVersion   Version recorded in run_manifest.json (v1.0).
 %   InputHashes            Scalar struct recorded in run_manifest.json.
 %   EffectiveConfigPath    YAML file copied into the run directory.
+%   ManifestMetadata       Additional immutable run identity metadata.
 
 % Auto-generated ids follow YYYYMMDD_HHMMSS_<stage_id>_<git_short_sha>.
 % If that id is already present, a numeric suffix is added. An explicitly
@@ -31,6 +32,8 @@ function context = create_run_context(projectRoot, stageId, varargin)
     addParameter(parser, 'InputHashes', struct(), @(x) isstruct(x) && isscalar(x));
     addParameter(parser, 'EffectiveConfigPath', '', ...
         @(x) ischar(x) || (isstring(x) && isscalar(x)));
+    addParameter(parser, 'ManifestMetadata', struct(), ...
+        @(x) isstruct(x) && isscalar(x));
     parse(parser, varargin{:});
 
     projectRoot = char(java.io.File(projectRoot).getCanonicalPath());
@@ -77,7 +80,8 @@ function context = create_run_context(projectRoot, stageId, varargin)
             'Could not create initialization marker in %s.', runRoot);
     end
     fclose(markerId);
-    cleanupGuard = onCleanup(@() cleanup_incomplete_run(runRoot, initializationMarker));
+    cleanupGuard = onCleanup(@() preserve_incomplete_run( ...
+        runRoot, initializationMarker));
 
     context = build_context(projectRoot, runsRoot, runRoot, runId, stageId);
     subdirectories = {
@@ -85,6 +89,7 @@ function context = create_run_context(projectRoot, stageId, varargin)
         context.indices_dir
         context.matrices_dir
         context.checkpoints_dir
+        context.tests_dir
         context.issues_dir
         context.acceptance_dir
         context.reports_dir
@@ -100,17 +105,23 @@ function context = create_run_context(projectRoot, stageId, varargin)
     initialize_run_manifest(context, ...
         'ModelContractVersion', parser.Results.ModelContractVersion, ...
         'InputHashes', parser.Results.InputHashes, ...
-        'GitCommit', gitInfo.commit);
+        'GitCommit', gitInfo.commit, ...
+        'Metadata', parser.Results.ManifestMetadata);
 
     delete(initializationMarker);
     clear cleanupGuard;
 end
 
-function cleanup_incomplete_run(runRoot, markerPath)
-    % Only a directory marked by this invocation may be removed here.
+function preserve_incomplete_run(runRoot, markerPath)
+    % A failed run initialization is still evidence. Preserve the unique
+    % directory and replace its transient marker when possible; never
+    % delete a failed run directory.
     if isfile(markerPath) && isfolder(runRoot)
+        failureMarker = fullfile(runRoot, '.initialization_failed');
         try
-            rmdir(runRoot, 's');
+            if ~isfile(failureMarker) && ~isfolder(failureMarker)
+                movefile(markerPath, failureMarker);
+            end
         catch
             % Preserve the original initialization exception.
         end
@@ -130,6 +141,7 @@ function context = build_context(projectRoot, runsRoot, runRoot, runId, stageId)
     context.indices_dir = fullfile(runRoot, 'indices');
     context.matrices_dir = fullfile(runRoot, 'matrices');
     context.checkpoints_dir = fullfile(runRoot, 'checkpoints');
+    context.tests_dir = fullfile(runRoot, 'tests');
     context.issues_dir = fullfile(runRoot, 'issues');
     context.acceptance_dir = fullfile(runRoot, 'acceptance');
     context.reports_dir = fullfile(runRoot, 'reports');
@@ -141,6 +153,13 @@ function context = build_context(projectRoot, runsRoot, runRoot, runId, stageId)
     context.git_state_path = fullfile(runRoot, 'git_state.txt');
     context.matrix_manifest_path = fullfile(context.matrices_dir, 'matrix_manifest.csv');
     context.checkpoint_manifest_path = fullfile(context.checkpoints_dir, 'checkpoint_manifest.csv');
+    context.test_inventory_path = fullfile(context.tests_dir, 'test_inventory.csv');
+    context.test_results_csv_path = fullfile(context.tests_dir, 'test_results.csv');
+    context.test_results_xml_path = fullfile(context.tests_dir, 'test_results.xml');
+    context.test_console_log_path = fullfile(context.tests_dir, 'matlab_test_console.log');
+    context.test_command_path = fullfile(context.tests_dir, 'test_command.txt');
+    context.test_summary_path = fullfile(context.tests_dir, 'test_summary.json');
+    context.test_evidence_manifest_path = fullfile(context.tests_dir, 'test_evidence_manifest.csv');
     context.issue_log_path = fullfile(context.issues_dir, 'issue_log.csv');
     context.decision_log_path = fullfile(context.issues_dir, 'decision_log.csv');
     context.acceptance_results_path = fullfile(context.acceptance_dir, 'acceptance_results.csv');
@@ -155,6 +174,7 @@ function context = build_context(projectRoot, runsRoot, runRoot, runId, stageId)
         'indices', context.indices_dir, ...
         'matrices', context.matrices_dir, ...
         'checkpoints', context.checkpoints_dir, ...
+        'tests', context.tests_dir, ...
         'issues', context.issues_dir, ...
         'acceptance', context.acceptance_dir, ...
         'reports', context.reports_dir);
