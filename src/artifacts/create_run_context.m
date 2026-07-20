@@ -100,7 +100,9 @@ function context = create_run_context(projectRoot, stageId, varargin)
 
     write_text_utf8(context.git_state_path, gitInfo.state_text);
     materialize_effective_config(context, parser.Results.EffectiveConfigPath);
-    write_empty_stage0_manifests(context);
+    if strcmp(stageId, 'stage_0')
+        write_empty_stage0_manifests(context);
+    end
 
     initialize_run_manifest(context, ...
         'ModelContractVersion', parser.Results.ModelContractVersion, ...

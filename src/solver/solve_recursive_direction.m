@@ -1,0 +1,66 @@
+function result = solve_recursive_direction(lin, options)
+%SOLVE_RECURSIVE_DIRECTION Compute A1 recursive direction without fallback.
+% This interface intentionally does not accept a complete-KKT direction.
+
+arguments
+    lin (1,1) struct
+    options.AssemblyTolerance (1,1) double {mustBeNonnegative,mustBeFinite} = 1.0e-12
+    options.SymmetryTolerance (1,1) double {mustBeNonnegative,mustBeFinite} = 1.0e-12
+end
+
+layer = "inequality_elimination";
+try
+    reduced = eliminate_inequality_directions(lin);
+    layer = "hour_block_partition";
+    partition = partition_recursive_system(lin,reduced, ...
+        AssemblyTolerance=options.AssemblyTolerance);
+    layer = "block_ldl_thomas";
+    thomas = solve_block_thomas_ldl(partition, ...
+        SymmetryTolerance=options.SymmetryTolerance);
+    layer = "day_response";
+    response = form_day_response(partition,thomas);
+    if response.diagnostics.symmetry_relative > options.SymmetryTolerance
+        message = "Day-response symmetry error %.17g exceeds %.17g; " + ...
+            "no symmetrization was applied.";
+        error("stageA1:solver:DayResponseAsymmetry", ...
+            message, ...
+            response.diagnostics.symmetry_relative,options.SymmetryTolerance);
+    end
+    layer = "global_core_16";
+    core = solve_core16_ldl(partition,response, ...
+        SymmetryTolerance=options.SymmetryTolerance);
+    layer = "strict_reverse_recovery";
+    recovery = recover_recursive_direction(lin,partition,response,core);
+    layer = "full_kkt_reinsertion";
+    fullAssembly = assemble_full_kkt(lin);
+    residual = fullAssembly.matrix*recovery.direction-fullAssembly.rhs;
+catch cause
+    wrapped = MException("stageA1:solver:RecursiveLayerFailure", ...
+        "Recursive direction failed first at layer '%s': %s", layer, cause.message);
+    wrapped = addCause(wrapped,cause);
+    throw(wrapped);
+end
+
+relativeResidual = norm(residual,2)/max(1,norm(fullAssembly.rhs,2));
+[maxAbsoluteResidual,maxResidualRow] = max(abs(residual));
+
+result = struct();
+result.method = "recursive_block_ldl_thomas";
+result.linearization_identity = recovery.linearization_identity;
+result.direction = recovery.direction;
+result.components = recovery.components;
+result.fixed_zero = recovery.fixed_zero;
+result.reduced = reduced;
+result.partition = partition;
+result.thomas = thomas;
+result.day_response = response;
+result.core = core;
+result.recovery = recovery.diagnostics;
+result.full_kkt_reinsertion = struct( ...
+    "relative_residual",relativeResidual, ...
+    "max_absolute_residual",maxAbsoluteResidual, ...
+    "max_residual_row",maxResidualRow, ...
+    "residual",residual, ...
+    "rhs_norm_2",norm(fullAssembly.rhs,2));
+result.no_full_direction_fallback = true;
+end

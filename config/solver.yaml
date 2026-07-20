@@ -27,6 +27,7 @@ linear_algebra:
   explicit_inverse: false
   pseudoinverse: false
   least_norm_fallback: false
+  recursive_fallback_to_full_kkt: false
   automatic_regularization: false
   automatic_symmetrization: false
 logging:

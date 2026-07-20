@@ -11,6 +11,12 @@ terminal_soc_equality_count: 2
 window_purpose: "algorithmic_direction_equivalence_only"
 expected_full_kkt_dimension: 471
 expected_hourly_kkt_block_dimensions: [27, 27, 29]
+expected_global_core_dimension: 16
+direction_relative_tolerance: 1.0e-10
+recursive_full_kkt_residual_tolerance: 1.0e-10
+full_kkt_direct_residual_preferred: 1.0e-12
+full_kkt_direct_residual_maximum: 1.0e-10
+symmetry_relative_tolerance: 1.0e-12
 newton_direction_count: 1
 run_full_ipm: false
 physical_dispatch_interpretation: false
