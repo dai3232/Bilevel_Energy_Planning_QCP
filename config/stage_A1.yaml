@@ -1,5 +1,5 @@
 stage_id: "stage_A1"
-status: "READY"
+status: "PASS"
 description: "第1日第8-10小时3小时人工闭合测试窗：单次Newton方向严格等价（仅算法测试）"
 days: [1]
 hours: [8, 9, 10]
