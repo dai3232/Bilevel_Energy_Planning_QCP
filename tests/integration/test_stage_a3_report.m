@@ -73,6 +73,10 @@ verifyFalse(testCase,contains(details.document_text,"NaN"));
 [~,issueDetails]=validate_docx_package(paths.issue_report);
 verifyTrue(testCase,contains(issueDetails.document_text,"启用：全局q/rho"));
 verifyTrue(testCase,contains(issueDetails.document_text,"未启用：A4、完整IPM"));
+verifyTrue(testCase,contains(issueDetails.document_text, ...
+    "7组；日14—20；S=14x14；c/beta/gamma=14x1"));
+verifyTrue(testCase,contains(issueDetails.document_text, ...
+    "日14—20；S顺序误差=0；gamma顺序误差=0"));
 end
 
 function testRejectsFalsePassAndFinalManifest(testCase)
