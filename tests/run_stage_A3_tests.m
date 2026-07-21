@@ -14,21 +14,25 @@ assert(strlength(commandText)>0,'stageA3:tests:EmptyCommandText', ...
     'CommandText must be nonempty.');
 [suite,inventory]=fixed_stage_a3_suite(repoRoot);
 assert_fixed_inventory(inventory);
+inventoryAudit=validate_stage_a3_test_inventory_contract(inventory,repoRoot);
 if strlength(evidenceDirectory)==0
     runner=create_text_runner(); rawResults=runner.run(suite);
     resultTable=result_table_from_results(rawResults);
     assert_result_identity(resultTable,inventory);
     summary=make_summary(resultTable,sum(resultTable.duration_seconds), ...
-        "COMPLETE","",""); paths=empty_paths();
+        "COMPLETE","","");
+    summary=attach_inventory_audit(summary,inventoryAudit); paths=empty_paths();
     disp(table(rawResults));
 else
     [resultTable,summary,paths]=run_with_evidence(suite,inventory, ...
-        char(evidenceDirectory),char(commandText));
+        inventoryAudit,char(evidenceDirectory),char(commandText));
 end
 allPass=height(resultTable)==height(inventory)&&all(resultTable.passed)&& ...
-    ~any(resultTable.failed)&&~any(resultTable.incomplete);
+    ~any(resultTable.failed)&&~any(resultTable.incomplete)&& ...
+    inventoryAudit.matches_expected;
 evidence=struct('inventory',inventory,'results',resultTable, ...
-    'summary',summary,'paths',paths,'all_pass',allPass);
+    'summary',summary,'paths',paths,'inventory_audit',inventoryAudit, ...
+    'all_pass',allPass);
 if ~allPass
     error('stageA3:tests:Failed', ...
         'One or more fixed Stage A3 tests failed or were incomplete.');
@@ -40,7 +44,10 @@ relativeFiles=[ ...
     "tests/unit/test_stage_a3_index.m"
     "tests/unit/test_stage_a3_linearization.m"
     "tests/unit/test_stage_a3_solver_components.m"
+    "tests/unit/test_stage_a3_historical_preflight.m"
+    "tests/unit/test_stage_a3_test_inventory_contract.m"
     "tests/equivalence/test_stage_a3_direction_equivalence.m"
+    "tests/equivalence/test_stage_a3_nonzero_binding_residual.m"
     "tests/integration/test_stage_a3_artifacts.m"
     "tests/integration/test_stage_a3_report.m"];
 sourceFiles=strings(0,1);
@@ -78,14 +85,16 @@ runner=matlab.unittest.TestRunner.withTextOutput('OutputDetail', ...
 end
 
 function [resultTable,summary,paths]=run_with_evidence( ...
-        suite,inventory,evidenceDirectory,commandText)
+        suite,inventory,inventoryAudit,evidenceDirectory,commandText)
 paths=evidence_paths(evidenceDirectory);
 prepare_evidence_directory(evidenceDirectory,paths);
 write_table_csv_17g(paths.inventory,inventory);
 write_utf8_text(paths.command,[commandText,newline]);
 initial=incomplete_result_table(inventory,"Test execution has not completed.");
 write_table_csv_17g(paths.results_csv,initial);
-write_json_file(paths.summary,make_summary(initial,0,"RUNNING","",""));
+initialSummary=make_summary(initial,0,"RUNNING","","");
+write_json_file(paths.summary,attach_inventory_audit( ...
+    initialSummary,inventoryAudit));
 write_utf8_text(paths.console_log,sprintf( ...
     'Stage A3 test console evidence initialized at %s.\n',char(now_text())));
 rawResults=matlab.unittest.TestResult.empty; timer=tic;
@@ -102,6 +111,7 @@ try
     resultTable=result_table_from_results(rawResults);
     assert_result_identity(resultTable,inventory);
     summary=make_summary(resultTable,wall,"COMPLETE","","");
+    summary=attach_inventory_audit(summary,inventoryAudit);
     write_table_csv_17g(paths.results_csv,resultTable);
     write_json_file(paths.summary,summary);
     assert(is_complete_junit(paths.results_xml,height(inventory)), ...
@@ -115,7 +125,8 @@ catch exception
     wall=toc(timer);
     fprintf(2,'Stage A3 test/evidence failure:\n%s\n', ...
         getReport(exception,'extended','hyperlinks','off'));
-    persist_exception_evidence(paths,inventory,rawResults,wall,exception);
+    persist_exception_evidence(paths,inventory,inventoryAudit, ...
+        rawResults,wall,exception);
     clear diaryGuard;
     rethrow(exception);
 end
@@ -188,7 +199,7 @@ summary=struct('execution_status',char(status),'test_total',height(result), ...
     'wall_clock_seconds',double(wall),'error_identifier',char(errorId), ...
     'error_message',char(errorMessage));
 end
-function persist_exception_evidence(paths,inventory,raw,wall,exception)
+function persist_exception_evidence(paths,inventory,inventoryAudit,raw,wall,exception)
 if isempty(raw)
     result=incomplete_result_table(inventory, ...
         "Infrastructure exception: "+string(exception.message));
@@ -201,6 +212,7 @@ else
     end
 end
 summary=make_summary(result,wall,"ERROR",exception.identifier,exception.message);
+summary=attach_inventory_audit(summary,inventoryAudit);
 try
     write_table_csv_17g(paths.results_csv,result);
     write_json_file(paths.summary,summary);
@@ -222,6 +234,16 @@ catch persistenceException
     fprintf(2,'Could not create A3 fallback JUnit: %s\n', ...
         persistenceException.message);
 end
+end
+function summary=attach_inventory_audit(summary,audit)
+summary.expected_inventory_match=logical(audit.matches_expected);
+summary.expected_inventory_count=double(audit.expected_count);
+summary.expected_inventory_relative_path= ...
+    char(audit.expected_inventory_relative_path);
+summary.expected_inventory_sha256=char(audit.expected_inventory_sha256);
+summary.test_names_unique=logical(audit.test_names_unique);
+summary.inventory_missing_count=double(audit.missing_count);
+summary.inventory_unexpected_count=double(audit.unexpected_count);
 end
 function complete=is_complete_junit(pathValue,count)
 complete=false; if ~isfile(pathValue), return; end

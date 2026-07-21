@@ -37,6 +37,7 @@ required=[string(p.linearization_mat);string(p.full_kkt_mat); ...
     string(p.matrix_manifest);string(p.block_dimensions); ...
     string(p.daily_chain_dimensions);string(p.daily_response_summary); ...
     string(p.daily_aggregation_audit);string(p.fixed_zero_map); ...
+    string(p.permutation_map);string(p.canonical_index_map); ...
     string(p.fixed_zero_recovery_audit);string(p.soc_boundary_audit); ...
     string(p.direction_comparison);string(p.residual_summary); ...
     string(p.code_scan);string(p.linearization_identity); ...
@@ -59,6 +60,55 @@ verifyEqual(testCase,size(aggregate.aggregation.S_sum),[14 14]);
 verifyEqual(testCase,size(aggregate.core.matrix),[16 16]);
 verifyFalse(testCase,isfile(fullfile(testCase.TestData.context.matrices_dir, ...
     "full_kkt_triplets.csv")));
+end
+
+function testRecursivePermutationEvidenceIsPersisted(testCase)
+p = testCase.TestData.exported.paths;
+permutation = readtable(p.permutation_map,"TextType","string");
+canonical = readtable(p.canonical_index_map,"TextType","string");
+daily = load(p.daily_recursive_mat);
+directions = load(p.directions_mat);
+n = 4340;
+identityOrder = (1:n).';
+
+verifyEqual(testCase,height(permutation),n);
+verifyEqual(testCase,sort(permutation.recursive_solver_index),identityOrder);
+verifyEqual(testCase,sort(permutation.canonical_reduced_index),identityOrder);
+verifyTrue(testCase,any(lower(string( ...
+    permutation.is_identity_position))=="false"));
+verifyEqual(testCase, ...
+    permutation.inverse_canonical_to_recursive( ...
+        permutation.forward_recursive_to_canonical),identityOrder);
+verifyEqual(testCase, ...
+    permutation.forward_recursive_to_canonical( ...
+        permutation.inverse_canonical_to_recursive),identityOrder);
+verifyEqual(testCase,height(canonical),height(testCase.TestData.index.permutation_map));
+verifyEqual(testCase,height(canonical),11588);
+
+verifyTrue(testCase,isfield(daily,"partition"));
+verifyTrue(testCase,isfield(daily.partition,"permutation"));
+verifyTrue(testCase,isfield(daily.partition,"assembly_audit"));
+verifyEqual(testCase,daily.partition.permutation.dimension,n);
+verifyTrue(testCase,daily.partition.permutation.is_nonidentity);
+verifyTrue(testCase,daily.partition.permutation.is_bijection);
+verifyEqual(testCase,height(daily.partition.permutation.map),n);
+verifyEqual(testCase,height(daily.partition.permutation.assembly_map),8);
+verifyEqual(testCase, ...
+    daily.partition.assembly_audit.canonical_matrix_difference_nnz,0);
+verifyEqual(testCase, ...
+    daily.partition.assembly_audit.canonical_rhs_difference_nnz,0);
+
+forward = daily.partition.permutation.forward_recursive_to_canonical;
+inverse = daily.partition.permutation.inverse_canonical_to_recursive;
+canonicalReduced = [directions.recursive_components.xi; ...
+    directions.recursive_components.y];
+restored = canonicalReduced(forward);
+restored = restored(inverse);
+verifyEqual(testCase,restored,canonicalReduced);
+directReduced = [directions.full_components.xi;directions.full_components.y];
+relativeError = norm(restored-directReduced,2)/max(1,norm(directReduced,2));
+verifyLessThanOrEqual(testCase,relativeError, ...
+    testCase.TestData.config.tolerances.direction_relative_2norm);
 end
 
 function testSevenResponsesAggregationAndBlocks(testCase)

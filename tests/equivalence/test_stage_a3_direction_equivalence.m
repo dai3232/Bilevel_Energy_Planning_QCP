@@ -80,6 +80,27 @@ verifyFalse(testCase,recursive.full_direction_consumed);
 verifyTrue(testCase,testCase.TestData.audit.passed.no_full_direction_fallback);
 end
 
+function testPermutationRecoveryMatchesDirectCanonicalDirection(testCase)
+direct = testCase.TestData.direct;
+recursive = testCase.TestData.recursive;
+permutation = recursive.partition.permutation;
+forward = permutation.forward_recursive_to_canonical;
+inverse = permutation.inverse_canonical_to_recursive;
+canonicalRecursiveReduced = [recursive.components.xi;recursive.components.y];
+recursiveSolverOrder = canonicalRecursiveReduced(forward);
+restoredCanonicalReduced = recursiveSolverOrder(inverse);
+canonicalDirectReduced = [direct.components.xi;direct.components.y];
+tolerance = testCase.TestData.config.tolerances.direction_relative_2norm;
+
+verifyEqual(testCase,restoredCanonicalReduced,canonicalRecursiveReduced);
+relativeError = norm(restoredCanonicalReduced-canonicalDirectReduced,2)/ ...
+    max(1,norm(canonicalDirectReduced,2));
+verifyLessThanOrEqual(testCase,relativeError,tolerance);
+verifyLessThanOrEqual(testCase, ...
+    testCase.TestData.audit.direction_relative_error,tolerance);
+verifyEqual(testCase,numel(recursive.direction),18836);
+end
+
 function testFixedZeroValuesAndDirectionsRecoverExactly(testCase)
 recursive = testCase.TestData.recursive;
 physical = testCase.TestData.physical;

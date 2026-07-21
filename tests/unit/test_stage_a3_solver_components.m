@@ -40,6 +40,75 @@ verifyTrue(testCase, ...
     recursive.partition.assembly_audit.no_cross_day_soc_coupling);
 end
 
+function testRecursivePermutationIsAuditableNonidentityBijection(testCase)
+recursive = testCase.TestData.recursive;
+permutation = recursive.partition.permutation;
+map = permutation.map;
+n = size(recursive.reduced.saddle,1);
+identityOrder = (1:n).';
+requiredColumns = ["run_id","recursive_solver_index", ...
+    "canonical_reduced_index","forward_recursive_to_canonical", ...
+    "inverse_source_canonical_index","inverse_canonical_to_recursive", ...
+    "inverse_for_mapped_canonical", ...
+    "space_name", ...
+    "canonical_local_index","semantic_role","object_scope", ...
+    "object_key","object_local_index","day","hour", ...
+    "asset_type","asset_id","canonical_object_id", ...
+    "is_identity_position"];
+
+verifyEqual(testCase,n,4340);
+verifyEqual(testCase,height(map),4340);
+verifyTrue(testCase,all(ismember(requiredColumns, ...
+    string(map.Properties.VariableNames))));
+verifyEqual(testCase,map.recursive_solver_index,identityOrder);
+verifyEqual(testCase,sort(map.canonical_reduced_index),identityOrder);
+verifyEqual(testCase,sort(permutation.forward_recursive_to_canonical), ...
+    identityOrder);
+verifyEqual(testCase,sort(permutation.inverse_canonical_to_recursive), ...
+    identityOrder);
+verifyTrue(testCase,permutation.is_bijection);
+verifyTrue(testCase,permutation.is_nonidentity);
+verifyTrue(testCase,any(~map.is_identity_position));
+verifyEqual(testCase,nnz(map.object_scope=="annual_core"),16);
+verifyEqual(testCase,unique(map.day(map.object_scope=="daily_chain")), ...
+    (14:20).');
+verifyEqual(testCase,height(permutation.assembly_map),8);
+verifyEqual(testCase,permutation.assembly_map.dimension, ...
+    [16;617;618;617;618;618;618;618]);
+
+forward = permutation.forward_recursive_to_canonical;
+inverse = permutation.inverse_canonical_to_recursive;
+verifyEqual(testCase,inverse(forward),identityOrder);
+verifyEqual(testCase,forward(inverse),identityOrder);
+verifyTrue(testCase,permutation.forward_inverse_composition_exact);
+verifyTrue(testCase,permutation.inverse_forward_composition_exact);
+end
+
+function testRecursivePermutationReconstructsCanonicalReducedSystem(testCase)
+recursive = testCase.TestData.recursive;
+permutation = recursive.partition.permutation;
+assembly = recursive.partition.assembly_audit;
+forward = permutation.forward_recursive_to_canonical;
+inverse = permutation.inverse_canonical_to_recursive;
+
+verifyEqual(testCase,recursive.reduced.saddle(forward,forward), ...
+    assembly.expected_recursive_matrix);
+verifyEqual(testCase,recursive.reduced.rhs(forward),assembly.expected_rhs);
+verifyEqual(testCase, ...
+    assembly.expected_recursive_matrix(inverse,inverse), ...
+    recursive.reduced.saddle);
+verifyEqual(testCase,assembly.expected_rhs(inverse),recursive.reduced.rhs);
+verifyEqual(testCase,assembly.reconstructed_canonical_matrix, ...
+    recursive.reduced.saddle);
+verifyEqual(testCase,assembly.reconstructed_canonical_rhs, ...
+    recursive.reduced.rhs);
+verifyEqual(testCase,assembly.canonical_matrix_difference_nnz,0);
+verifyEqual(testCase,assembly.canonical_rhs_difference_nnz,0);
+verifyEqual(testCase,assembly.canonical_matrix_relative_error,0);
+verifyEqual(testCase,assembly.canonical_rhs_relative_error,0);
+verifyTrue(testCase,assembly.passed);
+end
+
 function testDailyChainsRetainNaturalDimensions(testCase)
 recursive = testCase.TestData.recursive;
 expected = testCase.TestData.config.expected_daily_hourly_chain_dimensions;
