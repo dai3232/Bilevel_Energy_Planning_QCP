@@ -60,6 +60,12 @@ for k=1:numel(names)
     verifyTrue(testCase,valid,strjoin(details.errors,"; "));
     verifyTrue(testCase,contains(details.document_text,"A3"));
     verifyTrue(testCase,contains(details.document_text,"A3_REPORT_RUN"));
+    tableRows=regexp(char(details.document_xml), ...
+        '(?s)<w:tr>.*?</w:tr>','match');
+    verifyNotEmpty(testCase,tableRows);
+    verifyTrue(testCase,all(cellfun(@(row)contains(row, ...
+        '<w:cantSplit/>'),tableRows)), ...
+        'Every A3 report table row must remain intact across page breaks.');
 end
 [~,details]=validate_docx_package(paths.model_report);
 verifyTrue(testCase,contains(details.document_text,"18836"));
