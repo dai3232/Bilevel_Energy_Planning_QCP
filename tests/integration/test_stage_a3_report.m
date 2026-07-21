@@ -65,6 +65,11 @@ verifyTrue(testCase,contains(details.document_text,"4340"));
 verifyTrue(testCase,contains(details.document_text,"422"));
 verifyTrue(testCase,contains(details.document_text,"14—20"));
 verifyTrue(testCase,contains(details.document_text,"输入数据.xlsx"));
+verifyTrue(testCase,contains(details.document_text, ...
+    "count=7; day_ids=[14 15 16 17 18 19 20]; S=14x14; c,beta,gamma=14x1"));
+verifyTrue(testCase,contains(details.document_text, ...
+    "sorted_days=[14 15 16 17 18 19 20]; S_relative_error=0; gamma_relative_error=0"));
+verifyFalse(testCase,contains(details.document_text,"NaN"));
 end
 
 function testRejectsFalsePassAndFinalManifest(testCase)

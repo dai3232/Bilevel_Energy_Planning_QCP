@@ -379,6 +379,11 @@ try
     options=detectImportOptions(pathValue,'Encoding','UTF-8','Delimiter',',', ...
         'VariableNamingRule','preserve');
     options.VariableNamesLine=1; options.DataLines=[2 Inf];
+    % Evidence columns such as acceptance.actual_value deliberately mix
+    % dimensions, audit prose, and numeric residuals. Preserve the persisted
+    % CSV text first; consumers below perform explicit numeric conversion only
+    % for fields whose contracts are numeric.
+    options=setvartype(options,options.VariableNames,'string');
     value=readtable(pathValue,options);
 catch exception
     error('stageA3:report:InvalidCsv','%s: %s',pathValue,exception.message);
