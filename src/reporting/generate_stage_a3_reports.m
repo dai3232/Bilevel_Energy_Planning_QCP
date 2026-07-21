@@ -250,8 +250,7 @@ blocks(end+1)=selected_table_block(facts.codeScan, ...
     ["check_id","actual","status","evidence"],[3200 1200 1400 3560]);
 blocks(end+1)=heading_block('五、结论与未解决项',1);
 blocks(end+1)=paragraph_block( ...
-    '当前真实工件没有记录未解决阻断项。本结论只适用于第14—20日、串行、单次Newton方向算法验收；A4尚未执行。');
-blocks(end+1)=paragraph_block(scope_text(facts));
+    '当前真实工件没有未解决阻断项；本结论仅适用于第14—20日串行单次Newton方向。启用：全局q/rho、投资目标与容量界、每日q_d绑定、24小时块及SOC闭合；未启用：A4、完整IPM、优化、并行、日用水及第二次火电。');
 end
 
 function blocks=build_summary_blocks(facts)

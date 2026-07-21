@@ -70,6 +70,9 @@ verifyTrue(testCase,contains(details.document_text, ...
 verifyTrue(testCase,contains(details.document_text, ...
     "sorted_days=[14 15 16 17 18 19 20]; S_relative_error=0; gamma_relative_error=0"));
 verifyFalse(testCase,contains(details.document_text,"NaN"));
+[~,issueDetails]=validate_docx_package(paths.issue_report);
+verifyTrue(testCase,contains(issueDetails.document_text,"启用：全局q/rho"));
+verifyTrue(testCase,contains(issueDetails.document_text,"未启用：A4、完整IPM"));
 end
 
 function testRejectsFalsePassAndFinalManifest(testCase)
