@@ -29,6 +29,9 @@ verifyEqual(testCase,config.hours,1:24);
 verifyEqual(testCase,config.expected_full_kkt_dimension,18836);
 verifyTrue(testCase,config.full_ipm_allowed);
 verifyEqual(testCase,config.a4_1_iteration_count,1);
+verifyEqual(testCase,config.a4_2a_iteration_count,5);
+verifyEqual(testCase,config.a4_2a_run_purpose, ...
+    "five_iteration_primal_dual_convergence_diagnostic");
 verifyFalse(testCase,config.formal_a4_run);
 verifyFalse(testCase,config.optimization_executed);
 verifyEqual(testCase,config.objective_mode,"investment_cost_only");
@@ -70,6 +73,8 @@ verifyGreaterThan(testCase,min(state.l),0);
 verifyGreaterThan(testCase,min(state.z),0);
 verifyEqual(testCase,state.iteration_index,0);
 verifyEqual(testCase,state.state_revision,0);
+verifyEqual(testCase,state.newton_direction_number,0);
+verifyEqual(testCase,state.completed_newton_direction_count,0);
 verifyEqual(testCase,state.fixed_zero_values,zeros(422,1),"AbsTol",0);
 verifyEqual(testCase,state.fixed_zero_directions,zeros(422,1),"AbsTol",0);
 end

@@ -9,6 +9,7 @@ terminal_hour: 24
 soc_boundary_mode: "formal_daily_fixed_half_energy"
 terminal_soc_equality_count_per_day: 2
 run_purpose: "a4_1_single_primal_dual_iteration_closed_loop"
+a4_2a_run_purpose: "five_iteration_primal_dual_convergence_diagnostic"
 aggregation_day_order: [14, 15, 16, 17, 18, 19, 20]
 expected_full_kkt_dimension: 18836
 expected_day_count: 7
@@ -26,6 +27,7 @@ symmetry_relative_tolerance: 1.0e-12
 newton_direction_count: 1
 full_ipm_allowed: true
 a4_1_iteration_count: 1
+a4_2a_iteration_count: 5
 formal_a4_run: false
 optimization_executed: false
 objective_mode: "investment_cost_only"
