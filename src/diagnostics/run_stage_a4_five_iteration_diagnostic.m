@@ -1,4 +1,4 @@
-function result = run_stage_a4_five_iteration_diagnostic(data,index,config)
+function result = run_stage_a4_five_iteration_diagnostic(data,index,config,options)
 %RUN_STAGE_A4_FIVE_ITERATION_DIAGNOSTIC Run exactly five diagnostic updates.
 %
 % This is the A4-2A convergence diagnostic, not the complete A4 IPM.  Each
@@ -11,6 +11,7 @@ arguments
     data (1,1) struct
     index (1,1) struct
     config (1,1) struct
+    options.ComplementarityAudit (1,1) logical = false
 end
 
 iterationCount = 5;
@@ -69,6 +70,29 @@ for iteration = 1:iterationCount
     end
     summary = compact_iteration_summary(step,iteration, ...
         inputStateExact,previousStateChainExact);
+    if options.ComplementarityAudit
+        stateBeforeSnapshot = step.state_before;
+        stateAfterSnapshot = step.state_after;
+        complementarityAudit = ...
+            audit_stage_a4_complementarity_change(iteration, ...
+                step.linearization_before,step.linearization_after, ...
+                step.recursive.components,step.primal_step.alpha, ...
+                step.dual_step.alpha);
+        complementarityAudit.official_state_unchanged = ...
+            canonical_state_equal(step.state_before,stateBeforeSnapshot) && ...
+            canonical_state_equal(step.state_after,stateAfterSnapshot);
+        assert(complementarityAudit.all_pass && ...
+            complementarityAudit.official_state_unchanged, ...
+            "stageA4:fiveIteration:ComplementarityAudit", ...
+            "Round %d complementarity audit failed or changed official state.", ...
+            iteration);
+        if iteration==1
+            complementarityAudits = complementarityAudit;
+        else
+            complementarityAudits(iteration,1) = ...
+                complementarityAudit; %#ok<AGROW>
+        end
+    end
     if iteration==1
         iterations = summary;
     else
@@ -133,6 +157,9 @@ result.execution = struct( ...
     "parallel_executed",false, ...
     "formal_a4_run_created",false, ...
     "stage_b_entered",false);
+if options.ComplementarityAudit
+    result.complementarity_audits = complementarityAudits;
+end
 end
 
 function summary = compact_iteration_summary(step,iteration, ...

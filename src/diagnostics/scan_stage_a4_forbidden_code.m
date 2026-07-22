@@ -1,8 +1,8 @@
 function audit = scan_stage_a4_forbidden_code(projectRoot,config)
 %SCAN_STAGE_A4_FORBIDDEN_CODE Audit executable code on the A4 diagnostic paths.
 %
-% The scan follows the production dependency closures rooted at both the
-% A4-1 and A4-2A entry points.  Tests, reports, historical runs, and unrelated stage-0
+% The scan follows the production dependency closures rooted at the
+% A4-1, A4-2A, and A4-2B entry points. Tests, reports, historical runs, and unrelated stage-0
 % environment probes are therefore outside the scan and cannot create
 % false parallel-call findings.  Call-shaped patterns are evaluated after
 % comments and quoted literals have been removed.
@@ -14,7 +14,10 @@ end
 
 entryPaths = [ ...
     fullfile(projectRoot,"main_stage_A4_1.m")
-    fullfile(projectRoot,"main_stage_A4_2A.m")];
+    fullfile(projectRoot,"main_stage_A4_2A.m")
+    fullfile(projectRoot,"main_stage_A4_2B.m")];
+complementarityAuditPath = fullfile(projectRoot,"src","diagnostics", ...
+    "audit_stage_a4_complementarity_change.m");
 recursivePath = fullfile(projectRoot,"src","solver", ...
     "solve_stage_a_multiday_recursive_direction.m");
 directPath = fullfile(projectRoot,"src","solver", ...
@@ -27,6 +30,9 @@ mandatoryPaths = [ ...
         "execute_stage_a4_iteration.m")
     fullfile(projectRoot,"src","diagnostics", ...
         "run_stage_a4_five_iteration_diagnostic.m")
+    fullfile(projectRoot,"src","diagnostics", ...
+        "run_stage_a4_complementarity_gap_diagnostic.m")
+    complementarityAuditPath
     fullfile(projectRoot,"src","indexing","build_stage_a4_index.m")
     fullfile(projectRoot,"src","indexing", ...
         "build_stage_a_multiday_index.m")
@@ -109,9 +115,13 @@ rules = [ ...
     make_rule("NO-LARGE-FULL-CONVERSION", ...
         "No full conversion of a complete KKT or reduced day chain", ...
         "(?<![A-Za-z0-9_])full\s*\(\s*(?:fullAssembly|assembly|" + ...
-        "kkt|partition|reduced)\s*\.\s*(?:matrix|M|day)\b")];
+        "kkt|partition|reduced)\s*\.\s*(?:matrix|M|day)\b")
+    make_rule("NO-PREDICTOR-CORRECTOR", ...
+        "No Mehrotra or predictor-corrector helper call", ...
+        "(?<![A-Za-z0-9_])(?:mehrotra|predictor_?corrector|" + ...
+        "predictorcorrector)\s*\(")];
 
-rowCount = numel(rules)+4;
+rowCount = numel(rules)+5;
 checkId = strings(rowCount,1);
 requirement = strings(rowCount,1);
 matchCount = zeros(rowCount,1);
@@ -143,6 +153,33 @@ for ruleIndex = 1:numel(rules)
         status(row) = "FAIL";
     end
 end
+
+row = row+1;
+checkId(row) = "NO-A42B-ADDITIONAL-DENSE-CONDITION-NUMBER";
+requirement(row) = ...
+    "A4-2B adds no dense condition-number or full-matrix diagnostic";
+a42bDiagnosticPaths = [entryPaths(3);complementarityAuditPath; ...
+    fullfile(projectRoot,"src","diagnostics", ...
+        "run_stage_a4_complementarity_gap_diagnostic.m"); ...
+    fullfile(projectRoot,"src","diagnostics", ...
+        "run_stage_a4_five_iteration_diagnostic.m")];
+denseHits = strings(0,1);
+for fileIndex = 1:numel(a42bDiagnosticPaths)
+    targetCode = strip_matlab_noncode(fileread(a42bDiagnosticPaths(fileIndex)));
+    found = regexpi(char(targetCode), ...
+        '(?<![A-Za-z0-9_])(?:cond|full)\s*\(','match');
+    matchCount(row) = matchCount(row)+numel(found);
+    if ~isempty(found)
+        denseHits(end+1,1) = relative_path( ...
+            a42bDiagnosticPaths(fileIndex),projectRoot); %#ok<AGROW>
+    end
+end
+matchedFiles(row) = strjoin(unique(denseHits,'stable'),"; ");
+if matchCount(row)>0
+    status(row) = "FAIL";
+end
+details(row) = "targeted A4-2B diagnostic-source scan for cond/full calls";
+filesScanned(row) = numel(a42bDiagnosticPaths);
 
 row = row+1;
 checkId(row) = "NO-RECURSIVE-FULL-DIRECTION-FALLBACK";

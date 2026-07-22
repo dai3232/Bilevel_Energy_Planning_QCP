@@ -32,6 +32,9 @@ verifyEqual(testCase,config.a4_1_iteration_count,1);
 verifyEqual(testCase,config.a4_2a_iteration_count,5);
 verifyEqual(testCase,config.a4_2a_run_purpose, ...
     "five_iteration_primal_dual_convergence_diagnostic");
+verifyEqual(testCase,config.a4_2b_iteration_count,5);
+verifyEqual(testCase,config.a4_2b_run_purpose, ...
+    "five_iteration_complementarity_gap_cause_audit");
 verifyFalse(testCase,config.formal_a4_run);
 verifyFalse(testCase,config.optimization_executed);
 verifyEqual(testCase,config.objective_mode,"investment_cost_only");
