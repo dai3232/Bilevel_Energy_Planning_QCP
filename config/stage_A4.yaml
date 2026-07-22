@@ -1,7 +1,41 @@
 stage_id: "stage_A4"
 status: "READY"
-description: "7日完整内点迭代"
+description: "第14至20日七日模型完整IPM阶段；A4-1仅验证一次原始-对偶闭环"
 days: [14, 15, 16, 17, 18, 19, 20]
 hours: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+time_scope_type: "formal_7_day_scope"
+start_hour: 1
+terminal_hour: 24
+soc_boundary_mode: "formal_daily_fixed_half_energy"
+terminal_soc_equality_count_per_day: 2
+run_purpose: "a4_1_single_primal_dual_iteration_closed_loop"
+aggregation_day_order: [14, 15, 16, 17, 18, 19, 20]
 expected_full_kkt_dimension: 18836
+expected_day_count: 7
+expected_day_response_dimension: 14
+expected_day_rhs_dimension: 14
+expected_global_core_dimension: 16
+expected_daily_hourly_chain_dimensions: [589, 590, 589, 590, 590, 590, 590]
+expected_total_hourly_chain_dimension: 4128
+expected_fixed_zero_count: 422
+direction_relative_tolerance: 1.0e-10
+recursive_full_kkt_residual_tolerance: 1.0e-10
+full_kkt_direct_residual_preferred: 1.0e-12
+full_kkt_direct_residual_maximum: 1.0e-10
+symmetry_relative_tolerance: 1.0e-12
+newton_direction_count: 1
+full_ipm_allowed: true
+a4_1_iteration_count: 1
+formal_a4_run: false
+optimization_executed: false
+objective_mode: "investment_cost_only"
+thermal_pass: "first"
+thermal_lower_bound_mode: "zero"
+water_constraints_enabled: false
+thermal_second_pass_enabled: false
+annual_multiobjective_enabled: false
+physical_dispatch_interpretation: false
+capacity_planning_interpretation: false
+economic_interpretation: false
 parallel_mode: "off"
+day_response_side_effects: "none"
