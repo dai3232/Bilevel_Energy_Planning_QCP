@@ -2,10 +2,11 @@ function audit = scan_stage_a4_forbidden_code(projectRoot,config)
 %SCAN_STAGE_A4_FORBIDDEN_CODE Audit executable code on the A4 diagnostic paths.
 %
 % The scan follows the production dependency closures rooted at the
-% A4-1, A4-2A, A4-2B, and A4-2C entry points. Tests, reports, historical runs, and unrelated stage-0
-% environment probes are therefore outside the scan and cannot create
-% false parallel-call findings.  Call-shaped patterns are evaluated after
-% comments and quoted literals have been removed.
+% A4-1, A4-2A, A4-2B, A4-2C, and A4-2D-1 entry points. Tests, reports,
+% historical runs, and unrelated stage-0 environment probes are therefore
+% outside the scan and cannot create false parallel-call findings.
+% Call-shaped patterns are evaluated after comments and quoted literals
+% have been removed.
 
 arguments
     projectRoot (1,1) string
@@ -16,9 +17,12 @@ entryPaths = [ ...
     fullfile(projectRoot,"main_stage_A4_1.m")
     fullfile(projectRoot,"main_stage_A4_2A.m")
     fullfile(projectRoot,"main_stage_A4_2B.m")
-    fullfile(projectRoot,"main_stage_A4_2C.m")];
+    fullfile(projectRoot,"main_stage_A4_2C.m")
+    fullfile(projectRoot,"main_stage_A4_2D_1.m")];
 complementarityAuditPath = fullfile(projectRoot,"src","diagnostics", ...
     "audit_stage_a4_complementarity_change.m");
+a42dAuditPath = fullfile(projectRoot,"src","diagnostics", ...
+    "run_stage_a4_small_step_root_cause_audit.m");
 recursivePath = fullfile(projectRoot,"src","solver", ...
     "solve_stage_a_multiday_recursive_direction.m");
 directPath = fullfile(projectRoot,"src","solver", ...
@@ -35,6 +39,7 @@ mandatoryPaths = [ ...
         "run_stage_a4_complementarity_gap_diagnostic.m")
     fullfile(projectRoot,"src","diagnostics", ...
         "run_stage_a4_step_strategy_ab_diagnostic.m")
+    a42dAuditPath
     complementarityAuditPath
     fullfile(projectRoot,"src","indexing","build_stage_a4_index.m")
     fullfile(projectRoot,"src","indexing", ...
@@ -124,7 +129,7 @@ rules = [ ...
         "(?<![A-Za-z0-9_])(?:mehrotra|predictor_?corrector|" + ...
         "predictorcorrector)\s*\(")];
 
-rowCount = numel(rules)+6;
+rowCount = numel(rules)+9;
 checkId = strings(rowCount,1);
 requirement = strings(rowCount,1);
 matchCount = zeros(rowCount,1);
@@ -212,6 +217,77 @@ if matchCount(row)>0
 end
 details(row) = "targeted A4-2C diagnostic-source scan for cond/full calls";
 filesScanned(row) = numel(a42cDiagnosticPaths);
+
+row = row+1;
+checkId(row) = "NO-A42D1-ADDITIONAL-DENSE-CONDITION-NUMBER";
+requirement(row) = ...
+    "A4-2D-1 adds no dense condition-number or full-matrix diagnostic";
+a42dDiagnosticPaths = [entryPaths(5);a42dAuditPath];
+denseHits = strings(0,1);
+for fileIndex = 1:numel(a42dDiagnosticPaths)
+    targetCode = strip_matlab_noncode(fileread(a42dDiagnosticPaths(fileIndex)));
+    found = regexpi(char(targetCode), ...
+        '(?<![A-Za-z0-9_])(?:cond|full)\s*\(','match');
+    matchCount(row) = matchCount(row)+numel(found);
+    if ~isempty(found)
+        denseHits(end+1,1) = relative_path( ...
+            a42dDiagnosticPaths(fileIndex),projectRoot); %#ok<AGROW>
+    end
+end
+matchedFiles(row) = strjoin(unique(denseHits,'stable'),"; ");
+if matchCount(row)>0
+    status(row) = "FAIL";
+end
+details(row) = "targeted A4-2D-1 diagnostic-source scan for cond/full calls";
+filesScanned(row) = numel(a42dDiagnosticPaths);
+
+row = row+1;
+checkId(row) = "NO-A42D1-AUDIT-SOLVER-OR-STATE-UPDATE";
+requirement(row) = ...
+    "The read-only A4-2D-1 audit excludes all solver and state-update paths";
+a42dAuditDependencies = project_m_files( ...
+    dependency_files(a42dAuditPath),projectRoot);
+forbiddenAuditDependencies = [ ...
+    fullfile(projectRoot,"src","diagnostics", ...
+        "execute_stage_a4_iteration.m")
+    fullfile(projectRoot,"src","diagnostics", ...
+        "run_stage_a4_step_strategy_ab_diagnostic.m")
+    fullfile(projectRoot,"src","solver", ...
+        "solve_stage_a_multiday_recursive_direction.m")
+    fullfile(projectRoot,"src","solver", ...
+        "solve_stage_a_multiday_full_kkt_direction.m")
+    fullfile(projectRoot,"src","solver","update_primal_dual_state.m")];
+dependencyCanonical = arrayfun(@canonical_path,a42dAuditDependencies);
+forbiddenCanonical = arrayfun(@canonical_path,forbiddenAuditDependencies);
+forbiddenMask = ismember(lower(dependencyCanonical),lower(forbiddenCanonical));
+matchCount(row) = nnz(forbiddenMask);
+matchedFiles(row) = strjoin(relative_paths( ...
+    a42dAuditDependencies(forbiddenMask),projectRoot),"; ");
+details(row) = "dependency closure rooted at "+ ...
+    relative_path(a42dAuditPath,projectRoot);
+filesScanned(row) = numel(a42dAuditDependencies);
+if matchCount(row) ~= 0
+    status(row) = "FAIL";
+end
+
+row = row+1;
+checkId(row) = "NO-A42D1-STAGE-B-DEPENDENCY";
+requirement(row) = "The A4-2D-1 entry dependency closure excludes Stage B";
+a42dEntryDependencies = project_m_files( ...
+    dependency_files(entryPaths(5)),projectRoot);
+stageBRoot = canonical_path(fullfile(projectRoot,"stages","stage_B"));
+stageBPrefix = lower(stageBRoot+filesep);
+a42dCanonical = arrayfun(@canonical_path,a42dEntryDependencies);
+stageBMask = startsWith(lower(a42dCanonical),stageBPrefix);
+matchCount(row) = nnz(stageBMask);
+matchedFiles(row) = strjoin(relative_paths( ...
+    a42dEntryDependencies(stageBMask),projectRoot),"; ");
+details(row) = "dependency closure rooted at "+ ...
+    relative_path(entryPaths(5),projectRoot);
+filesScanned(row) = numel(a42dEntryDependencies);
+if matchCount(row) ~= 0
+    status(row) = "FAIL";
+end
 
 row = row+1;
 checkId(row) = "NO-RECURSIVE-FULL-DIRECTION-FALLBACK";
