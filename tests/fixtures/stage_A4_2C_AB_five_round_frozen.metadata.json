@@ -1,0 +1,29 @@
+{
+  "source_commit": "216a218d27b1cc39b909ad926b7ad7fdde2ddf8c",
+  "source_entrypoint": "main_stage_A4_2C",
+  "source_environment": "independent detached git worktree",
+  "matlab_release": "R2024a",
+  "generation_command": "matlab -batch \"addpath(pwd); addpath(genpath(fullfile(pwd,'src'))); output=export_ab_authoritative_fixtures(); assert(output.zero_tolerance_roundtrip && output.row_count_each==5 && output.column_count_each==79)\"",
+  "chain_a": {
+    "chain_id": "A4-2C-A",
+    "step_strategy": "independent",
+    "fixture_path": "tests/fixtures/stage_A4_2C_chain_A_five_round_frozen.csv",
+    "authority_worktree_sha256": "d9267015cb85b8386392e4e0c133cc1cafe5fb541eb8df0ef0e0782efc67cc1c"
+  },
+  "chain_b": {
+    "chain_id": "A4-2C-B",
+    "step_strategy": "common_min",
+    "fixture_path": "tests/fixtures/stage_A4_2C_chain_B_five_round_frozen.csv",
+    "authority_worktree_sha256": "20a593f3d431b7f9c4d4e0748dfda31b025e15dcdaa9eef7cefaea7fd6c6d02f"
+  },
+  "row_count_each": 5,
+  "column_count_each": 79,
+  "schema_identical": true,
+  "zero_tolerance_csv_roundtrip": true,
+  "common_initial_state_fingerprint": "7277a250e33e3a1cfa310b4581faa7232a2c3cb99ff6d7cc6b4602e40970c3aa",
+  "linearization_identity_sets_disjoint": true,
+  "formal_a4_run_created": false,
+  "full_ipm_executed": false,
+  "optimization_executed": false,
+  "stage_b_entered": false
+}

@@ -10,32 +10,49 @@ addpath(genpath(fullfile(projectRoot,"src")));
 protectedBefore = capture_protected_snapshot(projectRoot);
 result = main_stage_A4_2D_1();
 protectedAfter = capture_protected_snapshot(projectRoot);
-fixturePath = fullfile(projectRoot,"tests","fixtures", ...
-    "stage_A4_2A_five_round_baseline.csv");
-baseline = readtable(fixturePath,'Delimiter',',', ...
+fixtureAPath = fullfile(projectRoot,"tests","fixtures", ...
+    "stage_A4_2C_chain_A_five_round_frozen.csv");
+fixtureBPath = fullfile(projectRoot,"tests","fixtures", ...
+    "stage_A4_2C_chain_B_five_round_frozen.csv");
+baselineA = readtable(fixtureAPath,'Delimiter',',', ...
+    'ReadVariableNames',true,'TextType','string', ...
+    'VariableNamingRule','preserve');
+baselineB = readtable(fixtureBPath,'Delimiter',',', ...
     'ReadVariableNames',true,'TextType','string', ...
     'VariableNamingRule','preserve');
 testCase.TestData.project_root = projectRoot;
 testCase.TestData.result = result;
-testCase.TestData.baseline = baseline;
+testCase.TestData.baseline_a = baselineA;
+testCase.TestData.baseline_b = baselineB;
 testCase.TestData.protected_before = protectedBefore;
 testCase.TestData.protected_after = protectedAfter;
 end
 
-function testFrozenA42CBaselineReproducesFieldByField(testCase)
+function testFrozenA42CDualChainFixturesReproduceFieldByField(testCase)
 result = testCase.TestData.result;
-expected = testCase.TestData.baseline;
-actual = make_baseline_table(result.ab_result.chain_a.iterations);
-verifyEqual(testCase,height(actual),5);
-verifyEqual(testCase,string(actual.Properties.VariableNames), ...
-    string(expected.Properties.VariableNames));
-verifyEqual(testCase,actual.primal_limiter,string(expected.primal_limiter));
-verifyEqual(testCase,actual.dual_limiter,string(expected.dual_limiter));
-numericNames = setdiff(string(actual.Properties.VariableNames), ...
-    ["primal_limiter","dual_limiter"],'stable');
-for name = numericNames
-    verifyEqual(testCase,actual.(name),double(expected.(name)), ...
-        'AbsTol',0,sprintf('Frozen A4-2A mismatch in %s.',name));
+authority = "216a218d27b1cc39b909ad926b7ad7fdde2ddf8c";
+chains = {result.ab_result.chain_a,result.ab_result.chain_b};
+expected = {testCase.TestData.baseline_a, ...
+    testCase.TestData.baseline_b};
+for c = 1:2
+    actual = make_full_fixture_table(chains{c}.iterations,authority);
+    verifyEqual(testCase,height(actual),5);
+    verifyEqual(testCase,width(actual),79);
+    verifyEqual(testCase,string(actual.Properties.VariableNames), ...
+        string(expected{c}.Properties.VariableNames));
+    names = string(actual.Properties.VariableNames);
+    for name = names
+        left = actual.(name);
+        right = expected{c}.(name);
+        if (isnumeric(left) || islogical(left)) && ...
+                (isnumeric(right) || islogical(right))
+            verifyEqual(testCase,double(left),double(right),'AbsTol',0, ...
+                sprintf('Frozen chain %d mismatch in %s.',c,name));
+        else
+            verifyEqual(testCase,string(left),string(right), ...
+                sprintf('Frozen chain %d mismatch in %s.',c,name));
+        end
+    end
 end
 
 firstA = result.ab_result.chain_a.iterations(1);
@@ -54,6 +71,12 @@ verifyEqual(testCase, ...
     mean(lastB.canonical_state_after.l.*lastB.canonical_state_after.z), ...
     176.41190650680699,'AbsTol',0);
 verifyTrue(testCase,result.fixture_audit.passed);
+verifyTrue(testCase,result.fixture_audit.chain_a_passed);
+verifyTrue(testCase,result.fixture_audit.chain_b_passed);
+verifyTrue(testCase,result.fixture_audit.metadata_passed);
+verifyEqual(testCase,result.fixture_audit.authority_commit,authority);
+verifyEqual(testCase,result.fixture_audit.chain_a_field_count,79);
+verifyEqual(testCase,result.fixture_audit.chain_b_field_count,79);
 end
 
 function testAuditIsReadOnlyAndPreservesABStateAndDirectionFingerprints( ...
@@ -91,6 +114,9 @@ end
 verifyEqual(testCase,result.execution.additional_audit_state_update_count,0);
 verifyEqual(testCase, ...
     result.execution.additional_audit_newton_direction_count,0);
+verifyEqual(testCase,result.execution.diagnostic_recursive_rhs_count,4);
+verifyEqual(testCase, ...
+    result.execution.diagnostic_recursive_additional_factorization_count,0);
 verifyEqual(testCase, ...
     result.execution.additional_audit_complete_kkt_solve_count,0);
 end
@@ -285,6 +311,76 @@ verifyEqual(testCase,qp5.r_dual,actual(qIndex),'AbsTol',0);
 verifyLessThanOrEqual(testCase, ...
     qp5.scaled_dual_decomposition_closure,2048*eps);
 verifyTrue(testCase,result.dual_decomposition_audit.passed);
+
+source = item.rhs_source_decomposition;
+verifyEqual(testCase,string(source.source_names(:)), ...
+    ["equality";"inequality";"complementarity";"dual"]);
+verifyEqual(testCase,source.audit.diagnostic_rhs_count,4);
+verifyTrue(testCase,source.audit.retained_hourly_factorization_reused);
+verifyTrue(testCase,source.audit.retained_core_factorization_reused);
+verifyEqual(testCase,source.audit.additional_hourly_factorization_count,0);
+verifyEqual(testCase,source.audit.additional_core_factorization_count,0);
+verifyEqual(testCase,source.audit.additional_state_update_count,0);
+verifyEqual(testCase,source.audit.additional_complete_kkt_solve_count,0);
+verifyFalse(testCase,source.audit.complete_direction_consumed);
+verifyFalse(testCase,source.audit.full_direction_fallback);
+
+nx = numel(state.xi);
+neq = numel(state.y);
+ni = numel(state.l);
+fullRhs = zeros(nx+neq+2*ni,4);
+fullRhs(nx+(1:neq),1) = -snapshot.r_eq;
+fullRhs(nx+neq+(1:ni),2) = -snapshot.r_ineq;
+fullRhs(nx+neq+ni+(1:ni),3) = -snapshot.r_comp;
+fullRhs(1:nx,4) = -snapshot.r_dual;
+bXi = zeros(nx,4);
+bEq = zeros(neq,4);
+bEq(:,1) = -snapshot.r_eq;
+bXi(:,2) = -snapshot.G.'*((state.z./state.l).*snapshot.r_ineq);
+bXi(:,3) = snapshot.G.'*(snapshot.r_comp./state.l);
+bXi(:,4) = -snapshot.r_dual;
+verifyEqual(testCase,source.full_rhs_by_source,fullRhs,'AbsTol',0);
+verifyEqual(testCase,source.reduced_rhs_by_source,[bXi;bEq], ...
+    'AbsTol',0);
+
+completeKkt = [snapshot.H,snapshot.A.',sparse(nx,ni),snapshot.G.'; ...
+    snapshot.A,sparse(neq,neq),sparse(neq,ni),sparse(neq,ni); ...
+    snapshot.G,sparse(ni,neq),speye(ni),sparse(ni,ni); ...
+    sparse(ni,nx),sparse(ni,neq),spdiags(state.z,0,ni,ni), ...
+    spdiags(state.l,0,ni,ni)];
+responses = source.direction_by_source;
+responseResidual = completeKkt*responses-fullRhs;
+responseScale = max(ones(size(responseResidual)), ...
+    abs(completeKkt)*abs(responses)+abs(fullRhs));
+verifyLessThanOrEqual(testCase, ...
+    max(abs(responseResidual)./responseScale,[],'all'),2048*eps);
+actualDirection = [item.recursive_direction_components.xi; ...
+    item.recursive_direction_components.y; ...
+    item.recursive_direction_components.l; ...
+    item.recursive_direction_components.z];
+directionDifference = sum(responses,2)-actualDirection;
+directionScale = max(ones(size(actualDirection)), ...
+    sum(abs(responses),2)+abs(actualDirection));
+verifyLessThanOrEqual(testCase, ...
+    max(abs(directionDifference)./directionScale),2048*eps);
+
+contributions = result.qp5_rhs_source_contributions;
+verifyEqual(testCase,contributions.rhs_source, ...
+    ["equality";"inequality";"complementarity";"dual"]);
+verifyEqual(testCase, ...
+    contributions.signed_delta_qp5_contribution, ...
+    source.components.xi(qIndex,:).','AbsTol',0);
+actualQp5 = item.recursive_direction_components.xi(qIndex);
+verifyEqual(testCase,actualQp5,-54093170.124927469,'AbsTol',0);
+verifyEqual(testCase, ...
+    sum(contributions.signed_delta_qp5_contribution), ...
+    contributions.reconstructed_delta_qp5(1),'AbsTol',0);
+verifyLessThanOrEqual(testCase, ...
+    contributions.reconstruction_scaled_closure_error(1),2048*eps);
+verifyEqual(testCase, ...
+    sum(contributions.absolute_contribution_share),1, ...
+    'AbsTol',16*eps);
+verifyTrue(testCase,result.rhs_source_decomposition_audit.passed);
 end
 
 function testNewtonDirectionEquationsAndQP5CausalChainClose(testCase)
@@ -304,28 +400,54 @@ for c = 1:2
     for k = 1:5
         item = chains{c}.iterations(k);
         snapshot = item.root_cause_linearization_before;
+        state = item.canonical_state_before;
         direction = item.recursive_direction_components;
         verifyEqual(testCase,nnz(snapshot.H),0);
-        eqClosure = snapshot.A*direction.xi+snapshot.r_eq;
+        rebuiltEq = snapshot.A*state.xi+snapshot.eq_offset;
+        rebuiltIneq = snapshot.G*state.xi+ ...
+            snapshot.ineq_offset+state.l;
+        rebuiltComp = state.l.*state.z-snapshot.mu;
+        rebuiltDual = snapshot.objective_gradient+ ...
+            snapshot.A.'*state.y+snapshot.G.'*state.z;
+        verify_rebuilt_residual(testCase,rebuiltEq,snapshot.r_eq, ...
+            max(ones(size(rebuiltEq)), ...
+            abs(snapshot.A)*abs(state.xi)+abs(snapshot.eq_offset)+ ...
+            abs(snapshot.r_eq)));
+        verify_rebuilt_residual(testCase,rebuiltIneq,snapshot.r_ineq, ...
+            max(ones(size(rebuiltIneq)), ...
+            abs(snapshot.G)*abs(state.xi)+ ...
+            abs(snapshot.ineq_offset)+abs(state.l)+ ...
+            abs(snapshot.r_ineq)));
+        verify_rebuilt_residual(testCase,rebuiltComp,snapshot.r_comp, ...
+            max(ones(size(rebuiltComp)), ...
+            abs(state.l.*state.z)+abs(snapshot.mu)+ ...
+            abs(snapshot.r_comp)));
+        verify_rebuilt_residual(testCase,rebuiltDual,snapshot.r_dual, ...
+            max(ones(size(rebuiltDual)), ...
+            abs(snapshot.objective_gradient)+ ...
+            abs(snapshot.A).'*abs(state.y)+ ...
+            abs(snapshot.G).'*abs(state.z)+abs(snapshot.r_dual)));
+
+        eqClosure = snapshot.A*direction.xi+rebuiltEq;
         eqScale = max(ones(size(eqClosure)), ...
-            abs(snapshot.A)*abs(direction.xi)+abs(snapshot.r_eq));
+            abs(snapshot.A)*abs(direction.xi)+abs(rebuiltEq));
         ineqClosure = snapshot.G*direction.xi+direction.l+ ...
-            snapshot.r_ineq;
+            rebuiltIneq;
         ineqScale = max(ones(size(ineqClosure)), ...
             abs(snapshot.G)*abs(direction.xi)+abs(direction.l)+ ...
-            abs(snapshot.r_ineq));
+            abs(rebuiltIneq));
         compClosure = snapshot.z.*direction.l+ ...
-            snapshot.l.*direction.z+snapshot.r_comp;
+            snapshot.l.*direction.z+rebuiltComp;
         compScale = max(ones(size(compClosure)), ...
             abs(snapshot.z.*direction.l)+ ...
-            abs(snapshot.l.*direction.z)+abs(snapshot.r_comp));
+            abs(snapshot.l.*direction.z)+abs(rebuiltComp));
         dualClosure = snapshot.H*direction.xi+ ...
             snapshot.A.'*direction.y+snapshot.G.'*direction.z+ ...
-            snapshot.r_dual;
+            rebuiltDual;
         dualScale = max(ones(size(dualClosure)), ...
             abs(snapshot.H)*abs(direction.xi)+ ...
             abs(snapshot.A.')*abs(direction.y)+ ...
-            abs(snapshot.G.')*abs(direction.z)+abs(snapshot.r_dual));
+            abs(snapshot.G.')*abs(direction.z)+abs(rebuiltDual));
         verifyLessThanOrEqual(testCase,max(abs(eqClosure)./eqScale), ...
             2048*eps);
         verifyLessThanOrEqual(testCase,max(abs(ineqClosure)./ineqScale), ...
@@ -340,8 +462,25 @@ for c = 1:2
                 chains{c}.diagnostic_chain_id & ...
             result.direction_equation_closure.iteration==k,:);
         verifyEqual(testCase,height(productionClosure),1);
+        verifyEqual(testCase,productionClosure.residual_source, ...
+            "rebuilt_from_state_offsets_and_sparse_matrices");
         verifyLessThanOrEqual(testCase, ...
             productionClosure.maximum_scaled_closure,2048*eps);
+        rebuildAudit = result.residual_rebuild_audit( ...
+            result.residual_rebuild_audit.chain_id== ...
+                chains{c}.diagnostic_chain_id & ...
+            result.residual_rebuild_audit.iteration==k,:);
+        verifyEqual(testCase,height(rebuildAudit),1);
+        verifyEqual(testCase,rebuildAudit.residual_source, ...
+            "rebuilt_from_state_offsets_and_sparse_matrices");
+        verifyEqual(testCase,rebuildAudit.r_eq_over_tolerance_count,0);
+        verifyEqual(testCase,rebuildAudit.r_ineq_over_tolerance_count,0);
+        verifyEqual(testCase,rebuildAudit.r_comp_over_tolerance_count,0);
+        verifyEqual(testCase,rebuildAudit.r_dual_over_tolerance_count,0);
+        verifyLessThanOrEqual(testCase, ...
+            rebuildAudit.maximum_residual_rebuild_scaled_error, ...
+            2048*eps);
+        verifyTrue(testCase,rebuildAudit.passed);
         verifyLessThanOrEqual(testCase,item.direction_relative_error,1e-10);
         verifyLessThanOrEqual(testCase, ...
             item.recursive_kkt_relative_residual,1e-10);
@@ -363,9 +502,9 @@ for c = 1:2
                 result.qp5_causal_chain.inequality_index==row,:);
             verifyEqual(testCase,height(causal),1);
             gDirection = snapshot.G(row,:)*direction.xi;
-            dlExpected = -(gDirection+snapshot.r_ineq(row));
+            dlExpected = -(gDirection+rebuiltIneq(row));
             dzExpected = -(snapshot.z(row)*direction.l(row)+ ...
-                snapshot.r_comp(row))/snapshot.l(row);
+                rebuiltComp(row))/snapshot.l(row);
             verifyLessThanOrEqual(testCase, ...
                 abs(direction.l(row)-dlExpected)/max([1, ...
                 abs(direction.l(row)),abs(dlExpected)]),2048*eps);
@@ -553,53 +692,191 @@ verifyTrue(testCase,result.root_cause_conclusion. ...
     objective_unitization_changes_algorithm_path);
 verifyTrue(testCase,result.root_cause_conclusion. ...
     dual_initialization_changes_algorithm_path);
+contributions = result.qp5_rhs_source_contributions;
+[absoluteValues,order] = sort( ...
+    contributions.absolute_delta_qp5_contribution,"descend");
+topSource = contributions.rhs_source(order(1));
+topShare = contributions.absolute_contribution_share(order(1));
+ratio = absoluteValues(1)/absoluteValues(2);
+clearDominance = topShare>= ...
+    result.root_cause_conclusion.dominance_absolute_share_threshold && ...
+    ratio>=result.root_cause_conclusion. ...
+        dominance_top_to_second_ratio_threshold;
+if ~clearDominance
+    expectedRecommendation = "no_unique_single_factor_selected";
+elseif topSource=="dual"
+    expectedRecommendation = "dual_initialization";
+elseif topSource=="complementarity"
+    expectedRecommendation = "central_path_or_initial_centrality";
+else
+    expectedRecommendation = "primal_feasibility_initialization";
+end
 verifyEqual(testCase, ...
     result.root_cause_conclusion.next_single_factor_experiment, ...
-    "dual_initialization");
+    expectedRecommendation);
+verifyEqual(testCase, ...
+    result.root_cause_conclusion.clear_rhs_source_dominance, ...
+    clearDominance);
+verifyEqual(testCase, ...
+    result.root_cause_conclusion.largest_absolute_rhs_source, ...
+    topSource);
+verifyTrue(testCase, ...
+    result.root_cause_conclusion.recommendation_rule_consistent);
 end
 
-function baseline = make_baseline_table(iterations)
+function baseline = make_full_fixture_table(iterations,authorityCommit)
 n = numel(iterations);
-iteration = reshape([iterations.iteration],[],1);
-alphaPrimal = reshape([iterations.alpha_primal],[],1);
-alphaDual = reshape([iterations.alpha_dual],[],1);
+baseline = table();
+baseline.source_commit = repmat(string(authorityCommit),n,1);
+baseline.chain_id = reshape( ...
+    string({iterations.diagnostic_chain_id}),[],1);
+baseline.step_strategy = reshape(string({iterations.step_strategy}),[],1);
+baseline.iteration = reshape([iterations.iteration],[],1);
+baseline.candidate_alpha_primal = reshape( ...
+    [iterations.candidate_alpha_primal],[],1);
+baseline.candidate_alpha_dual = reshape( ...
+    [iterations.candidate_alpha_dual],[],1);
+baseline.applied_alpha_primal = reshape( ...
+    [iterations.applied_alpha_primal],[],1);
+baseline.applied_alpha_dual = reshape( ...
+    [iterations.applied_alpha_dual],[],1);
+baseline.alpha_common = reshape([iterations.alpha_common],[],1);
+
 primalLimiter = strings(n,1);
 dualLimiter = strings(n,1);
-numericNames = ["equality_before","equality_after", ...
-    "slack_equality_before","slack_equality_after","dual_before", ...
-    "dual_after","complementarity_inf_before", ...
-    "complementarity_inf_after","gap_before","gap_after", ...
-    "minimum_l_after","minimum_z_after","direction_relative_error", ...
-    "xi_relative_error","y_relative_error","l_relative_error", ...
-    "z_relative_error","recursive_kkt_relative_residual", ...
-    "full_kkt_relative_residual"];
-values = zeros(n,numel(numericNames));
+primalLimiterGlobalRow = zeros(n,1);
+dualLimiterGlobalRow = zeros(n,1);
+primalLimiterDay = zeros(n,1);
+dualLimiterDay = zeros(n,1);
+primalLimiterHour = zeros(n,1);
+dualLimiterHour = zeros(n,1);
+primalLimiterAssetType = strings(n,1);
+dualLimiterAssetType = strings(n,1);
+primalLimiterAssetId = zeros(n,1);
+dualLimiterAssetId = zeros(n,1);
+rEqBefore = zeros(n,1);
+rEqAfter = zeros(n,1);
+rIneqBefore = zeros(n,1);
+rIneqAfter = zeros(n,1);
+rDualBefore = zeros(n,1);
+rDualAfter = zeros(n,1);
+rCompBefore = zeros(n,1);
+rCompAfter = zeros(n,1);
+gapBefore = zeros(n,1);
+gapAfter = zeros(n,1);
+minimumLBefore = zeros(n,1);
+minimumLAfter = zeros(n,1);
+minimumZBefore = zeros(n,1);
+minimumZAfter = zeros(n,1);
 for k = 1:n
     item = iterations(k);
     primalLimiter(k) = item.primal_step.limiting_constraint_id;
     dualLimiter(k) = item.dual_step.limiting_constraint_id;
+    primalLimiterGlobalRow(k) = ...
+        item.primal_step.limiting_constraint_global_row;
+    dualLimiterGlobalRow(k) = ...
+        item.dual_step.limiting_constraint_global_row;
+    primalLimiterDay(k) = item.primal_step.limiting_day;
+    dualLimiterDay(k) = item.dual_step.limiting_day;
+    primalLimiterHour(k) = item.primal_step.limiting_hour;
+    dualLimiterHour(k) = item.dual_step.limiting_hour;
+    primalLimiterAssetType(k) = ...
+        item.primal_step.limiting_asset_type;
+    dualLimiterAssetType(k) = item.dual_step.limiting_asset_type;
+    primalLimiterAssetId(k) = item.primal_step.limiting_asset_id;
+    dualLimiterAssetId(k) = item.dual_step.limiting_asset_id;
     before = item.residuals_before;
     after = item.residuals_after;
-    values(k,:) = [before.equality_inf,after.equality_inf, ...
-        before.slack_equality_inf,after.slack_equality_inf, ...
-        before.dual_inf,after.dual_inf, ...
-        before.complementarity_inf,after.complementarity_inf, ...
-        before.complementarity_gap,after.complementarity_gap, ...
-        after.minimum_l,after.minimum_z,item.direction_relative_error, ...
-        item.component_relative_errors.xi, ...
-        item.component_relative_errors.y, ...
-        item.component_relative_errors.l, ...
-        item.component_relative_errors.z, ...
-        item.recursive_kkt_relative_residual, ...
-        item.full_kkt_relative_residual];
+    rEqBefore(k) = before.equality_inf;
+    rEqAfter(k) = after.equality_inf;
+    rIneqBefore(k) = before.slack_equality_inf;
+    rIneqAfter(k) = after.slack_equality_inf;
+    rDualBefore(k) = before.dual_inf;
+    rDualAfter(k) = after.dual_inf;
+    rCompBefore(k) = before.complementarity_inf;
+    rCompAfter(k) = after.complementarity_inf;
+    gapBefore(k) = before.complementarity_gap;
+    gapAfter(k) = after.complementarity_gap;
+    minimumLBefore(k) = before.minimum_l;
+    minimumLAfter(k) = after.minimum_l;
+    minimumZBefore(k) = before.minimum_z;
+    minimumZAfter(k) = after.minimum_z;
 end
-baseline = table(iteration,alphaPrimal,alphaDual,primalLimiter, ...
-    dualLimiter,values(:,1),values(:,2),values(:,3),values(:,4), ...
-    values(:,5),values(:,6),values(:,7),values(:,8),values(:,9), ...
-    values(:,10),values(:,11),values(:,12),values(:,13),values(:,14), ...
-    values(:,15),values(:,16),values(:,17),values(:,18),values(:,19), ...
-    'VariableNames',[{'iteration','alpha_primal','alpha_dual', ...
-    'primal_limiter','dual_limiter'},cellstr(numericNames)]);
+baseline.primal_limiter = primalLimiter;
+baseline.dual_limiter = dualLimiter;
+baseline.primal_limiter_global_row = primalLimiterGlobalRow;
+baseline.dual_limiter_global_row = dualLimiterGlobalRow;
+baseline.primal_limiter_day = primalLimiterDay;
+baseline.dual_limiter_day = dualLimiterDay;
+baseline.primal_limiter_hour = primalLimiterHour;
+baseline.dual_limiter_hour = dualLimiterHour;
+baseline.primal_limiter_asset_type = primalLimiterAssetType;
+baseline.dual_limiter_asset_type = dualLimiterAssetType;
+baseline.primal_limiter_asset_id = primalLimiterAssetId;
+baseline.dual_limiter_asset_id = dualLimiterAssetId;
+baseline.r_eq_inf_before = rEqBefore;
+baseline.r_eq_inf_after = rEqAfter;
+baseline.r_ineq_inf_before = rIneqBefore;
+baseline.r_ineq_inf_after = rIneqAfter;
+baseline.r_dual_inf_before = rDualBefore;
+baseline.r_dual_inf_after = rDualAfter;
+baseline.r_comp_inf_before = rCompBefore;
+baseline.r_comp_inf_after = rCompAfter;
+baseline.complementarity_gap_before = gapBefore;
+baseline.complementarity_gap_after = gapAfter;
+baseline.minimum_l_before = minimumLBefore;
+baseline.minimum_l_after = minimumLAfter;
+baseline.minimum_z_before = minimumZBefore;
+baseline.minimum_z_after = minimumZAfter;
+baseline.objective_before = reshape([iterations.objective_value_before],[],1);
+baseline.objective_after = reshape([iterations.objective_value_after],[],1);
+baseline.state_fingerprint_before = reshape( ...
+    string({iterations.state_fingerprint_before}),[],1);
+baseline.state_fingerprint_after = reshape( ...
+    string({iterations.state_fingerprint_after}),[],1);
+baseline.direction_fingerprint = reshape( ...
+    string({iterations.direction_fingerprint}),[],1);
+baseline.linearization_identity_before = reshape( ...
+    string({iterations.linearization_identity_before}),[],1);
+baseline.linearization_identity_after = reshape( ...
+    string({iterations.linearization_identity_after}),[],1);
+baseline.direction_solve_invocation_id = reshape( ...
+    string({iterations.direction_solve_invocation_id}),[],1);
+baseline.direction_relative_error = reshape( ...
+    [iterations.direction_relative_error],[],1);
+componentErrors = reshape([iterations.component_relative_errors],[],1);
+baseline.xi_relative_error = reshape([componentErrors.xi],[],1);
+baseline.y_relative_error = reshape([componentErrors.y],[],1);
+baseline.l_relative_error = reshape([componentErrors.l],[],1);
+baseline.z_relative_error = reshape([componentErrors.z],[],1);
+baseline.recursive_kkt_relative_residual = reshape( ...
+    [iterations.recursive_kkt_relative_residual],[],1);
+baseline.full_kkt_relative_residual = reshape( ...
+    [iterations.full_kkt_relative_residual],[],1);
+baseline.no_full_direction_fallback = reshape( ...
+    [iterations.no_full_direction_fallback],[],1);
+
+capacityNames = string(iterations(1).global_capacity_names(:));
+assert(numel(capacityNames)==14 && ...
+    numel(unique(capacityNames))==14, ...
+    "stageA4:a42d1:FrozenFixtureCapacityNames", ...
+    "The frozen fixture requires fourteen unique global capacities.");
+for capacity = 1:numel(capacityNames)
+    beforeValues = zeros(n,1);
+    afterValues = zeros(n,1);
+    for k = 1:n
+        assert(isequal(string(iterations(k).global_capacity_names(:)), ...
+            capacityNames), ...
+            "stageA4:a42d1:FrozenFixtureCapacityOrder", ...
+            "Global capacity order changed in frozen round %d.",k);
+        beforeValues(k) = iterations(k).global_capacity_before(capacity);
+        afterValues(k) = iterations(k).global_capacity_after(capacity);
+    end
+    beforeName = "capacity_"+capacityNames(capacity)+"_before";
+    afterName = "capacity_"+capacityNames(capacity)+"_after";
+    baseline.(beforeName) = beforeValues;
+    baseline.(afterName) = afterValues;
+end
 end
 
 function [chains,indices] = chains_and_indices(result)
@@ -649,6 +926,14 @@ if direction<0
 else
     candidate = 1;
 end
+end
+
+function verify_rebuilt_residual(testCase,rebuilt,snapshot,scale)
+difference = rebuilt-snapshot;
+verifyEqual(testCase,numel(rebuilt),numel(snapshot));
+verifyLessThanOrEqual(testCase, ...
+    max(abs(difference)./scale),2048*eps);
+verifyEqual(testCase,nnz(abs(difference)./scale>2048*eps),0);
 end
 
 function verify_scale_row(testCase,row,values)

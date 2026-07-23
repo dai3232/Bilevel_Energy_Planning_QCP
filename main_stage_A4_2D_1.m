@@ -2,8 +2,9 @@ function result = main_stage_A4_2D_1()
 %MAIN_STAGE_A4_2D_1 Execute the read-only A4 small-step root-cause audit.
 %
 % The A4-2C A/B chains are reproduced with retained pre-update
-% linearization evidence.  The root-cause audit consumes that evidence
-% without performing any additional Newton solve or state update.
+% linearization evidence.  The first chain-A factorization also evaluates
+% four diagnostic RHS columns without another factorization, complete-KKT
+% solve, Newton state transition, or formal run.
 
 projectRoot = string(fileparts(mfilename("fullpath")));
 addpath(genpath(fullfile(projectRoot,"src")));
@@ -24,6 +25,8 @@ assert(result.all_pass && result.milestone_status=="PASS" && ...
     result.execution.baseline_complete_kkt_audit_count==10 && ...
     result.execution.baseline_state_update_count==10 && ...
     result.execution.additional_audit_newton_direction_count==0 && ...
+    result.execution.diagnostic_recursive_rhs_count==4 && ...
+    result.execution.diagnostic_recursive_additional_factorization_count==0 && ...
     result.execution.additional_audit_complete_kkt_solve_count==0 && ...
     result.execution.additional_audit_state_update_count==0 && ...
     ~result.execution.formal_a4_run_created && ...
@@ -41,7 +44,7 @@ print_audit_summary(result);
 end
 
 function print_audit_summary(result)
-fprintf("A4-2D-1 small-step root-cause audit; stage=%s; status=%s\n", ...
+fprintf("A4-2D-1R evidence-closure audit; stage=%s; status=%s\n", ...
     result.stage_status,result.milestone_status);
 fprintf("Candidate reconstruction summaries (two chains, five rounds):\n");
 disp(result.step_candidate_summary);
@@ -52,7 +55,11 @@ disp(result.qp5_metadata);
 fprintf("QP5 bound-direction causal chain:\n");
 disp(result.qp5_causal_chain);
 fprintf("Four Newton direction equation closures:\n");
+disp(result.residual_rebuild_audit);
 disp(result.direction_equation_closure);
+fprintf("First-round Delta QP5 four-source RHS responses:\n");
+disp(result.qp5_rhs_source_contributions);
+disp(result.rhs_source_decomposition_audit);
 fprintf("Initial state, direction, centrality, and scale evidence:\n");
 disp(result.initial_state_scale_statistics);
 disp(result.initial_centrality_statistics);
