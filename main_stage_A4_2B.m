@@ -87,6 +87,10 @@ for k = 1:result.iteration_count
     disp(audit.centrality_statistics);
     fprintf('ROUND %d VECTOR_SCALE_STATISTICS\n',k);
     disp(audit.vector_scale_statistics);
+    fprintf('ROUND %d RESIDUAL_SCALE_STATISTICS\n',k);
+    disp(audit.residual_scale_statistics);
+    fprintf('ROUND %d INEQUALITY_FAMILY_SCALE_STATISTICS\n',k);
+    disp(audit.inequality_family_scale_statistics);
     fprintf('ROUND %d GROUP_SCALE_STATISTICS\n',k);
     disp(audit.group_scale_statistics);
 end

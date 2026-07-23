@@ -2,7 +2,7 @@ function audit = scan_stage_a4_forbidden_code(projectRoot,config)
 %SCAN_STAGE_A4_FORBIDDEN_CODE Audit executable code on the A4 diagnostic paths.
 %
 % The scan follows the production dependency closures rooted at the
-% A4-1, A4-2A, and A4-2B entry points. Tests, reports, historical runs, and unrelated stage-0
+% A4-1, A4-2A, A4-2B, and A4-2C entry points. Tests, reports, historical runs, and unrelated stage-0
 % environment probes are therefore outside the scan and cannot create
 % false parallel-call findings.  Call-shaped patterns are evaluated after
 % comments and quoted literals have been removed.
@@ -15,7 +15,8 @@ end
 entryPaths = [ ...
     fullfile(projectRoot,"main_stage_A4_1.m")
     fullfile(projectRoot,"main_stage_A4_2A.m")
-    fullfile(projectRoot,"main_stage_A4_2B.m")];
+    fullfile(projectRoot,"main_stage_A4_2B.m")
+    fullfile(projectRoot,"main_stage_A4_2C.m")];
 complementarityAuditPath = fullfile(projectRoot,"src","diagnostics", ...
     "audit_stage_a4_complementarity_change.m");
 recursivePath = fullfile(projectRoot,"src","solver", ...
@@ -32,6 +33,8 @@ mandatoryPaths = [ ...
         "run_stage_a4_five_iteration_diagnostic.m")
     fullfile(projectRoot,"src","diagnostics", ...
         "run_stage_a4_complementarity_gap_diagnostic.m")
+    fullfile(projectRoot,"src","diagnostics", ...
+        "run_stage_a4_step_strategy_ab_diagnostic.m")
     complementarityAuditPath
     fullfile(projectRoot,"src","indexing","build_stage_a4_index.m")
     fullfile(projectRoot,"src","indexing", ...
@@ -121,7 +124,7 @@ rules = [ ...
         "(?<![A-Za-z0-9_])(?:mehrotra|predictor_?corrector|" + ...
         "predictorcorrector)\s*\(")];
 
-rowCount = numel(rules)+5;
+rowCount = numel(rules)+6;
 checkId = strings(rowCount,1);
 requirement = strings(rowCount,1);
 matchCount = zeros(rowCount,1);
@@ -180,6 +183,35 @@ if matchCount(row)>0
 end
 details(row) = "targeted A4-2B diagnostic-source scan for cond/full calls";
 filesScanned(row) = numel(a42bDiagnosticPaths);
+
+row = row+1;
+checkId(row) = "NO-A42C-ADDITIONAL-DENSE-CONDITION-NUMBER";
+requirement(row) = ...
+    "A4-2C adds no dense condition-number or full-matrix diagnostic";
+a42cDiagnosticPaths = [entryPaths(4); ...
+    fullfile(projectRoot,"src","diagnostics", ...
+        "run_stage_a4_step_strategy_ab_diagnostic.m"); ...
+    fullfile(projectRoot,"src","diagnostics", ...
+        "run_stage_a4_five_iteration_diagnostic.m"); ...
+    fullfile(projectRoot,"src","diagnostics", ...
+        "execute_stage_a4_iteration.m");complementarityAuditPath];
+denseHits = strings(0,1);
+for fileIndex = 1:numel(a42cDiagnosticPaths)
+    targetCode = strip_matlab_noncode(fileread(a42cDiagnosticPaths(fileIndex)));
+    found = regexpi(char(targetCode), ...
+        '(?<![A-Za-z0-9_])(?:cond|full)\s*\(','match');
+    matchCount(row) = matchCount(row)+numel(found);
+    if ~isempty(found)
+        denseHits(end+1,1) = relative_path( ...
+            a42cDiagnosticPaths(fileIndex),projectRoot); %#ok<AGROW>
+    end
+end
+matchedFiles(row) = strjoin(unique(denseHits,'stable'),"; ");
+if matchCount(row)>0
+    status(row) = "FAIL";
+end
+details(row) = "targeted A4-2C diagnostic-source scan for cond/full calls";
+filesScanned(row) = numel(a42cDiagnosticPaths);
 
 row = row+1;
 checkId(row) = "NO-RECURSIVE-FULL-DIRECTION-FALLBACK";

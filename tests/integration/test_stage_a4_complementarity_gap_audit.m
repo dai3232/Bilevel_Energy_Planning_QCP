@@ -140,6 +140,8 @@ function testConstraintFamilyAndAssetTypeContributionSummariesClose(testCase)
 audits = testCase.TestData.result.complementarity_audits;
 for k = 1:5
     audit = audits(k);
+    verifyTrue(testCase,audit.contribution_analysis_evaluated);
+    verifyEmpty(testCase,audit.not_evaluated_checks);
     rows = audit.delta_by_inequality;
     for summary = {audit.constraint_family_summary, ...
             audit.asset_type_summary}
@@ -206,6 +208,86 @@ for k = 1:5
     objectiveBefore = grouped(grouped.quantity=="objective_gradient" & ...
         grouped.state=="before",:);
     verifyEqual(testCase,sum(objectiveBefore.nonzero_count),14);
+
+    residualScale = audit.residual_scale_statistics;
+    verifyEqual(testCase,height(residualScale),4);
+    quantities = ["r_ineq";"r_ineq";"r_comp";"r_comp"];
+    states = ["before";"after";"before";"after"];
+    identities = [audit.linearization_identity_before; ...
+        audit.linearization_identity_after; ...
+        audit.linearization_identity_before; ...
+        audit.linearization_identity_after];
+    residualValues = {rows.r_ineq_before;rows.r_ineq_after; ...
+        rows.r_comp_before;rows.r_comp_after};
+    verifyEqual(testCase,residualScale.quantity,quantities);
+    verifyEqual(testCase,residualScale.state,states);
+    verifyEqual(testCase,residualScale.linearization_identity,identities);
+    for residualIndex = 1:4
+        verify_scale_statistics_row(testCase, ...
+            residualScale(residualIndex,:),residualValues{residualIndex});
+    end
+
+    muBefore = 0.1*mean(rows.product_before);
+    muAfter = 0.1*mean(rows.product_after);
+    verifyEqual(testCase,rows.r_comp_before, ...
+        rows.product_before-muBefore,'AbsTol',0);
+    verifyEqual(testCase,rows.r_comp_after, ...
+        rows.product_after-muAfter,'AbsTol',0);
+    if k==1
+        initialInequality = residualScale( ...
+            residualScale.quantity=="r_ineq" & ...
+            residualScale.state=="before",:);
+        verifyEqual(testCase,initialInequality.nonzero_count,0);
+        verifyEqual(testCase,initialInequality.zero_count,7248);
+        verifyTrue(testCase,isnan( ...
+            initialInequality.minimum_absolute_nonzero));
+        verifyTrue(testCase,isnan( ...
+            initialInequality.minimum_order_of_magnitude));
+        verifyTrue(testCase,isnan( ...
+            initialInequality.maximum_order_of_magnitude));
+        verifyTrue(testCase,isnan( ...
+            initialInequality.order_of_magnitude_span));
+    end
+
+    familyScale = audit.inequality_family_scale_statistics;
+    expectedFamilies = expected_inequality_families();
+    verifyEqual(testCase,height(familyScale),64);
+    verifyEqual(testCase,unique(familyScale.group_kind), ...
+        "constraint_family");
+    for residualIndex = 1:4
+        familyRows = familyScale( ...
+            familyScale.quantity==quantities(residualIndex) & ...
+            familyScale.state==states(residualIndex),:);
+        verifyEqual(testCase,height(familyRows),16);
+        verifyEqual(testCase,familyRows.group_name, ...
+            expectedFamilies.constraint_family);
+        verifyEqual(testCase,familyRows.count, ...
+            expectedFamilies.inequality_count);
+        verifyEqual(testCase,sum(familyRows.count),7248);
+        verifyEqual(testCase,sum(familyRows.nonzero_count), ...
+            residualScale.nonzero_count(residualIndex));
+        verifyEqual(testCase,sum(familyRows.negative_count), ...
+            residualScale.negative_count(residualIndex));
+        verifyEqual(testCase,sum(familyRows.zero_count), ...
+            residualScale.zero_count(residualIndex));
+        verifyEqual(testCase,sum(familyRows.positive_count), ...
+            residualScale.positive_count(residualIndex));
+        verifyEqual(testCase,familyRows.linearization_identity, ...
+            repmat(identities(residualIndex),16,1));
+        for familyIndex = 1:16
+            familyName = familyRows.group_name(familyIndex);
+            mask = rows.constraint_name==familyName;
+            verify_scale_statistics_row(testCase, ...
+                familyRows(familyIndex,:), ...
+                residualValues{residualIndex}(mask));
+            verifyEqual(testCase,familyRows.asset_type_set(familyIndex), ...
+                joined_unique(rows.asset_type(mask)));
+            verifyEqual(testCase,familyRows.unit_set(familyIndex), ...
+                joined_unique(rows.unit(mask)));
+        end
+    end
+    verifyTrue(testCase,audit.checks.residual_definitions_exact);
+    verifyTrue(testCase,audit.checks.residual_scale_coverage_closed);
 end
 end
 
@@ -290,6 +372,68 @@ end
 function verify_sum_close(testCase,actual,expected)
 scale = max([1,abs(actual),abs(expected)]);
 verifyLessThanOrEqual(testCase,abs(actual-expected)/scale,2048*eps);
+end
+
+function verify_scale_statistics_row(testCase,row,values)
+values = values(:);
+absoluteValues = abs(values);
+nonzeroValues = absoluteValues(absoluteValues>0);
+verifyEqual(testCase,row.count,numel(values));
+verifyEqual(testCase,row.nonzero_count,numel(nonzeroValues));
+verifyEqual(testCase,row.negative_count,nnz(values<0));
+verifyEqual(testCase,row.zero_count,nnz(values==0));
+verifyEqual(testCase,row.positive_count,nnz(values>0));
+verifyEqual(testCase,row.minimum_value,min(values),'AbsTol',0);
+verifyEqual(testCase,row.maximum_value,max(values),'AbsTol',0);
+verifyEqual(testCase,row.median_absolute,median(absoluteValues),'AbsTol',0);
+verifyEqual(testCase,row.p95_absolute,percentile95(absoluteValues), ...
+    'AbsTol',0);
+verifyEqual(testCase,row.maximum_absolute,max(absoluteValues),'AbsTol',0);
+if isempty(nonzeroValues)
+    verifyTrue(testCase,isnan(row.minimum_absolute_nonzero));
+    verifyTrue(testCase,isnan(row.minimum_order_of_magnitude));
+    verifyTrue(testCase,isnan(row.maximum_order_of_magnitude));
+    verifyTrue(testCase,isnan(row.order_of_magnitude_span));
+else
+    minimumOrder = floor(log10(min(nonzeroValues)));
+    maximumOrder = floor(log10(max(nonzeroValues)));
+    verifyEqual(testCase,row.minimum_absolute_nonzero,min(nonzeroValues), ...
+        'AbsTol',0);
+    verifyEqual(testCase,row.minimum_order_of_magnitude,minimumOrder, ...
+        'AbsTol',0);
+    verifyEqual(testCase,row.maximum_order_of_magnitude,maximumOrder, ...
+        'AbsTol',0);
+    verifyEqual(testCase,row.order_of_magnitude_span, ...
+        maximumOrder-minimumOrder,'AbsTol',0);
+end
+end
+
+function expected = expected_inequality_families()
+constraintFamily = [ ...
+    "global_capacity_lower_bound"
+    "global_capacity_upper_bound"
+    "pch_lower_bound"
+    "pch_upper_bound"
+    "pdis_lower_bound"
+    "pdis_upper_bound"
+    "pf_lower_bound"
+    "pf_upper_bound"
+    "ph_lower_bound"
+    "ph_upper_bound"
+    "pp_lower_bound"
+    "pp_upper_bound"
+    "pw_lower_bound"
+    "pw_upper_bound"
+    "soc_lower_bound"
+    "soc_upper_bound"];
+inequalityCount = [14;14;336;336;336;336;672;672;672;672; ...
+    420;420;838;838;336;336];
+expected = table(constraintFamily,inequalityCount, ...
+    'VariableNames',{'constraint_family','inequality_count'});
+end
+
+function value = joined_unique(values)
+value = strjoin(sort(unique(string(values))),"+");
 end
 
 function value = percentile95(values)
