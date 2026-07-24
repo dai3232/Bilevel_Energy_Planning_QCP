@@ -1,0 +1,13 @@
+check_id,actual,threshold,comparison,passed
+day17_response_symmetry,2.796078310728687e-16,9.9999999999999998e-13,<=,true
+overall_direction_relative_error,1.6509380228641142e-11,1e-10,<=,true
+xi_direction_relative_error,1.8881210303764536e-11,1e-10,<=,true
+y_direction_relative_error,2.195068024549815e-12,1e-10,<=,true
+l_direction_relative_error,1.4617101258029286e-11,1e-10,<=,true
+z_direction_relative_error,1.9308467433110974e-12,1e-10,<=,true
+recursive_full_kkt_relative_residual,1.3095765724939628e-13,1e-10,<=,true
+direct_full_kkt_relative_residual,1.2503952621846266e-14,1e-10,<=,true
+minimum_l,0.0045090075078093594,0,>,true
+minimum_z,1.5822518332365282e-06,0,>,true
+no_full_direction_fallback,1,1,==,true
+deterministic_repeat,1,1,==,true
