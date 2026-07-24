@@ -198,7 +198,8 @@ artifactPath = [relative_leaf(paths.mat);relative_leaf(paths.prefix); ...
     relative_leaf(paths.metadata)];
 sha256 = strings(numel(artifactPath),1);
 for k = 1:numel(artifactPath)
-    sha256(k) = compute_sha256_file(fullfile(outputDirectory,artifactPath(k)));
+    sha256(k) = compute_sha256_file( ...
+        fullfile(stagingDirectory,artifactPath(k)));
 end
 artifactManifest = table(artifactPath,sha256, ...
     'VariableNames',{'artifact_path','sha256'});
