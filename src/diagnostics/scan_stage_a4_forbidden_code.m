@@ -2,7 +2,7 @@ function audit = scan_stage_a4_forbidden_code(projectRoot,config)
 %SCAN_STAGE_A4_FORBIDDEN_CODE Audit executable code on the A4 diagnostic paths.
 %
 % The scan follows the production dependency closures rooted at the
-% A4-1, A4-2A, A4-2B, A4-2C, and A4-2D-1 entry points. Tests, reports,
+% A4-1, A4-2A, A4-2B, A4-2C, A4-2D-1, and A4-2D-2A entry points. Tests, reports,
 % historical runs, and unrelated stage-0 environment probes are therefore
 % outside the scan and cannot create false parallel-call findings.
 % Call-shaped patterns are evaluated after comments and quoted literals
@@ -18,7 +18,8 @@ entryPaths = [ ...
     fullfile(projectRoot,"main_stage_A4_2A.m")
     fullfile(projectRoot,"main_stage_A4_2B.m")
     fullfile(projectRoot,"main_stage_A4_2C.m")
-    fullfile(projectRoot,"main_stage_A4_2D_1.m")];
+    fullfile(projectRoot,"main_stage_A4_2D_1.m")
+    fullfile(projectRoot,"main_stage_A4_2D_2A.m")];
 complementarityAuditPath = fullfile(projectRoot,"src","diagnostics", ...
     "audit_stage_a4_complementarity_change.m");
 a42dAuditPath = fullfile(projectRoot,"src","diagnostics", ...
@@ -42,6 +43,14 @@ mandatoryPaths = [ ...
     fullfile(projectRoot,"src","diagnostics", ...
         "run_stage_a4_step_strategy_ab_diagnostic.m")
     a42dAuditPath
+    fullfile(projectRoot,"src","diagnostics", ...
+        "build_stage_a4_scaled_objective_linearization.m")
+    fullfile(projectRoot,"src","diagnostics", ...
+        "run_stage_a4_scaled_objective_chain.m")
+    fullfile(projectRoot,"src","diagnostics", ...
+        "evaluate_stage_a4_scaled_five_round_gate.m")
+    fullfile(projectRoot,"src","diagnostics", ...
+        "run_stage_a4_objective_unitization_diagnostic.m")
     complementarityAuditPath
     fullfile(projectRoot,"src","indexing","build_stage_a4_index.m")
     fullfile(projectRoot,"src","indexing", ...
@@ -132,7 +141,7 @@ rules = [ ...
         "(?<![A-Za-z0-9_])(?:mehrotra|predictor_?corrector|" + ...
         "predictorcorrector)\s*\(")];
 
-rowCount = numel(rules)+10;
+rowCount = numel(rules)+13;
 checkId = strings(rowCount,1);
 requirement = strings(rowCount,1);
 matchCount = zeros(rowCount,1);
@@ -245,6 +254,39 @@ details(row) = "targeted A4-2D-1 diagnostic-source scan for cond/full calls";
 filesScanned(row) = numel(a42dDiagnosticPaths);
 
 row = row+1;
+checkId(row) = "NO-A42D2A-ADDITIONAL-DENSE-CONDITION-NUMBER";
+requirement(row) = ...
+    "A4-2D-2A adds no dense condition-number or full-matrix diagnostic";
+a42d2aDiagnosticPaths = [entryPaths(6); ...
+    fullfile(projectRoot,"src","diagnostics", ...
+        "build_stage_a4_scaled_objective_linearization.m"); ...
+    fullfile(projectRoot,"src","diagnostics", ...
+        "run_stage_a4_scaled_objective_chain.m"); ...
+    fullfile(projectRoot,"src","diagnostics", ...
+        "evaluate_stage_a4_scaled_five_round_gate.m"); ...
+    fullfile(projectRoot,"src","diagnostics", ...
+        "run_stage_a4_objective_unitization_diagnostic.m")];
+denseHits = strings(0,1);
+for fileIndex = 1:numel(a42d2aDiagnosticPaths)
+    targetCode = strip_matlab_noncode( ...
+        fileread(a42d2aDiagnosticPaths(fileIndex)));
+    found = regexpi(char(targetCode), ...
+        '(?<![A-Za-z0-9_])(?:cond|full)\s*\(','match');
+    matchCount(row) = matchCount(row)+numel(found);
+    if ~isempty(found)
+        denseHits(end+1,1) = relative_path( ...
+            a42d2aDiagnosticPaths(fileIndex),projectRoot); %#ok<AGROW>
+    end
+end
+matchedFiles(row) = strjoin(unique(denseHits,'stable'),"; ");
+if matchCount(row)>0
+    status(row) = "FAIL";
+end
+details(row) = ...
+    "targeted A4-2D-2A diagnostic-source scan for cond/full calls";
+filesScanned(row) = numel(a42d2aDiagnosticPaths);
+
+row = row+1;
 checkId(row) = "NO-A42D1-AUDIT-SOLVER-OR-STATE-UPDATE";
 requirement(row) = ...
     "The read-only A4-2D-1 audit excludes all solver and state-update paths";
@@ -315,6 +357,48 @@ matchedFiles(row) = strjoin(relative_paths( ...
 details(row) = "dependency closure rooted at "+ ...
     relative_path(entryPaths(5),projectRoot);
 filesScanned(row) = numel(a42dEntryDependencies);
+if matchCount(row) ~= 0
+    status(row) = "FAIL";
+end
+
+row = row+1;
+checkId(row) = "NO-A42D2A-STAGE-B-DEPENDENCY";
+requirement(row) = "The A4-2D-2A entry dependency closure excludes Stage B";
+a42d2aEntryDependencies = project_m_files( ...
+    dependency_files(entryPaths(6)),projectRoot);
+stageBRoot = canonical_path(fullfile(projectRoot,"stages","stage_B"));
+stageBPrefix = lower(stageBRoot+filesep);
+a42d2aCanonical = arrayfun(@canonical_path,a42d2aEntryDependencies);
+stageBMask = startsWith(lower(a42d2aCanonical),stageBPrefix);
+matchCount(row) = nnz(stageBMask);
+matchedFiles(row) = strjoin(relative_paths( ...
+    a42d2aEntryDependencies(stageBMask),projectRoot),"; ");
+details(row) = "dependency closure rooted at "+ ...
+    relative_path(entryPaths(6),projectRoot);
+filesScanned(row) = numel(a42d2aEntryDependencies);
+if matchCount(row) ~= 0
+    status(row) = "FAIL";
+end
+
+row = row+1;
+checkId(row) = "A42D2A-OBJECTIVE-SCALE-DEFAULT-OFF";
+requirement(row) = ...
+    "Pre-existing A4 entries do not explicitly enable objective unitization";
+formalEntryPaths = entryPaths(1:5);
+enableHits = strings(0,1);
+for fileIndex = 1:numel(formalEntryPaths)
+    targetCode = strip_matlab_noncode(fileread(formalEntryPaths(fileIndex)));
+    found = regexp(char(targetCode), ...
+        'ObjectiveScaleMode\s*[,=]','match');
+    matchCount(row) = matchCount(row)+numel(found);
+    if ~isempty(found)
+        enableHits(end+1,1) = relative_path( ...
+            formalEntryPaths(fileIndex),projectRoot); %#ok<AGROW>
+    end
+end
+matchedFiles(row) = strjoin(unique(enableHits,'stable'),"; ");
+details(row) = "targeted pre-existing A4 entry scan";
+filesScanned(row) = numel(formalEntryPaths);
 if matchCount(row) ~= 0
     status(row) = "FAIL";
 end
