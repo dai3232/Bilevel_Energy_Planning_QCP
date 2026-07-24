@@ -1,0 +1,1 @@
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate_stage_A4_RNS_1_fixture.ps1
