@@ -287,7 +287,11 @@ expectedCheckIds = [ ...
     "NO-RECURSIVE-FULL-DIRECTION-FALLBACK"
     "AUTOMATIC-REGULARIZATION-DISABLED"
     "AUTOMATIC-SYMMETRIZATION-DISABLED"
-    "PARALLEL-MODE-OFF"];
+    "PARALLEL-MODE-OFF"
+    "NO-RNS-DIRECT-RAW-OPERATOR-BACKSLASH"
+    "NO-RNS-AUTOMATIC-SYMMETRIZATION"
+    "NO-RNS-DIRECT-SOLVER-DEPENDENCY"
+    "NO-RNS-STAGE-B-DEPENDENCY"];
 verifyEqual(testCase,string(audit.check_id),expectedCheckIds);
 verifyEqual(testCase,string(audit.status), ...
     repmat("PASS",numel(expectedCheckIds),1), ...
