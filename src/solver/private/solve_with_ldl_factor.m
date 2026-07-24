@@ -31,12 +31,36 @@ if any(~isfinite(solution), "all")
         "%s solution contains NaN or Inf.", label);
 end
 
-residual = factor.matrix * solution - rhs;
+rawResidual = factor.matrix*solution-rhs;
+if isfield(factor,"factorized_operator")
+    factorizedResidual = factor.factorized_operator*solution-rhs;
+    rawToFactorizedRelative = ...
+        factor.raw_to_factorized_operator_relative;
+    actualOperatorAvailable = true;
+else
+    factorizedResidual = rawResidual;
+    rawToFactorizedRelative = 0;
+    actualOperatorAvailable = false;
+end
 diagnostics = struct();
 diagnostics.label = label;
 diagnostics.rhs_columns = size(rhs,2);
-diagnostics.relative_residual = norm(residual, "fro") / max(1, norm(rhs, "fro"));
-diagnostics.max_absolute_residual = max(abs(residual), [], "all");
+diagnostics.relative_residual = ...
+    norm(rawResidual,"fro")/max(1,norm(rhs,"fro"));
+diagnostics.max_absolute_residual = max(abs(rawResidual),[],"all");
+diagnostics.raw_operator_relative_residual = diagnostics.relative_residual;
+diagnostics.raw_operator_max_absolute_residual = ...
+    diagnostics.max_absolute_residual;
+diagnostics.factorized_operator_relative_residual = ...
+    norm(factorizedResidual,"fro")/max(1,norm(rhs,"fro"));
+diagnostics.factorized_operator_max_absolute_residual = ...
+    max(abs(factorizedResidual),[],"all");
+diagnostics.raw_to_factorized_operator_relative = ...
+    rawToFactorizedRelative;
+diagnostics.actual_factorized_operator_available = ...
+    actualOperatorAvailable;
+diagnostics.actual_factorized_operator_used_for_audit = ...
+    actualOperatorAvailable;
 diagnostics.warning_id = string(warningId);
 diagnostics.warning_message = string(warningMessage);
 diagnostics.warning_present = false;

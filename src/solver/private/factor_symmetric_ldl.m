@@ -46,6 +46,11 @@ end
 factorResidual = solver_relative_error( ...
     lowerFactor * blockDiagonal * lowerFactor.', ...
     matrix(permutation, permutation), "fro");
+factorizedPermuted = lowerFactor*blockDiagonal*lowerFactor.';
+factorizedOperator = sparse(n,n);
+factorizedOperator(permutation,permutation) = factorizedPermuted;
+rawToFactorizedRelative = solver_relative_error( ...
+    factorizedOperator,matrix,"fro");
 
 densePivot = full(blockDiagonal); % Small LDL pivot matrix only.
 eigenvalues = eig(densePivot);
@@ -62,6 +67,7 @@ end
 factor = struct();
 factor.label = label;
 factor.matrix = matrix;
+factor.factorized_operator = factorizedOperator;
 factor.L = lowerFactor;
 factor.D = blockDiagonal;
 factor.permutation = permutation(:);
@@ -74,6 +80,10 @@ factor.inertia_positive = inertiaPositive;
 factor.inertia_negative = inertiaNegative;
 factor.inertia_zero = inertiaZero;
 factor.factor_relative_residual = factorResidual;
+factor.raw_to_factorized_operator_relative = rawToFactorizedRelative;
+factor.actual_factorized_operator_reconstruction_exact = isequal( ...
+    factorizedOperator(permutation,permutation),factorizedPermuted);
+factor.actual_factorized_operator_available_for_residual_audit = true;
 factor.warning_id = string(warningId);
 factor.warning_message = string(warningMessage);
 factor.warning_present = false;

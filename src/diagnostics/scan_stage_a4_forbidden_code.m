@@ -2,7 +2,8 @@ function audit = scan_stage_a4_forbidden_code(projectRoot,config)
 %SCAN_STAGE_A4_FORBIDDEN_CODE Audit executable code on the A4 diagnostic paths.
 %
 % The scan follows the production dependency closures rooted at the
-% A4-1, A4-2A, A4-2B, A4-2C, A4-2D-1, and A4-2D-2A entry points. Tests, reports,
+% A4-1, A4-2A, A4-2B, A4-2C, A4-2D-1, A4-2D-2A, and A4-RNS-1
+% entry points. Tests, reports,
 % historical runs, and unrelated stage-0 environment probes are therefore
 % outside the scan and cannot create false parallel-call findings.
 % Call-shaped patterns are evaluated after comments and quoted literals
@@ -19,7 +20,8 @@ entryPaths = [ ...
     fullfile(projectRoot,"main_stage_A4_2B.m")
     fullfile(projectRoot,"main_stage_A4_2C.m")
     fullfile(projectRoot,"main_stage_A4_2D_1.m")
-    fullfile(projectRoot,"main_stage_A4_2D_2A.m")];
+    fullfile(projectRoot,"main_stage_A4_2D_2A.m")
+    fullfile(projectRoot,"main_stage_A4_RNS_1.m")];
 complementarityAuditPath = fullfile(projectRoot,"src","diagnostics", ...
     "audit_stage_a4_complementarity_change.m");
 a42dAuditPath = fullfile(projectRoot,"src","diagnostics", ...
@@ -51,6 +53,8 @@ mandatoryPaths = [ ...
         "evaluate_stage_a4_scaled_five_round_gate.m")
     fullfile(projectRoot,"src","diagnostics", ...
         "run_stage_a4_objective_unitization_diagnostic.m")
+    fullfile(projectRoot,"src","diagnostics", ...
+        "run_stage_a4_rns1_stability_audit.m")
     complementarityAuditPath
     fullfile(projectRoot,"src","indexing","build_stage_a4_index.m")
     fullfile(projectRoot,"src","indexing", ...
@@ -141,7 +145,7 @@ rules = [ ...
         "(?<![A-Za-z0-9_])(?:mehrotra|predictor_?corrector|" + ...
         "predictorcorrector)\s*\(")];
 
-rowCount = numel(rules)+13;
+rowCount = numel(rules)+17;
 checkId = strings(rowCount,1);
 requirement = strings(rowCount,1);
 matchCount = zeros(rowCount,1);
@@ -446,6 +450,90 @@ requirement(row) = "A4 parallel_mode remains off";
 matchCount(row) = double(string(config.parallel_mode) ~= "off");
 details(row) = "config/stage_A4.yaml";
 filesScanned(row) = numel(productionFiles);
+if matchCount(row) ~= 0
+    status(row) = "FAIL";
+end
+
+row = row+1;
+checkId(row) = "NO-RNS-DIRECT-RAW-OPERATOR-BACKSLASH";
+requirement(row) = ...
+    "A4-RNS-1 never falls back to direct M, partition.M, or rawOperator backslash";
+rnsEntryDependencies = project_m_files( ...
+    dependency_files(entryPaths(7)),projectRoot);
+rnsCode = strings(numel(rnsEntryDependencies),1);
+backslashHits = strings(0,1);
+backslashPattern = ...
+    "(?<![A-Za-z0-9_])(?:M|rawOperator|partition\s*\.\s*M|" + ...
+    "core\s*\.\s*matrix)\s*\\";
+for fileIndex = 1:numel(rnsEntryDependencies)
+    rnsCode(fileIndex) = strip_matlab_noncode( ...
+        fileread(rnsEntryDependencies(fileIndex)));
+    found = regexp(char(rnsCode(fileIndex)), ...
+        backslashPattern,'match');
+    matchCount(row) = matchCount(row)+numel(found);
+    if ~isempty(found)
+        backslashHits(end+1,1) = relative_path( ...
+            rnsEntryDependencies(fileIndex),projectRoot); %#ok<AGROW>
+    end
+end
+matchedFiles(row) = strjoin(unique(backslashHits,'stable'),"; ");
+details(row) = "targeted A4-RNS-1 raw-operator direct-solve scan";
+filesScanned(row) = numel(rnsEntryDependencies);
+if matchCount(row) ~= 0
+    status(row) = "FAIL";
+end
+
+row = row+1;
+checkId(row) = "NO-RNS-AUTOMATIC-SYMMETRIZATION";
+requirement(row) = ...
+    "A4-RNS-1 contains no arithmetic average with a transpose";
+symmetrizationHits = strings(0,1);
+symmetrizationPattern = ...
+    "(?:(?:0?\.5)\s*\*\s*\(|\(\s*)" + ...
+    "(?:M|matrix|rawOperator|partition\s*\.\s*M)\s*\+\s*" + ...
+    "(?:M|matrix|rawOperator|partition\s*\.\s*M)\s*\.'";
+for fileIndex = 1:numel(rnsEntryDependencies)
+    found = regexp(char(rnsCode(fileIndex)), ...
+        symmetrizationPattern,'match');
+    matchCount(row) = matchCount(row)+numel(found);
+    if ~isempty(found)
+        symmetrizationHits(end+1,1) = relative_path( ...
+            rnsEntryDependencies(fileIndex),projectRoot); %#ok<AGROW>
+    end
+end
+matchedFiles(row) = strjoin(unique(symmetrizationHits,'stable'),"; ");
+details(row) = "targeted A4-RNS-1 transpose-average scan";
+filesScanned(row) = numel(rnsEntryDependencies);
+if matchCount(row) ~= 0
+    status(row) = "FAIL";
+end
+
+row = row+1;
+checkId(row) = "NO-RNS-DIRECT-SOLVER-DEPENDENCY";
+requirement(row) = ...
+    "The A4-RNS-1 dependency closure excludes the complete-KKT direct solver";
+rnsCanonical = arrayfun(@canonical_path,rnsEntryDependencies);
+directMask = strcmpi(rnsCanonical,canonical_path(directPath));
+matchCount(row) = nnz(directMask);
+matchedFiles(row) = strjoin(relative_paths( ...
+    rnsEntryDependencies(directMask),projectRoot),"; ");
+details(row) = "dependency closure rooted at "+ ...
+    relative_path(entryPaths(7),projectRoot);
+filesScanned(row) = numel(rnsEntryDependencies);
+if matchCount(row) ~= 0
+    status(row) = "FAIL";
+end
+
+row = row+1;
+checkId(row) = "NO-RNS-STAGE-B-DEPENDENCY";
+requirement(row) = "The A4-RNS-1 entry dependency closure excludes Stage B";
+rnsStageBMask = startsWith(lower(rnsCanonical),stageBPrefix);
+matchCount(row) = nnz(rnsStageBMask);
+matchedFiles(row) = strjoin(relative_paths( ...
+    rnsEntryDependencies(rnsStageBMask),projectRoot),"; ");
+details(row) = "dependency closure rooted at "+ ...
+    relative_path(entryPaths(7),projectRoot);
+filesScanned(row) = numel(rnsEntryDependencies);
 if matchCount(row) ~= 0
     status(row) = "FAIL";
 end
