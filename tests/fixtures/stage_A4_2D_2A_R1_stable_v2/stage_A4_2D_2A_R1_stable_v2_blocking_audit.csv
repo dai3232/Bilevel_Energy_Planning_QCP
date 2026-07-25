@@ -1,0 +1,15 @@
+test_id,requirement,actual,status
+R1-EXEC-UNSCALED-5,Unscaled stable baseline completes five updates,true,PASS
+R1-EXEC-SCALED-5,Scaled stable short chain completes five updates,true,PASS
+R1-EXEC-SCALED-20,Scaled stable long chain completes twenty updates,true,PASS
+R1-DETERMINISM-PREFIX,Scaled 5 and scaled 20 prefix match at zero tolerance,true,PASS
+R1-INITIAL-STATE,All three chains share one exact initial xi/y/l/z state,true,PASS
+R1-STABLE-V2-PASSES,Every round explicitly enables stable-v2 MaxPasses=3,true,PASS
+R1-POSITIVITY,Every round remains finite with l>0 and z>0,true,PASS
+R1-DIRECTION-TOTAL,Every total direction relative error is <=1e-10,true,PASS
+R1-DIRECTION-COMPONENTS,Every xi/y/l/z direction error is <=1e-10,true,PASS
+R1-RECURSIVE-KKT,Every recursive direction full-KKT residual is <=1e-10,true,PASS
+R1-FULL-KKT,Every direct audit direction residual is <=1e-10,true,PASS
+R1-NO-FALLBACK,No complete-KKT direction fallback is used,true,PASS
+R1-FROZEN-STRUCTURE,"Model matrices, offsets, maps, index and dimensions are frozen",true,PASS
+R1-FORBIDDEN-EXECUTION,"No common step, dynamic sigma, PC, line search, regularization, parallel, formal run, 100 rounds or Stage B is executed",true,PASS

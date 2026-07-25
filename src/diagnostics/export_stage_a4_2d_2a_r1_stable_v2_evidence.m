@@ -306,12 +306,18 @@ function write_text(pathValue,textValue)
 fileId = fopen(pathValue,"wb","n","UTF-8");
 assert(fileId>=0,"stageA4:r1:EvidenceTextOpen", ...
     "Unable to open R1 evidence text file: %s",pathValue);
-cleanup = onCleanup(@()fclose(fileId));
+cleanup = onCleanup(@()close_file_if_open(fileId));
 fprintf(fileId,"%s",textValue);
 status = fclose(fileId);
 clear cleanup
 assert(status==0,"stageA4:r1:EvidenceTextClose", ...
     "Unable to close R1 evidence text file: %s",pathValue);
+end
+
+function close_file_if_open(fileId)
+if any(fopen("all")==fileId)
+    fclose(fileId);
+end
 end
 
 function cleanup_staging(stagingDirectory,outputDirectory)

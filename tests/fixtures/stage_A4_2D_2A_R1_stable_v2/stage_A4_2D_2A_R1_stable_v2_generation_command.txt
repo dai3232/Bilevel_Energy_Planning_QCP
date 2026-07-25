@@ -1,0 +1,1 @@
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/export_stage_A4_2D_2A_R1_stable_v2.ps1 -SourceCommit 1849c21cffa086eb5f76075485e0434a08141bdc
