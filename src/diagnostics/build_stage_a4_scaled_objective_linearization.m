@@ -14,7 +14,8 @@ arguments
     config (1,1) struct
     diagnosticChainId (1,1) string {mustBeMember( ...
         diagnosticChainId, ...
-        ["A4-2D-2A-SCALED-5","A4-2D-2A-SCALED-20"])}
+        ["A4-2D-2A-SCALED-5","A4-2D-2A-SCALED-20", ...
+        "A4-2D-2A-R1-SCALED-STABLE-V2"])}
 end
 
 base = build_stage_a4_linearization(state,data,index,config);
