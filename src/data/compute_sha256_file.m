@@ -19,7 +19,7 @@ end
 if fileId < 0
     error("stage0:InputFileOpenFailed", "Cannot open input file '%s': %s", filePath, message);
 end
-closeFile = onCleanup(@() fclose(fileId)); %#ok<NASGU>
+closeFile = onCleanup(@() fclose(fileId));
 
 messageDigest = java.security.MessageDigest.getInstance("SHA-256");
 % Feed bounded chunks to Java.  Passing a whole large MAT file as one
