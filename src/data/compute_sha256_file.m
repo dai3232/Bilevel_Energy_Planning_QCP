@@ -20,10 +20,21 @@ if fileId < 0
     error("stage0:InputFileOpenFailed", "Cannot open input file '%s': %s", filePath, message);
 end
 closeFile = onCleanup(@() fclose(fileId)); %#ok<NASGU>
-fileBytes = fread(fileId, Inf, "*uint8");
 
 messageDigest = java.security.MessageDigest.getInstance("SHA-256");
-messageDigest.update(typecast(fileBytes, "int8"));
+% Feed bounded chunks to Java.  Passing a whole large MAT file as one
+% MATLAB-to-Java argument is not reliable in R2024a (the overload
+% resolution can reject a non-scalar byte vector); chunking also keeps the
+% historical-run snapshot memory bounded.
+chunkSize = 1024*1024;
+while true
+    fileBytes = fread(fileId, chunkSize, "*uint8");
+    if isempty(fileBytes)
+        break
+    end
+    byteVector = typecast(fileBytes(:), "int8");
+    messageDigest.update(byteVector, 0, int32(numel(byteVector)));
+end
 digestBytes = mod(double(messageDigest.digest()), 256);
 sha256 = lower(join(compose("%02x", digestBytes), ""));
 sha256 = reshape(sha256, 1, 1);
