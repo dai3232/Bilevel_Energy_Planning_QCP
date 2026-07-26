@@ -530,10 +530,10 @@ acceptanceReport = facts.acceptance;
 if ismember("threshold",string(acceptanceReport.Properties.VariableNames))
     thresholdText = string(acceptanceReport.threshold);
     thresholdText(thresholdText=="all physical audit rows PASS") = ...
-        "物理审计均 PASS";
+        "物理审计均通过";
     thresholdText(thresholdText== ...
         "three artifact-backed Chinese DOCX reports validated") = ...
-        "三份中文 DOCX 报告已验证";
+        "三份中文报告已验证";
     acceptanceReport.threshold = thresholdText;
 end
 blocks(end+1) = selected_table_block(acceptanceReport, ...
@@ -617,7 +617,7 @@ blocks(end+1) = selected_table_block(facts.acceptance, ...
     ["test_id","actual_value","status"],[2100 5460 1800]);
 blocks(end+1) = heading_block("边界声明",1);
 blocks(end+1) = paragraph_block( ...
-    "本摘要只陈述当前run已落盘的阶段A4七日连续优化结果。停止条件采用 positive_scalar_unitized_kkt 坐标；mean(l.*z)不是无量纲量，原尺度映射值不套用相同绝对1e-8阈值。未启用的约束与目标不得从本结果推断；完整小时明细以CSV和MAT工件为准。");
+    "本摘要只陈述当前run已落盘的阶段A4七日连续优化结果。停止条件采用正标量单位化坐标；mean(l.*z)不是无量纲量，原尺度映射值不套用相同绝对1e-8阈值。未启用的约束与目标不得从本结果推断；完整小时明细以CSV和MAT工件为准。");
 end
 
 function value = compact_iteration_display(input)
