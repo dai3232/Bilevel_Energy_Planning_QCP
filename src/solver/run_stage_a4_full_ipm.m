@@ -951,7 +951,7 @@ end
 function publish_csv(source,target)
 source = char(string(source));
 target = char(string(target));
-ensure_parent_directory(target);
+ensure_directory(fileparts(target));
 temporary = [tempname(fileparts(target)),'.csv.pending'];
 cleanup = onCleanup(@()delete_if_present(temporary));
 [copied,message] = copyfile(source,temporary);
