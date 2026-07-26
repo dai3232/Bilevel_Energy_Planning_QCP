@@ -175,8 +175,12 @@ for name = string(left.Properties.VariableNames)
     else
         leftText = string(a);
         rightText = string(b);
-        leftText(ismissing(leftText)) = "";
-        rightText(ismissing(rightText)) = "";
+        % Empty CSV text cells are imported as either <missing> or the
+        % literal "NaN" depending on the R2024a import path.  Treat both
+        % representations as the same empty evidence value so a rebuilt
+        % forbidden-code table can be compared byte-semantically.
+        leftText(ismissing(leftText) | lower(strip(leftText))=="nan") = "";
+        rightText(ismissing(rightText) | lower(strip(rightText))=="nan") = "";
         passed = passed && isequal(leftText,rightText);
     end
 end
