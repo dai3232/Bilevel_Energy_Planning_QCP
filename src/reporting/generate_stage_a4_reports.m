@@ -522,8 +522,8 @@ else
         ["issue_id","test_id","symptom","root_cause", ...
          "implemented_change","regression_test","status"], ...
         string(facts.issues.Properties.VariableNames),'stable');
-    blocks(end+1) = selected_table_block(facts.issues,issueColumns, ...
-        issue_widths(issueColumns));
+    blocks(end+1) = issue_detail_table_block( ...
+        facts.issues,issueColumns);
 end
 blocks(end+1) = heading_block("二、七项阻断验收",1);
 acceptanceReport = facts.acceptance;
@@ -711,12 +711,6 @@ else
 end
 end
 
-function widths = issue_widths(columns)
-n = numel(columns);
-widths = floor(9360/n)*ones(1,n);
-widths(end) = 9360-sum(widths(1:end-1));
-end
-
 function blocks = empty_blocks()
 blocks = repmat(block_template(),0,1);
 end
@@ -760,6 +754,29 @@ for c = 1:numel(columns)
     end
 end
 block = table_block(replace(columns,"_"," "),rows,widths);
+end
+
+function block = issue_detail_table_block(tableValue,columns)
+labels = containers.Map( ...
+    {'issue_id','test_id','symptom','root_cause', ...
+     'implemented_change','regression_test','status'}, ...
+    {'问题编号','关联验收','症状','根因', ...
+     '已实施修改','回归测试','状态'});
+rows = strings(height(tableValue)*numel(columns),2);
+index = 0;
+for r = 1:height(tableValue)
+    for c = 1:numel(columns)
+        index = index+1;
+        field = char(columns(c));
+        label = string(labels(field));
+        if height(tableValue)>1
+            label = "问题"+string(r)+" · "+label;
+        end
+        rows(index,:) = [label, ...
+            display_text(extract_row(tableValue.(columns(c)),r))];
+    end
+end
+block = table_block(["字段","工件原值"],rows,[2200 7160]);
 end
 
 function pathValue = required(root,relative)
