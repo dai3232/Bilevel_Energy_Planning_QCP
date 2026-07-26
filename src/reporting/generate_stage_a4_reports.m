@@ -536,6 +536,12 @@ if ismember("threshold",string(acceptanceReport.Properties.VariableNames))
         "三份中文报告已验证";
     acceptanceReport.threshold = thresholdText;
 end
+if ismember("actual_value",string(acceptanceReport.Properties.VariableNames))
+    actualText = string(acceptanceReport.actual_value);
+    actualText(actualText=="report_evidence_not_provided") = ...
+        "报告证据尚未提供";
+    acceptanceReport.actual_value = actualText;
+end
 blocks(end+1) = selected_table_block(acceptanceReport, ...
     ["test_id","requirement","actual_value","threshold","status"], ...
     [1800 2500 2100 1500 1460]);
@@ -617,7 +623,7 @@ blocks(end+1) = selected_table_block(facts.acceptance, ...
     ["test_id","actual_value","status"],[2100 5460 1800]);
 blocks(end+1) = heading_block("边界声明",1);
 blocks(end+1) = paragraph_block( ...
-    "本摘要只陈述当前run已落盘的阶段A4七日连续优化结果。停止条件采用正标量单位化坐标；mean(l.*z)不是无量纲量，原尺度映射值不套用相同绝对1e-8阈值。未启用的约束与目标不得从本结果推断；完整小时明细以CSV和MAT工件为准。");
+    "本摘要只陈述当前run已落盘的阶段A4七日连续优化结果。停止条件采用正标量单位化坐标；互补均值不是无量纲量，原尺度映射值不套用相同绝对1e-8阈值。未启用的约束与目标不得从本结果推断；完整小时明细以CSV和MAT工件为准。");
 end
 
 function value = compact_iteration_display(input)
