@@ -170,7 +170,8 @@ end
 for name = string(left.Properties.VariableNames)
     a = left.(name);
     b = right.(name);
-    if isnumeric(a) || islogical(a)
+    if (isnumeric(a) || islogical(a)) && ...
+            (isnumeric(b) || islogical(b))
         passed = passed && isequaln(double(a),double(b));
     else
         leftText = string(a);
