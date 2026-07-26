@@ -474,8 +474,8 @@ end
 function rows = add_refinement_identity(value,iteration,revision)
 n = height(value);
 rows = addvars(value,repmat(iteration,n,1), ...
-    repmat(revision,n,1),"Before",1, ...
-    "NewVariableNames",{"iteration","state_revision"});
+    repmat(revision,n,1),'Before',1, ...
+    'NewVariableNames',{'iteration','state_revision'});
 end
 
 function value = convergence_passed(m,a43)
