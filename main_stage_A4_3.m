@@ -609,7 +609,11 @@ pathValue = fullfile(context.root,"a4_3_solver_result.mat");
 assert(~isfile(pathValue)&&~isfolder(pathValue), ...
     "stageA4:a43:SolverResultExists", ...
     "Refusing to overwrite the A4-3 solver result.");
-summary = rmfield(result,{"final_linearization","final_state"});
+% R2024a accepts a cell array of character vectors for rmfield.  Using a
+% string array here is rejected when a numerical-failure result is persisted,
+% which would otherwise hide the real terminal state behind an
+% INTERRUPTED_RECOVERABLE persistence error.
+summary = rmfield(result,{'final_linearization','final_state'});
 save_mat_artifact(pathValue, ...
     "summary",summary,"final_state",result.final_state);
 end
