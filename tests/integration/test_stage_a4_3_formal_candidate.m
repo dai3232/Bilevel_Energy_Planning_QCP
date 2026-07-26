@@ -1,0 +1,207 @@
+function tests = test_stage_a4_3_formal_candidate
+%TEST_STAGE_A4_3_FORMAL_CANDIDATE Focused entry/route acceptance tests.
+tests = functiontests(localfunctions);
+end
+
+function setupOnce(testCase)
+root = string(fileparts(fileparts(fileparts(mfilename("fullpath")))));
+originalPath = path;
+addpath(root);
+addpath(genpath(fullfile(root,"src")));
+testCase.addTeardown(@()path(originalPath));
+config = load_stage_a4_3_configuration(root);
+data = load_project_data(root);
+index = build_stage_a4_index(data,"RunId","A4_3_FORMAL_TEST");
+state = initialize_stage_a4_state(data,index,config);
+linearization = build_stage_a4_scaled_objective_linearization( ...
+    state,data,index,config,"A4-3-FORMAL-CANDIDATE");
+eqScale = max(1,norm(linearization.r_eq,inf));
+dualScale = max(1,norm(linearization.r_dual,inf));
+step = execute_stage_a4_iteration(state,data,index,config, ...
+    "StepStrategy","independent", ...
+    "ObjectiveScaleMode","positive_scalar_unitization", ...
+    "DiagnosticObjectiveChainId","A4-3-FORMAL-CANDIDATE", ...
+    "RecursiveRefinementMaxPasses",3, ...
+    "EqualityResidualReferenceScale",eqScale, ...
+    "DualResidualReferenceScale",dualScale);
+testCase.TestData = struct("root",root,"config",config,"data",data, ...
+    "index",index,"state",state,"linearization",linearization, ...
+    "step",step);
+end
+
+function testFormalConfigurationFreezesExactlyApprovedFactors(testCase)
+a43 = testCase.TestData.config.a4_3;
+verifyEqual(testCase,a43.days,14:20);
+verifyEqual(testCase,a43.hours,1:24);
+verifyEqual(testCase,a43.max_iterations,100);
+verifyEqual(testCase,a43.recursive_refinement_max_passes,3);
+verifyEqual(testCase,a43.centering_sigma,0.1);
+verifyEqual(testCase,a43.fraction_to_boundary,0.9995);
+verifyEqual(testCase,a43.step_strategy,"independent");
+verifyEqual(testCase,a43.convergence_coordinate, ...
+    "positive_scalar_unitized_kkt");
+for name = ["common_step_enabled","dynamic_sigma_enabled", ...
+        "predictor_corrector_enabled","line_search_enabled", ...
+        "regularization_enabled","automatic_symmetrization_enabled", ...
+        "full_kkt_direction_fallback_enabled"]
+    verifyFalse(testCase,a43.(name));
+end
+end
+
+function testObjectiveScaleComesFromActualFourteenCapacityGradient(testCase)
+lin = testCase.TestData.linearization;
+q = lin.maps.q_global;
+expected = max(abs(lin.objective.original_gradient(q)));
+verifyEqual(testCase,numel(q),14);
+verifyGreaterThan(testCase,expected,0);
+verifyEqual(testCase,lin.objective_scale.factor,expected);
+verifyEqual(testCase,lin.objective.gradient, ...
+    lin.objective.original_gradient/expected);
+verifyEqual(testCase,lin.H,testCase.TestData.step.linearization_before.H);
+verifyEqual(testCase,lin.A,testCase.TestData.step.linearization_before.A);
+verifyEqual(testCase,lin.G,testCase.TestData.step.linearization_before.G);
+end
+
+function testOneFormalRouteIterationUsesStableV2AndIndependentAudit(testCase)
+step = testCase.TestData.step;
+audit = step.direction_audit;
+trace = summarize_stage_a4_recursive_refinement(step.recursive);
+verifyEqual(testCase,height(trace),8);
+verifyTrue(testCase,all(trace.maximum_passes==3));
+verifyTrue(testCase,all(trace.selected_pass<=3));
+verifyTrue(testCase,all(trace.additional_factorization_count==0));
+verifyFalse(testCase,any(trace.full_kkt_direction_consumed));
+verifyLessThanOrEqual(testCase,audit.direction_relative_error,1e-10);
+verifyLessThanOrEqual(testCase,audit.component_relative_errors.xi,1e-10);
+verifyLessThanOrEqual(testCase,audit.component_relative_errors.y,1e-10);
+verifyLessThanOrEqual(testCase,audit.component_relative_errors.l,1e-10);
+verifyLessThanOrEqual(testCase,audit.component_relative_errors.z,1e-10);
+verifyLessThanOrEqual(testCase,audit.recursive_kkt_relative_residual,1e-10);
+verifyLessThanOrEqual(testCase,audit.full_kkt_relative_residual,1e-10);
+verifyTrue(testCase,step.recursive.no_full_direction_fallback);
+verifyFalse(testCase,step.recursive.full_direction_consumed);
+verifyEqual(testCase,step.applied_step.strategy,"independent");
+verifyEqual(testCase,step.applied_step.applied_alpha_primal, ...
+    step.primal_step.alpha);
+verifyEqual(testCase,step.applied_step.applied_alpha_dual, ...
+    step.dual_step.alpha);
+end
+
+function testScaledMappedAndDimensionlessMetricsAreIndependentFacts(testCase)
+m = compute_stage_a4_unitized_metrics( ...
+    testCase.TestData.step.linearization_after);
+scale = m.objective_scale_factor;
+verifyEqual(testCase,m.convergence_coordinate, ...
+    "positive_scalar_unitized_kkt");
+verifyEqual(testCase,m.r_dual_original_mapped_inf, ...
+    scale*m.r_dual_scaled_inf,"RelTol",2048*eps);
+verifyEqual(testCase,m.gap_original_mapped, ...
+    scale*m.ltz_scaled,"RelTol",2048*eps);
+verifyEqual(testCase,m.mean_lz_original_mapped, ...
+    scale*m.mean_lz_scaled,"RelTol",2048*eps);
+verifyLessThanOrEqual(testCase,m.dual_mapping_relative_error,2048*eps);
+verifyLessThanOrEqual(testCase, ...
+    m.complementarity_mapping_relative_error,2048*eps);
+verifyTrue(testCase,all(isfinite([m.eta_eq,m.eta_dual,m.eta_gap])));
+end
+
+function testAcceptanceRejectsMissingDirectionEvidence(testCase)
+step = testCase.TestData.step;
+metrics = compute_stage_a4_unitized_metrics(step.linearization_after);
+direction = direction_table(step);
+execution = struct( ...
+    "one_full_kkt_audit_per_accepted_iteration",true, ...
+    "direction_audits_pass",true, ...
+    "no_full_direction_fallback",true, ...
+    "forbidden_execution_pass",true);
+result = struct( ...
+    "run_terminal_state","MAX_ITERATIONS", ...
+    "convergence_achieved",false, ...
+    "iteration_count",1, ...
+    "full_kkt_audit_count",1, ...
+    "final_metrics",metrics, ...
+    "direction_audit",direction, ...
+    "execution_audit",execution);
+audit_id = [ ...
+    "A43-PHY-EQUALITY"
+    "A43-PHY-POWER-BALANCE"
+    "A43-PHY-SOC-CHAIN"
+    "A43-PHY-SOC-TERMINAL"
+    "A43-PHY-INEQUALITY"
+    "A43-PHY-FIXED-ZERO-VALUE"
+    "A43-PHY-FIXED-ZERO-DIRECTION"
+    "A43-PHY-NO-INTERDAY-SOC"];
+physical = table(audit_id,repmat("fixture",8,1), ...
+    repmat("0",8,1),repmat("<=1e-8",8,1), ...
+    repmat("PASS",8,1),repmat("fixture",8,1), ...
+    'VariableNames',{'audit_id','requirement','actual_value', ...
+    'threshold','status','evidence_path'});
+acceptance = evaluate_stage_a4_3_acceptance( ...
+    testCase.TestData.root,result,physical);
+verifyEqual(testCase,acceptance.status(1:4),repmat("FAIL",4,1));
+verifyEqual(testCase,acceptance.status(5),"PASS");
+verifyEqual(testCase,acceptance.status(7),"NOT_RUN");
+acceptanceWithInvalidReport = evaluate_stage_a4_3_acceptance( ...
+    testCase.TestData.root,result,physical, ...
+    "ReportEvidence",struct("attempted",true));
+verifyEqual(testCase,acceptanceWithInvalidReport.status(7),"FAIL");
+result.direction_audit(1,:) = [];
+acceptance = evaluate_stage_a4_3_acceptance( ...
+    testCase.TestData.root,result,physical);
+verifyEqual(testCase,acceptance.status(5),"FAIL");
+end
+
+function testEntryFinalizerDependencyClosureAndStageBoundaryPass(testCase)
+audit = scan_stage_a4_3_forbidden_code( ...
+    testCase.TestData.root,testCase.TestData.config);
+expectedIds = [ ...
+    "A43-NO-INV-PINV-LSQMINNORM"
+    "A43-NO-PARALLEL"
+    "A43-NO-PREDICTOR-CORRECTOR"
+    "A43-NO-LINE-SEARCH"
+    "A43-NO-REGULARIZATION"
+    "A43-NO-AUTOMATIC-SYMMETRIZATION"
+    "A43-NO-NEGATIVE-MATRIX-POWER"
+    "A43-NO-RANDOM"
+    "A43-NO-DYNAMIC-INVOCATION"
+    "A43-NO-LARGE-FULL-CONVERSION"
+    "A43-NO-EXTERNAL-OPTIMIZER"
+    "A43-INDEPENDENT-STEP-ONLY"
+    "A43-STABLE-V2-EXPLICIT"
+    "A43-RECURSIVE-CLOSURE-NO-DIRECT-SOLVER"
+    "A43-FROZEN-RUNTIME-CONFIG"
+    "A43-NO-STAGE-B-DEPENDENCY"];
+verifyEqual(testCase,audit.check_id,expectedIds);
+verifyEqual(testCase,numel(unique(audit.check_id)),16);
+verifyTrue(testCase,all(audit.status=="PASS"), ...
+    strjoin(audit.details(audit.status~="PASS"),"; "));
+source = string(fileread(fullfile(testCase.TestData.root, ...
+    "main_stage_A4_3.m")));
+verifyTrue(testCase,contains(source,"run_stage_a4_full_ipm"));
+verifyEmpty(testCase,regexp(char(source), ...
+    "(?m)^[^%\r\n]*CURRENT_STAGE\.md","once"));
+verifyFalse(testCase,contains(source,"main_stage_B"));
+verifyFalse(testCase,contains(source,"update_stage_status"));
+finalizerSuite = matlab.unittest.TestSuite.fromFile(fullfile( ...
+    testCase.TestData.root,"tests","integration","testA43Finalizer.m"));
+finalizerResults = run(finalizerSuite);
+verifyEqual(testCase,numel(finalizerResults),5);
+verifyTrue(testCase,all([finalizerResults.Passed]), ...
+    strjoin(string({finalizerResults(~[finalizerResults.Passed]).Name}), ...
+    "; "));
+end
+
+function value = direction_table(step)
+audit = step.direction_audit;
+value = table(1,0,1,audit.direction_relative_error, ...
+    audit.component_relative_errors.xi,audit.component_relative_errors.y, ...
+    audit.component_relative_errors.l,audit.component_relative_errors.z, ...
+    audit.recursive_kkt_relative_residual,audit.full_kkt_relative_residual, ...
+    true,true,true, ...
+    'VariableNames',{'iteration','state_revision_before', ...
+    'state_revision_after','direction_relative_error', ...
+    'xi_relative_error','y_relative_error','l_relative_error', ...
+    'z_relative_error','recursive_full_kkt_relative_residual', ...
+    'full_kkt_relative_residual','no_full_direction_fallback', ...
+    'full_kkt_audit_only','recursive_direction_is_official'});
+end

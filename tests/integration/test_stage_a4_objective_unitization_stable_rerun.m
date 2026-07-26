@@ -29,6 +29,8 @@ function testThreeChainsCompleteFiveFiveTwentyAndThirtyUpdates(testCase)
 result = testCase.TestData.result;
 verifyEqual(testCase,result.milestone_status,"PASS");
 verifyTrue(testCase,result.all_blocking_pass);
+verifyTrue(testCase,result.forbidden_execution_pass);
+verifyTrue(testCase,result.execution.forbidden_execution_audit_pass);
 verifyEqual(testCase,result.unscaled_five.iteration_count,5);
 verifyEqual(testCase,result.scaled_five.iteration_count,5);
 verifyEqual(testCase,result.scaled_twenty.iteration_count,20);
@@ -352,6 +354,7 @@ end
 
 function testEvidenceCommandHashesSchemaAndNoOverwriteContract(testCase)
 root = testCase.TestData.project_root;
+result = testCase.TestData.result;
 exporter = fullfile(root,"src","diagnostics", ...
     "export_stage_a4_2d_2a_r1_stable_v2_evidence.m");
 script = fullfile(root,"scripts", ...
@@ -364,6 +367,13 @@ verifyTrue(testCase,contains(code,"Refusing to overwrite"));
 verifyTrue(testCase,contains(code,"artifact_sha256"));
 verifyTrue(testCase,contains(code,"test_results"));
 verifyTrue(testCase,contains(code,"generation_command"));
+verifyTrue(testCase,contains(code,"forbidden_execution_audit"));
+verifyTrue(testCase,contains(code,"forbidden_code_audit"));
+verifyTrue(testCase,contains(code,"dependency_closure_sha256"));
+verifyTrue(testCase,result.forbidden_execution_pass);
+verifyTrue(testCase,all(result.forbidden_execution_audit.status=="PASS"));
+verifyTrue(testCase,all(result.r1_forbidden_code_audit.status=="PASS"));
+verifyGreaterThan(testCase,height(result.r1_dependency_closure),2);
 verifyEqual(testCase,height(testCase.TestData.result.round_table),30);
 verifyEqual(testCase,height( ...
     testCase.TestData.result.residual_trajectory),30);
@@ -371,14 +381,103 @@ verifyEqual(testCase,height( ...
     testCase.TestData.result.refinement_table),240);
 end
 
-function testForbiddenActionsAndStageGovernance(testCase)
+function testIndependentForbiddenExecutionAuditAndR1DependencyClosure(testCase)
 root = testCase.TestData.project_root;
 result = testCase.TestData.result;
-r1Scan = scan_stage_a4_r1_forbidden_code(root);
-verifyEqual(testCase,height(r1Scan),12);
+[r1Scan,dependencyClosure] = scan_stage_a4_r1_forbidden_code(root);
+verifyEqual(testCase,height(r1Scan),15);
 verifyTrue(testCase,all(r1Scan.status=="PASS"), ...
     evalc('disp(r1Scan(r1Scan.status~="PASS",:))'));
+verifyGreaterThan(testCase,height(dependencyClosure),2);
+requiredDependencies = [ ...
+    "main_stage_A4_2D_2A_R1.m"
+    "src/diagnostics/run_stage_a4_objective_unitization_r1_diagnostic.m"
+    "src/diagnostics/audit_stage_a4_r1_forbidden_execution.m"
+    "src/diagnostics/make_stage_a4_r1_blocking_audit.m"
+    "src/diagnostics/scan_stage_a4_r1_forbidden_code.m"
+    "src/diagnostics/run_stage_a4_five_iteration_diagnostic.m"
+    "src/diagnostics/run_stage_a4_scaled_objective_chain.m"
+    "src/diagnostics/execute_stage_a4_iteration.m"
+    "src/solver/solve_stage_a_multiday_recursive_direction.m"
+    "src/solver/solve_stage_a_multiday_full_kkt_direction.m"
+    "src/solver/update_primal_dual_state.m"];
+verifyTrue(testCase,all(ismember(requiredDependencies, ...
+    string(dependencyClosure.relative_path))));
+verifyTrue(testCase,all(strlength(string(dependencyClosure.sha256))==64));
+verifyEqual(testCase,result.r1_forbidden_code_audit,r1Scan);
+verifyEqual(testCase,result.r1_dependency_closure,dependencyClosure);
+verifyEqual(testCase,result.execution.r1_dependency_file_count, ...
+    height(dependencyClosure));
+verifyTrue(testCase,result.execution.r1_dependency_closure_all_hashed);
+verifyEqual(testCase,result.execution.r1_dependency_root, ...
+    "main_stage_A4_2D_2A_R1.m");
+verifyEqual(testCase,result.execution.r1_dependency_analysis_method, ...
+    "matlab.codetools.requiredFilesAndProducts");
+verifyEqual(testCase,result.execution.r1_forbidden_code_check_count,15);
+
 config = load_stage_a4_configuration(root);
+[recomputedAudit,recomputedExecution] = ...
+    audit_stage_a4_r1_forbidden_execution( ...
+        result.unscaled_five,result.scaled_five,result.scaled_twenty, ...
+        result.execution_sequence,result.round_table, ...
+        result.refinement_table,config,r1Scan,dependencyClosure);
+verifyEqual(testCase,result.forbidden_execution_audit,recomputedAudit);
+verifyTrue(testCase,all(recomputedAudit.status=="PASS"));
+verifyTrue(testCase,recomputedExecution.forbidden_execution_audit_pass);
+
+noFallbackOnly = result.round_table;
+noFallbackOnly.no_full_direction_fallback(:) = false;
+[noFallbackAudit,noFallbackExecution] = ...
+    audit_stage_a4_r1_forbidden_execution( ...
+        result.unscaled_five,result.scaled_five,result.scaled_twenty, ...
+        result.execution_sequence,noFallbackOnly,result.refinement_table, ...
+        config,r1Scan,dependencyClosure);
+verifyTrue(testCase,all(noFallbackAudit.status=="PASS"), ...
+    "The forbidden-execution gate must not reuse the no-fallback value.");
+verifyTrue(testCase, ...
+    noFallbackExecution.complete_kkt_direction_fallback_used);
+verifyTrue(testCase,noFallbackExecution.forbidden_execution_audit_pass);
+noFallbackBlocking = make_stage_a4_r1_blocking_audit( ...
+    result.unscaled_five,result.scaled_five,result.scaled_twenty, ...
+    result.scaled_prefix_audit,result.initialization_audit, ...
+    result.structure_audit,noFallbackOnly,result.refinement_table, ...
+    noFallbackAudit);
+noFallbackRow = noFallbackBlocking.test_id=="R1-NO-FALLBACK";
+forbiddenRow = ...
+    noFallbackBlocking.test_id=="R1-FORBIDDEN-EXECUTION";
+verifyEqual(testCase,noFallbackBlocking.status(noFallbackRow),"FAIL");
+verifyEqual(testCase,noFallbackBlocking.status(forbiddenRow),"PASS");
+
+commonStepChain = result.unscaled_five;
+commonStepChain.step_strategy = "common_min";
+[commonStepAudit,commonStepExecution] = ...
+    audit_stage_a4_r1_forbidden_execution( ...
+        commonStepChain,result.scaled_five,result.scaled_twenty, ...
+        result.execution_sequence,result.round_table, ...
+        result.refinement_table,config,r1Scan,dependencyClosure);
+commonStepRow = commonStepAudit.test_id=="R1-RUN-INDEPENDENT-STEPS";
+verifyEqual(testCase,nnz(commonStepRow),1);
+verifyEqual(testCase,commonStepAudit.status(commonStepRow),"FAIL");
+verifyTrue(testCase,commonStepExecution.common_step_used);
+verifyFalse(testCase,commonStepExecution.forbidden_execution_audit_pass);
+
+missingDependency = dependencyClosure( ...
+    dependencyClosure.relative_path~= ...
+        "src/diagnostics/execute_stage_a4_iteration.m",:);
+[missingDependencyAudit,missingDependencyExecution] = ...
+    audit_stage_a4_r1_forbidden_execution( ...
+        result.unscaled_five,result.scaled_five,result.scaled_twenty, ...
+        result.execution_sequence,result.round_table, ...
+        result.refinement_table,config,r1Scan,missingDependency);
+closureRow = missingDependencyAudit.test_id== ...
+    "R1-RUN-ROOTED-DEPENDENCY-CLOSURE";
+verifyEqual(testCase,nnz(closureRow),1);
+verifyEqual(testCase,missingDependencyAudit.status(closureRow),"FAIL");
+verifyFalse(testCase, ...
+    missingDependencyExecution.r1_dependency_closure_all_hashed);
+verifyFalse(testCase, ...
+    missingDependencyExecution.forbidden_execution_audit_pass);
+
 sharedScan = scan_stage_a4_forbidden_code(root,config);
 verifyEqual(testCase,height(sharedScan),30);
 verifyTrue(testCase,all(sharedScan.status=="PASS"), ...
@@ -390,6 +489,14 @@ verifyFalse(testCase,result.execution.optimization_executed);
 verifyFalse(testCase,result.execution.parallel_executed);
 verifyFalse(testCase,result.execution.formal_a4_run_created);
 verifyFalse(testCase,result.execution.stage_b_entered);
+verifyFalse(testCase,result.execution.common_step_used);
+verifyFalse(testCase,result.execution.dynamic_sigma_used);
+verifyFalse(testCase,result.execution.predictor_corrector_used);
+verifyFalse(testCase,result.execution.line_search_used);
+verifyFalse(testCase,result.execution.regularization_used);
+verifyFalse(testCase,result.execution.automatic_symmetrization_used);
+verifyFalse(testCase, ...
+    result.execution.forbidden_execution_reuses_no_fallback);
 verifyFalse(testCase,result.stage_a4_pass_claimed);
 end
 
