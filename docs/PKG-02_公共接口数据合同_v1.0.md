@@ -171,3 +171,39 @@ moduleResult.figureFiles
 - MATLAB 版本和生成时间。
 
 人工验证 `diagnostics` 只保存客观事实，不保存 `PASS/FAIL`。
+
+### 7.1 PKG-1 冻结的精确字段名
+
+`moduleResult.meta` 至少包含以下字段：
+
+```text
+interface_name
+production_function
+input_artifact
+input_sha256
+git_commit
+stage_id
+day
+hour
+iteration
+revision
+matlab_version
+generated_at
+contract_version
+```
+
+其中：
+
+- `interface_name` 必须为 `rkkt.*` 公共接口名；
+- `input_sha256` 必须为 64 位小写十六进制；
+- `git_commit` 必须为 40 位小写十六进制或 `NOT_AVAILABLE`；
+- `day/hour` 为空或正整数向量；
+- `iteration/revision` 为空或非负整数向量；
+- `contract_version` 当前固定为 `1.0`；
+- `tableFiles/figureFiles` 使用不含缺失值的 MATLAB string 列向量。
+
+`rkkt.contracts.moduleResultTemplate` 只建立独立的人工验证信封，不改变
+生产对象的返回类型。模块人工运行文件必须在保存前填入实际输入、输出、
+中间量和诊断量，并调用 `rkkt.contracts.validateModuleResult`。诊断结构中
+允许保存残差、维数、布尔事实和文件路径，但禁止保存 `PASS`、`FAIL` 或
+`FAIL_*` 等人工验收结论。
