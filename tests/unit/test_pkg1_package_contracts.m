@@ -41,11 +41,13 @@ end
 function testPackageInfoFreezesDependencyOrder(testCase)
 value = rkkt.info();
 verifyEqual(testCase,value.package_name,"rkkt");
-verifyEqual(testCase,value.package_version,"0.1.0");
+verifyEqual(testCase,value.package_version,"0.2.0");
 verifyEqual(testCase,value.contract_version,"1.0");
-verifyEqual(testCase,value.pkg_stage,"PKG-1");
+verifyEqual(testCase,value.pkg_stage,"PKG-2");
 verifyEqual(testCase,value.dependency_order, ...
     ["contracts";"data";"indexing";"model";"solver";"ipm";"workflows"]);
+verifyEqual(testCase,value.implemented_public_interfaces, ...
+    ["rkkt.info";"rkkt.data.load"]);
 verifyFalse(testCase,value.production_algorithm_migrated);
 end
 

@@ -1,2 +1,3 @@
 % RKKT.DATA Stable data interface namespace.
-%   The production data facade is introduced in PKG-2.
+%   load - Load controlled Excel inputs through the production reader and
+%          apply the read-only PKG-2 data contract.
