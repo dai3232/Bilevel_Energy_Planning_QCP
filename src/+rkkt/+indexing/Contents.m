@@ -1,2 +1,3 @@
 % RKKT.INDEXING Stable canonical-index interface namespace.
-%   The production indexing facade is introduced in PKG-3.
+%   build - Delegate to build_stage_a4_index and apply the read-only
+%           PKG-3 canonical-index contract.
