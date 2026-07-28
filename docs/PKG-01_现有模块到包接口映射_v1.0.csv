@@ -10,6 +10,7 @@ FULL_KKT_ASSEMBLY,完整KKT装配,assemble_stage_a_multiday_full_kkt,rkkt.solver
 FULL_KKT_SOLVE,完整KKT审计方向,solve_stage_a_multiday_full_kkt_direction,rkkt.solver.solveFullKKT,rkkt.solver.validation.runFullKKT,完整KKT装配输出.mat,false
 REDUCTION,不等式消元与既约KKT,eliminate_stage_a_multiday_inequality_directions,rkkt.solver.eliminateInequalities,rkkt.solver.validation.runReducedKKT,统一线性化模块输出.mat,false
 PARTITION,小时链与递推分区,partition_stage_a_multiday_recursive_system,rkkt.solver.partitionRecursiveSystem,rkkt.solver.validation.runPartition,既约KKT模块输出.mat,false
+DAY_CHAIN,每日24小时块Thomas/LDL多右端求解,solve_block_thomas_ldl,rkkt.solver.solveDayChain,rkkt.solver.validation.runDayChain,递推分区模块输出.mat,false
 DAY_RESPONSE,单日响应,form_stage_a_multiday_day_response,rkkt.solver.buildDayResponse,rkkt.solver.validation.runDayResponse,递推分区模块输出.mat,false
 DAY_AGGREGATION,七日响应汇总,aggregate_stage_a_multiday_day_responses,rkkt.solver.aggregateDayResponses,rkkt.solver.validation.runDayAggregation,单日响应模块输出.mat,false
 GLOBAL_CORE,16维全局核心,solve_stage_a_multiday_core16_ldl,rkkt.solver.solveGlobalCore,rkkt.solver.validation.runGlobalCore,七日响应汇总输出.mat,false

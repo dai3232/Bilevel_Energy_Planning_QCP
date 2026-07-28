@@ -1,17 +1,21 @@
 # 包接口重构辅助阶段状态
 
-- `pkg_stage_id`: `PKG-5`
+- `pkg_stage_id`: `PKG-6`
 - `status`: `READY_FOR_USER_REVIEW`
 - `updated_at`: `2026-07-28`
 - `branch`: `refactor/pkg-interface`
 - `worktree`: `H:\Reproduction\Hourly_Recursive_KKT_pkg`
-- `pkg_5_base_commit`: `d4e92d7ed4ec6f442aeb6d94068e838267a94265`
+- `pkg_6_base_commit`: `e4af9e1c8a9746094dde9078d18229ecb524deb0`
 - `formal_project_stage`: `stage_A4 / READY（未修改）`
-- `legacy_facade_full_kkt_assembly_isequaln`: `true`
-- `legacy_facade_full_kkt_direction_isequaln`: `true`
-- `legacy_facade_inequality_elimination_isequaln`: `true`
-- `minimal_tests`: `10 of 10 passed`
-- `code_analyzer`: `0 findings in 11 added or modified MATLAB files`
-- `full_kkt_output`: `src/+rkkt/+solver/+validation/完整KKT模块输出.mat`
-- `reduced_kkt_output`: `src/+rkkt/+solver/+validation/既约KKT模块输出.mat`
-- `next_pkg_stage`: `PKG-6 / NOT_STARTED`
+- `legacy_facades_isequaln`: `7 of 7 true`
+- `staged_pipeline_authority_isequaln`: `true`
+- `minimal_tests`: `14 of 14 passed`
+- `code_analyzer`: `0 findings in 21 added or modified MATLAB files`
+- `partition_output`: `src/+rkkt/+solver/+validation/递推分区模块输出.mat`
+- `day_chain_output`: `src/+rkkt/+solver/+validation/小时链求解模块输出.mat`
+- `day_response_output`: `src/+rkkt/+solver/+validation/日响应模块输出.mat`
+- `day_aggregation_output`: `src/+rkkt/+solver/+validation/七日响应汇总输出.mat`
+- `global_core_output`: `src/+rkkt/+solver/+validation/16维全局核心模块输出.mat`
+- `recovery_output`: `src/+rkkt/+solver/+validation/局部回代模块输出.mat`
+- `equivalence_output`: `src/+rkkt/+solver/+validation/方向等价性模块输出.mat`
+- `next_pkg_stage`: `PKG-7 / NOT_STARTED`
