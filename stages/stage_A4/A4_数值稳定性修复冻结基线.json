@@ -1,0 +1,144 @@
+{
+  "freeze_id": "A4-NUMERICAL-STABILITY-REPAIR-FREEZE-20260728",
+  "stage_id": "stage_A4",
+  "stage_status": "READY",
+  "authority_head": "1f3836ca629f5fc8a1de1f5ea5b783d114e1586b",
+  "authority_run_id": "20260728_112548_stage_A4_1f3836ca",
+  "authority_run_terminal_state": "NUMERICAL_FAILURE",
+  "purpose": "Freeze the IPM model, deterministic initialization, centering parameter, and independent primal-dual step rule while the recursive numerical linear solver is repaired.",
+  "frozen_algorithm": {
+    "centering_sigma": 0.1,
+    "fraction_to_boundary": 0.9995,
+    "step_strategy": "independent",
+    "primal_step_state_groups": [
+      "xi",
+      "l"
+    ],
+    "dual_step_state_groups": [
+      "y",
+      "z"
+    ],
+    "common_step_enabled": false,
+    "dynamic_sigma_enabled": false,
+    "predictor_corrector_enabled": false,
+    "line_search_enabled": false,
+    "regularization_enabled": false,
+    "automatic_symmetrization_enabled": false,
+    "full_kkt_direction_fallback_enabled": false
+  },
+  "frozen_initialization": {
+    "global_capacity": "midpoint",
+    "daily_capacity_copy_equals_global": true,
+    "active_wind_solar_fraction_of_upper": 0.5,
+    "hydro_thermal_fraction_of_upper": 0.5,
+    "charge_discharge_fraction_of_power_capacity": 0.5,
+    "soc_fraction_of_energy_capacity": 0.5,
+    "equality_multipliers": 0.0,
+    "inequality_multiplier": 1.0,
+    "initialization_version": "stageA4-deterministic-interior-v1.0",
+    "initial_state_fingerprint": "7277a250e33e3a1cfa310b4581faa7232a2c3cb99ff6d7cc6b4602e40970c3aa"
+  },
+  "frozen_model": {
+    "model_contract_version": "1.0",
+    "days": [
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "hours_per_day": 24,
+    "objective_mode": "investment_cost_only",
+    "objective_scale_mode": "positive_scalar_unitization",
+    "objective_scale_source": "max_abs_global_capacity_gradient",
+    "objective_scale_factor": 4920145.04,
+    "thermal_pass": "first",
+    "thermal_lower_bound_mode": "zero",
+    "formal_soc_boundary": "daily_fixed_half_energy_no_interday_link",
+    "water_constraints_enabled": false,
+    "thermal_second_pass_enabled": false,
+    "annual_scope_enabled": false,
+    "parallel_mode": "off",
+    "full_kkt_dimension": 18836,
+    "fixed_zero_count": 422,
+    "initial_linearization_fingerprint": "0d624a4b3050ce511e4271c3ce0f49872df3bec69e1cee1fe50e797ce981d02d"
+  },
+  "protected_files": [
+    {
+      "relative_path": "config/model.yaml",
+      "sha256": "59a1f44a4947a5b228d33522837fb95ae93323462c002f9396f262839e0f97b5"
+    },
+    {
+      "relative_path": "docs/00_用户确认的模型口径_v1.0.md",
+      "sha256": "adc0a6291c39e65039298314ff4cd1bc918c2f7e212a79207da2cfc164699bc4"
+    },
+    {
+      "relative_path": "docs/02_最终模型合同_v1.0.md",
+      "sha256": "703c1e9bed310c772ee56d024d2df18c5ed153005ff620c9c948a43d94239320"
+    },
+    {
+      "relative_path": "docs/03_阶段模型启用矩阵.csv",
+      "sha256": "6b73deac3cec15ad0086b04fd30658aa04be4a19c398780811e15a5a43e16c36"
+    },
+    {
+      "relative_path": "inputs/raw/基础参数.xlsx",
+      "sha256": "aebb35fa80e6ba2fb8d4534b09a141feaedcb2b9d027e9924e7a0091943c4277"
+    },
+    {
+      "relative_path": "inputs/raw/输入数据.xlsx",
+      "sha256": "10baac1dc5d0b07dbbb9d2fe8f9aac82f071e43d4fb9901ff7ba0b467d05c186"
+    },
+    {
+      "relative_path": "src/model/initialize_stage_a4_state.m",
+      "sha256": "f804abd84239383a3ac4924cfa8fa13ff8975a4e5ef42adc699b0544895237a6"
+    },
+    {
+      "relative_path": "src/model/initialize_stage_a_multiday_state.m",
+      "sha256": "14f29a09b3470c1368ad6d3233bec0b07b8f127ef53c972b470ef3208aff55f5"
+    },
+    {
+      "relative_path": "src/indexing/build_stage_a4_index.m",
+      "sha256": "88f564af0a6fb85ab1654448981083395a34e19e8f3c1cf015a043854b1ad182"
+    },
+    {
+      "relative_path": "src/indexing/build_stage_a_multiday_index.m",
+      "sha256": "b8f116d183d02b0b6bc8751e5d9bffbc994dba61adf01b2278f5bac3e3243d3c"
+    },
+    {
+      "relative_path": "src/model/build_stage_a4_linearization.m",
+      "sha256": "86ab31c8feda525f64667af39ad7a504cf45ebc1d3bb5949f5f417e49385774d"
+    },
+    {
+      "relative_path": "src/model/build_stage_a_multiday_linearization.m",
+      "sha256": "6a502d8959e4d380f49c8453cac9f0a190656302327ada1aaa790e733953754d"
+    },
+    {
+      "relative_path": "src/diagnostics/build_stage_a4_scaled_objective_linearization.m",
+      "sha256": "40364e00322185dd55f975410a45e33202b089ff2bf02e0cb55d72fb4823a23e"
+    },
+    {
+      "relative_path": "src/solver/compute_fraction_to_boundary_step.m",
+      "sha256": "55b77c24e6b7498c1006842cbbb444ecc76b2f2e73e4db1ae15138698c7b3ae8"
+    },
+    {
+      "relative_path": "src/solver/update_primal_dual_state.m",
+      "sha256": "4545722c2b44283b26abc8f73a6412b40cc28d20e36bee69384d86a8c489c93a"
+    }
+  ],
+  "allowed_next_change_scope": [
+    "recursive numerical linear-solver stability implementation",
+    "read-only conditioning and rank diagnostics",
+    "tests and evidence for the numerical repair"
+  ],
+  "explicitly_not_frozen_by_this_manifest": [
+    "the implementation details of an approved recursive numerical stability repair",
+    "diagnostic-only evidence writers"
+  ],
+  "stage_boundary": {
+    "current_stage_must_remain": "stage_A4 / READY",
+    "formal_a4_run_executed_by_this_freeze": false,
+    "stage_b_authorized": false
+  }
+}
