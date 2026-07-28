@@ -1,2 +1,6 @@
-% RKKT.SOLVER Stable full and recursive KKT interface namespace.
-%   Production KKT facades are introduced in PKG-5 and PKG-6.
+% RKKT.SOLVER Stable KKT interface namespace.
+%   assembleFullKKT        - Assemble the complete sparse KKT audit system.
+%   solveFullKKT           - Solve the complete sparse KKT audit direction.
+%   eliminateInequalities - Form the inequality-eliminated KKT system.
+%
+%   Recursive partition interfaces are introduced in PKG-6.

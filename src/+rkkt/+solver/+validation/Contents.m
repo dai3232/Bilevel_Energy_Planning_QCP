@@ -1,2 +1,3 @@
 % RKKT.SOLVER.VALIDATION Manual KKT-validation entry points.
-%   Runnable KKT entry points are introduced in PKG-5 and PKG-6.
+%   runFullKKT    - Validate complete KKT assembly and audit direction.
+%   runReducedKKT - Validate exact inequality elimination without a solve.
