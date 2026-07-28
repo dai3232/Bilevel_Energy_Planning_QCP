@@ -1,21 +1,32 @@
 # 包接口重构辅助阶段状态
 
-- `pkg_stage_id`: `PKG-6`
+- `pkg_stage_id`: `PKG-7`
 - `status`: `READY_FOR_USER_REVIEW`
 - `updated_at`: `2026-07-28`
 - `branch`: `refactor/pkg-interface`
 - `worktree`: `H:\Reproduction\Hourly_Recursive_KKT_pkg`
-- `pkg_6_base_commit`: `e4af9e1c8a9746094dde9078d18229ecb524deb0`
+- `pkg_7_base_commit`: `afd70a0f0c7bbcca8c0572d768037cfd8ace3993`
+- `pkg_6_mapping_fix_commit`: `afd70a0f0c7bbcca8c0572d768037cfd8ace3993`
 - `formal_project_stage`: `stage_A4 / READY（未修改）`
-- `legacy_facades_isequaln`: `7 of 7 true`
-- `staged_pipeline_authority_isequaln`: `true`
+- `step_facade_implemented`: `true`
+- `solve_facade_implemented`: `true`
+- `default_step_legacy_exact`: `true（排除 timing）`
+- `formal_a4_3_step_legacy_exact`: `true（排除 timing）`
+- `controlled_trajectory_iterations`: `3`
+- `state_trajectory_legacy_exact`: `true`
+- `recursive_direction_official`: `true`
+- `full_kkt_role`: `audit_only`
+- `full_solve_runtime_executed`: `false`
+- `full_solve_runtime_validation`: `DEFERRED_UNTIL_FORMAL_RUN`
+- `formal_run_context_created`: `false`
+- `convergence_evaluated`: `false`
+- `convergence_claimed`: `false`
 - `minimal_tests`: `14 of 14 passed`
-- `code_analyzer`: `0 findings in 21 added or modified MATLAB files`
-- `partition_output`: `src/+rkkt/+solver/+validation/递推分区模块输出.mat`
-- `day_chain_output`: `src/+rkkt/+solver/+validation/小时链求解模块输出.mat`
-- `day_response_output`: `src/+rkkt/+solver/+validation/日响应模块输出.mat`
-- `day_aggregation_output`: `src/+rkkt/+solver/+validation/七日响应汇总输出.mat`
-- `global_core_output`: `src/+rkkt/+solver/+validation/16维全局核心模块输出.mat`
-- `recovery_output`: `src/+rkkt/+solver/+validation/局部回代模块输出.mat`
-- `equivalence_output`: `src/+rkkt/+solver/+validation/方向等价性模块输出.mat`
-- `next_pkg_stage`: `PKG-7 / NOT_STARTED`
+- `code_analyzer`: `0 findings in 11 added or modified MATLAB files`
+- `step_output`: `src/+rkkt/+ipm/+validation/IPM单步输出.mat`
+- `step_tables`: `src/+rkkt/+ipm/+validation/IPM单步状态变化.csv；IPM单步残差与步长.csv`
+- `step_figures`: `src/+rkkt/+ipm/+validation/IPM单步状态更新.fig/.png`
+- `trajectory_output`: `src/+rkkt/+ipm/+validation/IPM受控轨迹输出.mat`
+- `trajectory_tables`: `src/+rkkt/+ipm/+validation/IPM受控轨迹.csv；IPM完整求解接口合同.csv`
+- `trajectory_figures`: `src/+rkkt/+ipm/+validation/IPM受控轨迹.fig/.png`
+- `next_pkg_stage`: `PKG-8 / NOT_STARTED`

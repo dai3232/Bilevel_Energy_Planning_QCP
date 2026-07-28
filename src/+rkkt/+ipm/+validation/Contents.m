@@ -1,2 +1,3 @@
 % RKKT.IPM.VALIDATION Manual IPM-validation entry points.
-%   Runnable IPM entry points are introduced in PKG-7.
+%   runStep  - Validate default and formal-option single steps.
+%   runSolve - Validate a three-step preview and solve-entry contract.
