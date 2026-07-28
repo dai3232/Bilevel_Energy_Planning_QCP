@@ -1,0 +1,308 @@
+function moduleResult = runState(options)
+%RUNSTATE Validate the A4 state facade from the fixed PKG-3 artifact.
+%   This entry reads data and index only from 索引模块输出.mat, loads the
+%   existing A4 configuration, and does not run a downstream module.
+
+arguments
+    options.InputArtifact (1,1) string = default_input_artifact()
+    options.Interactive (1,1) logical = true
+    options.WriteArtifacts (1,1) logical = true
+    options.OutputDirectory (1,1) string = default_output_directory()
+end
+
+inputArtifact = string(options.InputArtifact);
+outputDirectory = string(options.OutputDirectory);
+rkkt.model.validation.ValidationSupport.requireOutputDirectory( ...
+    outputDirectory,options.WriteArtifacts);
+
+upstream = rkkt.model.validation.ValidationSupport.loadResult( ...
+    inputArtifact,"runState");
+if string(upstream.meta.interface_name) ~= "rkkt.indexing.build"
+    error("rkkt:model:validation:StateUpstreamInterface", ...
+        "runState requires the rkkt.indexing.build module artifact.");
+end
+rkkt.contracts.requireFields(upstream.input,"projectData", ...
+    "runState upstream.input");
+rkkt.contracts.requireFields(upstream.output,"index", ...
+    "runState upstream.output");
+data = upstream.input.projectData;
+index = upstream.output.index;
+config = call_configuration(data);
+
+legacyState = call_legacy_initializer(data,index,config);
+state = rkkt.model.initialize(data,index,config);
+legacyFacadeExact = isequaln(legacyState,state);
+facts = inspect_state_facts(state,data,index,config,legacyFacadeExact);
+if ~all(structfun(@(value) logical(value),facts))
+    error("rkkt:model:validation:StateFacts", ...
+        "One or more objective state observations are false.");
+end
+
+summary = state_summary(state);
+[outputFile,tableFiles,figureFiles,figureIndex] = output_paths( ...
+    outputDirectory,options.WriteArtifacts);
+metadata = rkkt.model.validation.ValidationSupport.metadata( ...
+    "rkkt.model.initialize","initialize_stage_a4_state", ...
+    inputArtifact,string(data.projectRoot),outputFile, ...
+    "状态初始化模块",state.iteration_index,state.state_revision, ...
+    options.Interactive,options.WriteArtifacts);
+moduleResult = rkkt.contracts.moduleResultTemplate(metadata);
+moduleResult.input = struct( ...
+    "projectData",data, ...
+    "index",index, ...
+    "config",config, ...
+    "upstreamMetadata",upstream.meta, ...
+    "inputArtifact",inputArtifact);
+moduleResult.output = struct("state",state);
+moduleResult.intermediate = struct("stateSummary",summary, ...
+    "figureIndex",figureIndex);
+moduleResult.diagnostics = struct( ...
+    "legacy_facade_exact_equal",legacyFacadeExact, ...
+    "objective_facts",facts, ...
+    "primal_count",numel(state.xi), ...
+    "equality_count",numel(state.y), ...
+    "inequality_count",numel(state.l), ...
+    "fixed_zero_count",numel(state.fixed_zero_values), ...
+    "initialization_version",string(state.initialization_version), ...
+    "artifacts_written",options.WriteArtifacts);
+moduleResult.indexDescription = struct( ...
+    "scope","第14—20日，每日24小时", ...
+    "state_order","xi、y、l、z均沿canonical index顺序", ...
+    "fixed_zero_semantics","422个删除变量值和方向保持精确0", ...
+    "soc_semantics","每日首末0.5E且无跨日连接");
+moduleResult.tableFiles = tableFiles;
+moduleResult.figureFiles = figureFiles;
+rkkt.contracts.validateModuleResult(moduleResult);
+
+if options.WriteArtifacts
+    rkkt.model.validation.ValidationSupport.writeTable17( ...
+        summary,tableFiles(1));
+    fig = state_figure(summary,options.Interactive);
+    rkkt.model.validation.ValidationSupport.saveFigurePair( ...
+        fig,figureIndex.figPath,figureIndex.pngPath);
+    if ~options.Interactive
+        close(fig);
+    end
+    rkkt.model.validation.ValidationSupport.saveResult( ...
+        outputFile,moduleResult);
+end
+
+fprintf("当前模块：状态初始化模块\n");
+fprintf("公共接口：rkkt.model.initialize\n");
+fprintf("正式生产函数：initialize_stage_a4_state\n");
+fprintf("新旧状态严格相同：%d\n",legacyFacadeExact);
+fprintf("xi/y/l/z维数：%d/%d/%d/%d\n", ...
+    numel(state.xi),numel(state.y),numel(state.l),numel(state.z));
+if options.WriteArtifacts
+    fprintf("固定人工验证输出：%s\n",outputFile);
+end
+end
+
+function config = call_configuration(data)
+modelDirectory = fullfile(string(data.projectRoot),"src","model");
+productionFile = fullfile(modelDirectory,"load_stage_a4_configuration.m");
+originalPath = path;
+pathGuard = onCleanup(@() path(originalPath));
+addpath(modelDirectory,"-begin");
+resolved = string(which("load_stage_a4_configuration"));
+if ~same_path(resolved,productionFile)
+    error("rkkt:model:validation:ConfigurationFunctionShadowed", ...
+        "Expected load_stage_a4_configuration at '%s'; resolved '%s'.", ...
+        productionFile,resolved);
+end
+config = load_stage_a4_configuration(string(data.projectRoot));
+clear pathGuard
+end
+
+function state = call_legacy_initializer(data,index,config)
+modelDirectory = fullfile(string(data.projectRoot),"src","model");
+productionFile = fullfile(modelDirectory,"initialize_stage_a4_state.m");
+originalPath = path;
+pathGuard = onCleanup(@() path(originalPath));
+addpath(modelDirectory,"-begin");
+resolved = string(which("initialize_stage_a4_state"));
+if ~same_path(resolved,productionFile)
+    error("rkkt:model:validation:StateFunctionShadowed", ...
+        "Expected initialize_stage_a4_state at '%s'; resolved '%s'.", ...
+        productionFile,resolved);
+end
+state = initialize_stage_a4_state(data,index,config);
+clear pathGuard
+end
+
+function facts = inspect_state_facts( ...
+        state,data,index,config,legacyFacadeExact)
+types = string(index.constraint_index.constraint_type);
+nPrimal = height(index.variable_index);
+nEquality = nnz(types == "equality");
+nInequality = nnz(types == "inequality");
+variables = index.variable_index;
+pch = variables(variables.hour > 0 & ...
+    string(variables.variable_name) == "Pch",:);
+pdis = variables(variables.hour > 0 & ...
+    string(variables.variable_name) == "Pdis",:);
+
+facts = struct( ...
+    "legacy_facade_exact_equal",legacyFacadeExact, ...
+    "stage_a4_exact",string(state.stage_id) == "stage_A4" && ...
+        string(config.stage_id) == "stage_A4" && ...
+        string(index.scope.stage_id) == "stage_A4", ...
+    "days_14_to_20_exact",isequal(config.days,14:20) && ...
+        isequal(index.scope.days,14:20), ...
+    "twenty_four_hours_exact",isequal(config.hours,1:24) && ...
+        isequal(index.scope.hours,1:24), ...
+    "canonical_dimensions_closed", ...
+        numel(state.xi) == nPrimal && ...
+        numel(state.y) == nEquality && ...
+        numel(state.l) == nInequality && ...
+        numel(state.z) == nInequality, ...
+    "slack_multiplier_finite_positive", ...
+        all(isfinite(state.l)) && all(state.l > 0) && ...
+        all(isfinite(state.z)) && all(state.z > 0), ...
+    "fixed_zero_exact", ...
+        isequaln(state.fixed_zero_values, ...
+            index.fixed_zero_map.fixed_value) && ...
+        isequaln(state.fixed_zero_directions, ...
+            index.fixed_zero_map.fixed_direction_value) && ...
+        all(state.fixed_zero_values == 0) && ...
+        all(state.fixed_zero_directions == 0), ...
+    "pch_pdis_independent",height(pch) == 336 && ...
+        height(pdis) == 336 && ...
+        isempty(intersect(pch.global_index_start, ...
+            pdis.global_index_start)), ...
+    "soc_daily_half_energy",soc_facts(index), ...
+    "initial_counters_exact",state.iteration_index == 0 && ...
+        state.state_revision == 0 && ...
+        state.newton_direction_number == 0 && ...
+        state.completed_newton_direction_count == 0, ...
+    "complete_365_day_data_retained", ...
+        data.meta.nDays == 365 && data.meta.nHours == 24);
+end
+
+function value = soc_facts(index)
+value = true;
+links = index.soc_link_map;
+variables = index.variable_index;
+for k = 1:height(links)
+    row = links(k,:);
+    if row.hour == 1
+        value = value && isnan(row.predecessor_hour) && ...
+            row.predecessor_soc_global_index == 0 && ...
+            row.initial_energy_fraction == 0.5 && ...
+            string(row.boundary_source) == ...
+            "formal_daily_fixed_half_energy";
+    else
+        predecessor = variables(row.predecessor_soc_global_index,:);
+        value = value && predecessor.day == row.day && ...
+            predecessor.hour == row.hour-1 && ...
+            predecessor.asset_id == row.storage_id && ...
+            string(predecessor.variable_name) == "SOC";
+    end
+    if row.hour == 24
+        value = value && row.terminal_equality && ...
+            row.terminal_energy_fraction == 0.5;
+    else
+        value = value && ~row.terminal_equality;
+    end
+end
+end
+
+function value = state_summary(state)
+component = ["xi";"y";"l";"z"; ...
+    "fixed_zero_values";"fixed_zero_directions"];
+vectors = {state.xi;state.y;state.l;state.z; ...
+    state.fixed_zero_values;state.fixed_zero_directions};
+n = numel(vectors);
+rowCount = zeros(n,1);
+columnCount = zeros(n,1);
+elementCount = zeros(n,1);
+minimum = zeros(n,1);
+maximum = zeros(n,1);
+norm2 = zeros(n,1);
+normInf = zeros(n,1);
+finite = false(n,1);
+strictlyPositiveRequired = ismember(component,["l","z"]);
+strictlyPositiveSatisfied = false(n,1);
+for k = 1:n
+    vector = vectors{k};
+    rowCount(k) = size(vector,1);
+    columnCount(k) = size(vector,2);
+    elementCount(k) = numel(vector);
+    minimum(k) = min(vector,[],"all");
+    maximum(k) = max(vector,[],"all");
+    norm2(k) = norm(vector,2);
+    normInf(k) = norm(vector,inf);
+    finite(k) = all(isfinite(vector),"all");
+    strictlyPositiveSatisfied(k) = all(vector > 0,"all");
+end
+value = table(component,rowCount,columnCount,elementCount,minimum, ...
+    maximum,norm2,normInf,finite,strictlyPositiveRequired, ...
+    strictlyPositiveSatisfied);
+end
+
+function fig = state_figure(summary,interactive)
+visibility = "off";
+if interactive
+    visibility = "on";
+end
+fig = figure("Name","状态验证：初始状态摘要", ...
+    "NumberTitle","off","Color","w","Visible",visibility, ...
+    "Position",[100,100,1120,620]);
+layout = tiledlayout(fig,1,2,"TileSpacing","compact");
+nexttile(layout);
+bar(summary.elementCount(1:4));
+xticks(1:4);
+xticklabels(summary.component(1:4));
+ylabel("元素数量");
+title("xi、y、l、z维数");
+grid on;
+nexttile(layout);
+bar(log10(1+summary.normInf(1:4)));
+xticks(1:4);
+xticklabels(summary.component(1:4));
+ylabel("log_{10}(1+无穷范数)");
+title("初始状态量级（压缩显示）");
+grid on;
+end
+
+function [outputFile,tableFiles,figureFiles,index] = ...
+        output_paths(outputDirectory,writeArtifacts)
+if writeArtifacts
+    outputFile = fullfile(outputDirectory,"状态模块输出.mat");
+    tableFiles = fullfile(outputDirectory,"状态向量维数与范围.csv");
+    figPath = fullfile(outputDirectory,"初始状态摘要.fig");
+    pngPath = fullfile(outputDirectory,"初始状态摘要.png");
+    figureFiles = [figPath;pngPath];
+else
+    outputFile = "";
+    tableFiles = strings(0,1);
+    figPath = "";
+    pngPath = "";
+    figureFiles = strings(0,1);
+end
+tableFiles = reshape(string(tableFiles),[],1);
+figureFiles = reshape(string(figureFiles),[],1);
+index = struct("figPath",string(figPath),"pngPath",string(pngPath));
+end
+
+function value = default_input_artifact()
+validationDirectory = string(fileparts(mfilename("fullpath")));
+modelDirectory = string(fileparts(validationDirectory));
+rkktDirectory = string(fileparts(modelDirectory));
+value = fullfile(rkktDirectory,"+indexing","+validation", ...
+    "索引模块输出.mat");
+end
+
+function value = default_output_directory()
+value = string(fileparts(mfilename("fullpath")));
+end
+
+function value = same_path(left,right)
+left = replace(string(left),"/","\");
+right = replace(string(right),"/","\");
+if ispc
+    value = strcmpi(left,right);
+else
+    value = strcmp(left,right);
+end
+end

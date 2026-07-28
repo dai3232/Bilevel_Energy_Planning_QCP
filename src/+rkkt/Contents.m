@@ -1,5 +1,5 @@
 % RKKT
-% Version 0.3.0 (PKG-3) 28-Jul-2026
+% Version 0.4.0 (PKG-4) 28-Jul-2026
 %
 % Package metadata
 %   info - Return immutable package, contract, and dependency metadata.
@@ -8,7 +8,7 @@
 %   contracts  - Read-only public contract checks.
 %   data       - Implemented data facade and manual validation entry.
 %   indexing   - Implemented canonical-index facade and validation entry.
-%   model      - State and linearization namespace (implemented from PKG-4).
+%   model      - Implemented state, linearization, and read-only views.
 %   solver     - Full and recursive KKT namespace (implemented from PKG-5).
 %   ipm        - Interior-point iteration namespace (implemented from PKG-7).
 %   artifacts  - Run artifact namespace.

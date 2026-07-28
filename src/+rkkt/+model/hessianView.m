@@ -1,0 +1,19 @@
+function view = hessianView(linearization)
+%HESSIANVIEW Read the Hessian representations from one linearization.
+%   This function performs no model assembly or Hessian recomputation.
+
+arguments
+    linearization (1,1) struct
+end
+
+rkkt.contracts.requireFields(linearization, ...
+    ["identity";"hessian";"H"], ...
+    "rkkt.model.hessianView linearization");
+rkkt.contracts.requireFields(linearization.hessian,"H", ...
+    "rkkt.model.hessianView linearization.hessian");
+
+view = struct( ...
+    "identity",linearization.identity, ...
+    "hessian",linearization.hessian, ...
+    "H",linearization.H);
+end
