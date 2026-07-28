@@ -40,6 +40,18 @@ verifyEqual(testCase,a43.fraction_to_boundary,0.9995);
 verifyEqual(testCase,a43.step_strategy,"independent");
 verifyEqual(testCase,a43.convergence_coordinate, ...
     "positive_scalar_unitized_kkt");
+verifyEqual(testCase,a43.primal_equality_inf_tolerance,1e-6, ...
+    "AbsTol",0);
+verifyEqual(testCase,a43.primal_inequality_inf_tolerance,1e-6, ...
+    "AbsTol",0);
+verifyEqual(testCase,a43.dual_scaled_inf_tolerance,1e-6,"AbsTol",0);
+verifyEqual(testCase,a43.mean_lz_scaled_tolerance,1e-6,"AbsTol",0);
+verifyEqual(testCase,a43.direction_relative_tolerance,1e-6,"AbsTol",0);
+verifyEqual(testCase, ...
+    a43.recursive_full_kkt_residual_tolerance,1e-6,"AbsTol",0);
+verifyEqual(testCase,a43.physical_violation_tolerance,1e-8,"AbsTol",0);
+verifyEqual(testCase,a43.full_kkt_residual_tolerance,1e-10,"AbsTol",0);
+verifyEqual(testCase,a43.symmetry_relative_tolerance,1e-12,"AbsTol",0);
 for name = ["common_step_enabled","dynamic_sigma_enabled", ...
         "predictor_corrector_enabled","line_search_enabled", ...
         "regularization_enabled","automatic_symmetrization_enabled", ...
@@ -145,6 +157,30 @@ acceptanceWithInvalidReport = evaluate_stage_a4_3_acceptance( ...
     testCase.TestData.root,result,physical, ...
     "ReportEvidence",struct("attempted",true));
 verifyEqual(testCase,acceptanceWithInvalidReport.status(7),"FAIL");
+
+authorized = result;
+authorized.run_terminal_state = "CONVERGED";
+authorized.convergence_achieved = true;
+authorized.final_metrics.r_eq_inf = 5e-7;
+authorized.final_metrics.r_ineq_inf = 5e-7;
+authorized.final_metrics.r_dual_scaled_inf = 5e-7;
+authorized.final_metrics.mean_lz_scaled = 5e-7;
+authorizedDirection = authorized.direction_audit;
+for name = ["direction_relative_error","xi_relative_error", ...
+        "y_relative_error","l_relative_error","z_relative_error"]
+    authorizedDirection.(name) = ...
+        repmat(5e-7,height(authorizedDirection),1);
+end
+authorizedDirection.recursive_full_kkt_relative_residual = ...
+    repmat(5e-7,height(authorizedDirection),1);
+authorizedDirection.full_kkt_relative_residual = ...
+    repmat(5e-11,height(authorizedDirection),1);
+authorized.direction_audit = authorizedDirection;
+acceptance = evaluate_stage_a4_3_acceptance( ...
+    testCase.TestData.root,authorized,physical);
+verifyEqual(testCase,acceptance.status(1:6),repmat("PASS",6,1));
+verifyEqual(testCase,acceptance.threshold(1:5),repmat("<=1e-6",5,1));
+
 result.direction_audit(1,:) = [];
 acceptance = evaluate_stage_a4_3_acceptance( ...
     testCase.TestData.root,result,physical);
