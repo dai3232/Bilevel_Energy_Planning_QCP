@@ -1,2 +1,3 @@
 % RKKT.ARTIFACTS Stable artifact interface namespace.
-%   Existing artifact implementations remain in src/artifacts during PKG-1.
+%   export - Delegate final A4 result persistence to the legacy
+%            compatibility backend.

@@ -1,32 +1,38 @@
 # 包接口重构辅助阶段状态
 
-- `pkg_stage_id`: `PKG-7`
+- `pkg_stage_id`: `PKG-8`
 - `status`: `READY_FOR_USER_REVIEW`
-- `updated_at`: `2026-07-28`
+- `updated_at`: `2026-07-29`
 - `branch`: `refactor/pkg-interface`
 - `worktree`: `H:\Reproduction\Hourly_Recursive_KKT_pkg`
-- `pkg_7_base_commit`: `afd70a0f0c7bbcca8c0572d768037cfd8ace3993`
+- `pkg_8_base_commit`: `91d31035ec6edd928a84a4c50b0bdaa23838a632`
 - `pkg_6_mapping_fix_commit`: `afd70a0f0c7bbcca8c0572d768037cfd8ace3993`
-- `formal_project_stage`: `stage_A4 / READY（未修改）`
-- `step_facade_implemented`: `true`
-- `solve_facade_implemented`: `true`
-- `default_step_legacy_exact`: `true（排除 timing）`
-- `formal_a4_3_step_legacy_exact`: `true（排除 timing）`
-- `controlled_trajectory_iterations`: `3`
-- `state_trajectory_legacy_exact`: `true`
-- `recursive_direction_official`: `true`
-- `full_kkt_role`: `audit_only`
-- `full_solve_runtime_executed`: `false`
-- `full_solve_runtime_validation`: `DEFERRED_UNTIL_FORMAL_RUN`
+- `formal_project_stage`: `stage_A4 / READY`
+- `package_refactor_track_complete`: `true`
+- `production_callers_migrated`: `true`
+- `production_algorithm_migrated`: `false`
+- `legacy_inventory_rows`: `164`
+- `unexpected_legacy_callers`: `0`
+- `external_blocker_cleared`: `true`
+- `external_source_baseline_at_start`: `1f3836ca629f5fc8a1de1f5ea5b783d114e1586b`
+- `external_source_baseline_accepted`: `f1251f74a8e56073a846048fe26ee4564723fba9`
+- `external_baseline_integrated`: `false`
+- `combined_state_validated`: `false`
+- `integration_validation_pending`: `true`
+- `merge_authorized`: `false`
+- `full_ipm_executed`: `false`
 - `formal_run_context_created`: `false`
 - `convergence_evaluated`: `false`
 - `convergence_claimed`: `false`
-- `minimal_tests`: `14 of 14 passed`
-- `code_analyzer`: `0 findings in 11 added or modified MATLAB files`
-- `step_output`: `src/+rkkt/+ipm/+validation/IPM单步输出.mat`
-- `step_tables`: `src/+rkkt/+ipm/+validation/IPM单步状态变化.csv；IPM单步残差与步长.csv`
-- `step_figures`: `src/+rkkt/+ipm/+validation/IPM单步状态更新.fig/.png`
-- `trajectory_output`: `src/+rkkt/+ipm/+validation/IPM受控轨迹输出.mat`
-- `trajectory_tables`: `src/+rkkt/+ipm/+validation/IPM受控轨迹.csv；IPM完整求解接口合同.csv`
-- `trajectory_figures`: `src/+rkkt/+ipm/+validation/IPM受控轨迹.fig/.png`
-- `next_pkg_stage`: `PKG-8 / NOT_STARTED`
+- `pkg_8_fixed_tests`: `22 of 22 passed`
+- `pkg_1_to_pkg_7_fixed_tests`: `13/13；29/29；8/8；10/10；10/10；14/14；14/14`
+- `focused_regressions`: `A4-3 6/6；artifacts 4/4；reporting 7/7`
+- `code_analyzer`: `0 findings in 17 added or modified MATLAB files`
+- `pkg_worktree_current_stage_sha256`: `b1e39ca150759631b524cb2dc98158296db581757355b47b97f8f912b2fad5b7`
+- `external_source_current_stage_sha256`: `c779f93ec2892b6357125e8646cbff5d76cb51c76b17e68ca2cad6e13a855237`
+- `current_stage_relation`: `二者均为 stage_A4 / READY，但内容不完全相同；原工作树包含用户批准的 1e-6 阈值说明`
+- `controlled_input_sha256`: `aebb35fa80e6ba2fb8d4534b09a141feaedcb2b9d027e9924e7a0091943c4277；10baac1dc5d0b07dbbb9d2fe8f9aac82f071e43d4fb9901ff7ba0b467d05c186`
+- `runs_recursive_items`: `259（测试前后相同）`
+- `external_baseline_disposition`: `用户已接受 f1251f74a8e56073a846048fe26ee4564723fba9 作为后续受控集成目标；尚未集成或验证联合状态`
+- `unresolved_stage_a4_issue`: `gap 上升和微小步长问题仍未解决；属于受控合并后的正式 A4 收敛任务`
+- `next_action`: `USER_REVIEW_THEN_CONTROLLED_INTEGRATION_WITH_F125`

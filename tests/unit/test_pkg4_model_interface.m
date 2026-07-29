@@ -38,8 +38,8 @@ end
 
 function testPackageInfoMarksPkg4InterfacesImplemented(testCase)
 value = rkkt.info();
-verifyEqual(testCase,string(value.package_version),"0.4.0");
-verifyEqual(testCase,string(value.pkg_stage),"PKG-4");
+verifyEqual(testCase,string(value.package_version),"0.8.0");
+verifyEqual(testCase,string(value.pkg_stage),"PKG-8");
 required = [ ...
     "rkkt.model.initialize"
     "rkkt.model.linearize"

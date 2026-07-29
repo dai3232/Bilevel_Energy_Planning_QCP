@@ -1,12 +1,15 @@
-function index = build(data)
+function index = build(data, options)
 %BUILD Build the formal seven-day canonical index through the legacy entry.
-%   INDEX = RKKT.INDEXING.BUILD(DATA) delegates index construction to
-%   BUILD_STAGE_A4_INDEX. DATA is the unmodified PKG-2 project-data object.
+%   INDEX = RKKT.INDEXING.BUILD(DATA,NAME=VALUE) delegates index
+%   construction to BUILD_STAGE_A4_INDEX. RunId and ConfigPath mirror the
+%   production entry. DATA is the unmodified PKG-2 project-data object.
 %   The returned canonical index is checked read-only and returned without
 %   wrapping, sorting, deduplication, correction, or added fields.
 
 arguments
     data (1,1) struct
+    options.ConfigPath (1,1) string = ""
+    options.RunId (1,1) string = "STAGE_A4_INDEX"
 end
 
 rkkt.contracts.requireFields(data, ...
@@ -40,7 +43,8 @@ if ~same_path(resolved, expected)
         expected, resolved);
 end
 
-index = build_stage_a4_index(data);
+index = build_stage_a4_index(data, ...
+    ConfigPath=options.ConfigPath,RunId=options.RunId);
 validate_index_contract(index, data);
 
 clear pathGuard

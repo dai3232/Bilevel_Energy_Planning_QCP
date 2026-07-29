@@ -29,13 +29,15 @@ testCase.TestData.pathAfterFacade = pathAfterFacade;
 testCase.TestData.manualResult = manualResult;
 end
 
-function testPackageInfoMarksOnlyDataFacadeImplemented(testCase)
+function testPackageInfoRetainsDataFacadeInFinalClosure(testCase)
 value = rkkt.info();
-verifyEqual(testCase, value.package_version, "0.2.0");
-verifyEqual(testCase, value.pkg_stage, "PKG-2");
-verifyEqual(testCase, value.implemented_public_interfaces, ...
-    ["rkkt.info"; "rkkt.data.load"]);
+verifyEqual(testCase, value.package_version, "0.8.0");
+verifyEqual(testCase, value.pkg_stage, "PKG-8");
+verifyTrue(testCase,ismember("rkkt.data.load", ...
+    string(value.implemented_public_interfaces)));
+verifyTrue(testCase,value.production_callers_migrated);
 verifyFalse(testCase, value.production_algorithm_migrated);
+verifyFalse(testCase,value.convergence_evaluated);
 end
 
 function testFacadeMatchesLegacyObjectExactly(testCase)
@@ -163,12 +165,14 @@ for forbidden = [ ...
 end
 end
 
-function testNoPkg3FacadeWasIntroduced(testCase)
-verifyEmpty(testCase, which("rkkt.indexing.build"));
-verifyEmpty(testCase, which("rkkt.indexing.validation.run"));
-verifyEmpty(testCase, which("rkkt.model.initialize"));
-verifyEmpty(testCase, which("rkkt.solver.assembleFullKKT"));
-verifyEmpty(testCase, which("rkkt.ipm.step"));
+function testFinalPackageClosureKeepsAllDownstreamFacadesResolvable(testCase)
+verifyNotEmpty(testCase,which("rkkt.indexing.build"));
+verifyNotEmpty(testCase,which("rkkt.indexing.validation.run"));
+verifyNotEmpty(testCase,which("rkkt.model.initialize"));
+verifyNotEmpty(testCase,which("rkkt.solver.assembleFullKKT"));
+verifyNotEmpty(testCase,which("rkkt.ipm.step"));
+verifyNotEmpty(testCase,which("rkkt.artifacts.export"));
+verifyNotEmpty(testCase,which("rkkt.reporting.generate"));
 end
 
 function result = same_path(left, right)

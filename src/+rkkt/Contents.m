@@ -1,5 +1,5 @@
 % RKKT
-% Version 0.7.0 (PKG-7) 28-Jul-2026
+% Version 0.8.0 (PKG-8) 28-Jul-2026
 %
 % Package metadata
 %   info - Return immutable package, contract, and dependency metadata.
@@ -11,6 +11,6 @@
 %   model      - Implemented state, linearization, and read-only views.
 %   solver     - Implemented full, reduced, and recursive KKT facades.
 %   ipm        - Implemented step and formal-solve delegation facades.
-%   artifacts  - Run artifact namespace.
-%   reporting  - Report generation namespace.
-%   workflows  - End-to-end workflow namespace.
+%   artifacts  - Implemented formal result-export delegation facade.
+%   reporting  - Implemented formal report-generation delegation facade.
+%   workflows  - Reserved namespace; no frozen production workflow API.

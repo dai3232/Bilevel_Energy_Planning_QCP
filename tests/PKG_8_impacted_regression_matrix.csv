@@ -1,0 +1,12 @@
+regression_order,runner_or_test,scope,why_required,formal_ipm_executed,creates_formal_run
+1,tests/run_PKG_8_tests.m,PKG-8 fixed inventory,Proves caller migration facade parity legacy retention dependency closure and frozen-state guards,false,false
+2,tests/run_PKG_1_tests.m,PKG-1 fixed inventory,Protects package skeleton contracts metadata and namespace foundations used by every later facade,false,false
+3,tests/run_PKG_2_tests.m,PKG-2 fixed inventory,Protects rkkt.data.load because the formal A4-3 caller now consumes that facade,false,false
+4,tests/run_PKG_3_tests.m,PKG-3 fixed inventory,Protects canonical indexing and the newly mirrored RunId and ConfigPath options,false,false
+5,tests/run_PKG_4_tests.m,PKG-4 fixed inventory,Protects state and unified-linearization contracts consumed downstream after caller migration,false,false
+6,tests/run_PKG_5_tests.m,PKG-5 fixed inventory,Protects full and reduced KKT audit facades on the unchanged linearization object,false,false
+7,tests/run_PKG_6_tests.m,PKG-6 fixed inventory,Protects the official recursive direction chain and no-full-direction-fallback rule,false,false
+8,tests/run_PKG_7_tests.m,PKG-7 fixed inventory,Protects IPM step parity deferred solve contract and the three-round controlled trajectory,false,false
+9,tests/integration/test_stage_a4_3_formal_candidate.m,A4-3 focused formal-candidate test,Protects frozen A4-3 configuration one-step mathematics and the migrated rkkt.ipm.solve architecture assertion,false,false
+10,tests/integration/test_stage_a4_result_artifacts.m,A4 result artifact integration,Protects the legacy artifact backend now delegated by rkkt.artifacts.export using only temporary fixtures,false,false
+11,tests/integration/test_stage_a4_report.m,A4 report integration,Protects the legacy report backend now delegated by rkkt.reporting.generate using only temporary fixtures,false,false
