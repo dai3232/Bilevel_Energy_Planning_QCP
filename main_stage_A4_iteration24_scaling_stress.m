@@ -311,6 +311,33 @@ assert(created,"stageA4:scaleStress:DirectoryCreate", ...
     "Could not create %s: %s",pathValue,message);
 end
 
+function write_text(pathValue,textValue)
+assert(~isfile(pathValue)&&~isfolder(pathValue), ...
+    "stageA4:scaleStress:TextExists", ...
+    "Refusing to overwrite %s.",pathValue);
+[fileId,message] = fopen(pathValue,"wb","n","UTF-8");
+assert(fileId>=0,"stageA4:scaleStress:TextOpen", ...
+    "Could not create %s: %s",pathValue,message);
+guard = onCleanup(@()close_file_safely(fileId));
+bytes = unicode2native(char(string(textValue)+newline),"UTF-8");
+count = fwrite(fileId,bytes,"uint8");
+assert(count==numel(bytes),"stageA4:scaleStress:TextWrite", ...
+    "Incomplete write: %s",pathValue);
+status = fclose(fileId);
+clear guard
+assert(status==0,"stageA4:scaleStress:TextClose", ...
+    "Could not close %s.",pathValue);
+end
+
+function close_file_safely(fileId)
+try
+    if ischar(fopen(fileId))
+        fclose(fileId);
+    end
+catch
+end
+end
+
 function runId=make_run_id(root,commit)
 stamp=string(datetime("now","TimeZone","Asia/Shanghai", ...
     "Format","yyyyMMdd_HHmmss"));
