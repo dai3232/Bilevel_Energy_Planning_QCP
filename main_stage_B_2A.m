@@ -462,8 +462,8 @@ assert(status==0 && ~isempty(regexp(value,"^[0-9a-f]{40}$","once")), ...
 end
 
 function value = git_command(root,arguments)
-safe = replace(char(root),'"','\"');
-value = string(sprintf('git -c safe.directory="%s" %s', ...
+safe = replace(char(root),'\','/');
+value = string(sprintf('git -c safe.directory=%s %s', ...
     safe,char(arguments)));
 end
 
