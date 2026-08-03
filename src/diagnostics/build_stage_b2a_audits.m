@@ -27,7 +27,7 @@ for k = 1:n
     target = v.day==w.day(k) & v.hour>0 & ...
         string(v.asset_type)=="hydro" & v.asset_id==w.hydro_id(k) & ...
         string(v.variable_name)=="PH";
-    expected = sort(v.global_index_start(target)).';
+    expected = sort(v.global_index_start(target));
     jacobian_nnz(k) = nnz(row);
     target_columns_exact(k) = isequal(columns,expected);
     cross_day_zero(k) = ~any(v.day(columns)~=w.day(k));
