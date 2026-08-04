@@ -1,0 +1,26 @@
+function evidence = run_stage_B_1_tests(options)
+%RUN_STAGE_B_1_TESTS Run the exact fourteen-test B-1 baseline suite.
+
+arguments
+    options.EvidenceDirectory (1,1) string = ""
+    options.CommandText (1,1) string = "run_stage_B_1_tests()"
+end
+
+root = string(fileparts(fileparts(mfilename("fullpath"))));
+addpath(root);
+addpath(fullfile(root,"tests"));
+addpath(genpath(fullfile(root,"src")));
+files = [ ...
+    "tests/integration/test_stage_b1_data_baseline.m"
+    "tests/unit/test_stage_b_daily_hydro_water.m"];
+expected = fullfile(root,"tests", ...
+    "stage_B_1_expected_test_inventory.csv");
+evidence = run_fixed_test_inventory_with_evidence( ...
+    root,files,expected, ...
+    "EvidenceDirectory",options.EvidenceDirectory, ...
+    "CommandText",options.CommandText, ...
+    "SuiteLabel","stage_B_1");
+assert(evidence.summary.test_total==14 && evidence.all_pass, ...
+    "stageB:tests:B1Failed", ...
+    "The exact fourteen-test Stage B-1 suite must pass.");
+end

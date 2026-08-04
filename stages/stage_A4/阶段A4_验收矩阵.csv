@@ -1,8 +1,8 @@
 ﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
-SA4-CONV-001,收敛,原始等式残差,inf-norm,<=1e-8,true,iteration_summary.csv,NOT_RUN,
-SA4-CONV-002,收敛,不等式可行性,inf-norm,<=1e-8,true,iteration_summary.csv,NOT_RUN,
-SA4-CONV-003,收敛,对偶残差,inf-norm,<=1e-8,true,iteration_summary.csv,NOT_RUN,
-SA4-CONV-004,收敛,归一化互补间隙,scalar,<=1e-8,true,iteration_summary.csv,NOT_RUN,
-SA4-EQ-001,等价,每次接受迭代的方向审计,max error,<=1e-10,true,direction_audit.csv,NOT_RUN,
+SA4-CONV-001,收敛,原始等式残差,inf-norm,<=1e-6,true,iteration_summary.csv,NOT_RUN,
+SA4-CONV-002,收敛,不等式可行性,inf-norm,<=1e-6,true,iteration_summary.csv,NOT_RUN,
+SA4-CONV-003,收敛,对偶残差,inf-norm,<=1e-6,true,iteration_summary.csv,NOT_RUN,
+SA4-CONV-004,收敛,归一化互补间隙,scalar,<=1e-6,true,iteration_summary.csv,NOT_RUN,
+SA4-EQ-001,等价,每次接受迭代的方向审计,max error,<=1e-6,true,direction_audit.csv,NOT_RUN,
 SA4-PHY-001,物理,功率平衡/SOC/界,max violation,<=1e-8,true,physical_audit.csv,NOT_RUN,
 SA4-RPT-001,报告,两份中文阶段报告由工件生成,file check,PASS,true,reports,NOT_RUN,

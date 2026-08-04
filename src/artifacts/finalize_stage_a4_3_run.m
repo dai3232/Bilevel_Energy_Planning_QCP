@@ -922,7 +922,8 @@ advisoryMask = ~ismember(string(allRebuiltFindings.file),scopeRelative) | ...
     ismember(string(allRebuiltFindings.identifier), ...
     nonblockingAnalyzerIds);
 rebuiltAdvisories = allRebuiltFindings(advisoryMask,:);
-advisoryIdentity = tables_equivalent(advisoryEvidence,rebuiltAdvisories);
+advisoryIdentity = advisory_tables_equivalent( ...
+    advisoryEvidence,rebuiltAdvisories);
 codeAnalyzerEvidence = read_csv(codeAnalyzerPath);
 requiredAnalyzerColumns = ["file","line","column","identifier","message"];
 assert(all(ismember(requiredAnalyzerColumns, ...
@@ -1497,6 +1498,34 @@ for name = string(left.Properties.VariableNames)
         return
     end
 end
+end
+
+function passed = advisory_tables_equivalent(left,right)
+% Historical A4-3 static evidence used UNKNOWN when localized checkcode
+% messages omitted a trailing "(ID)" token.  Accept that representation
+% only when every other field is exact and the independently rebuilt ID is
+% one of the two explicitly nonblocking advisory IDs.
+if tables_equivalent(left,right)
+    passed = true;
+    return
+end
+passed = istable(left) && istable(right) && ...
+    height(left)==height(right) && ...
+    isequal(string(left.Properties.VariableNames), ...
+        string(right.Properties.VariableNames)) && ...
+    ismember("identifier",string(left.Properties.VariableNames));
+if ~passed
+    return
+end
+leftId = string(left.identifier);
+rightId = string(right.identifier);
+legacy = leftId=="UNKNOWN" & ismember(rightId,["MSNU","SPRIX"]);
+if ~all(leftId==rightId | legacy)
+    passed = false;
+    return
+end
+left.identifier = right.identifier;
+passed = tables_equivalent(left,right);
 end
 
 function value = read_csv(pathValue)

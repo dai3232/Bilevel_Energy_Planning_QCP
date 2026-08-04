@@ -1,7 +1,36 @@
 stage_id: "stage_B"
-status: "LOCKED"
-description: "加入四座水电每日用水上下限"
+status: "READY"
+description: "第14—20日四座水电日用水约束线性化与完整KKT结构审计"
 days: [14, 15, 16, 17, 18, 19, 20]
 hours: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
-expected_full_kkt_dimension: null
+hydro_ids: [1, 2, 3, 4]
+milestone_id: "B-2A"
+run_purpose: "stage_B_2A_water_constraint_linearization_and_full_kkt_structure"
+time_scope_type: "formal_7_day_scope"
+soc_boundary_mode: "formal_daily_fixed_half_energy"
+start_hour: 1
+terminal_hour: 24
+terminal_soc_equality_count_per_day: 2
+water_constraints_enabled: true
+thermal_second_pass_enabled: false
+annual_scope_enabled: false
+full_kkt_enabled: true
+full_kkt_assemble_only: true
+full_kkt_solve_enabled: false
+recursive_direction_enabled: false
+ipm_enabled: false
+derivative_relative_error_threshold: 1.0e-7
+lagrangian_hessian_symmetry_tolerance: 1.0e-12
+expected_stage_a_primal_dimension: 3722
+expected_stage_a_equality_dimension: 618
+expected_stage_a_inequality_dimension: 7248
+expected_stage_a_full_kkt_dimension: 18836
+expected_stage_a_daily_hourly_chain_dimensions: [589, 590, 589, 590, 590, 590, 590]
+expected_stage_a_total_hourly_chain_dimension: 4128
+expected_stage_a_fixed_zero_count: 422
+expected_water_inequality_count: 56
+expected_full_kkt_dimension: 18948
+water_bound_order: "upper_then_lower"
+diagnostic_water_upper_multiplier: 1.25
+diagnostic_water_lower_multiplier: 0.75
 parallel_mode: "off"

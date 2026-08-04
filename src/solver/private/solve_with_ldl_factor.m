@@ -14,7 +14,17 @@ assert(all(isfinite(nonzeros(rhs))), "stageA1:solver:LDLRhsNonfinite", ...
     "%s RHS contains NaN or Inf.", label);
 
 lastwarn("");
-work = factor.L \ rhs(factor.permutation,:);
+scalingUsed = isfield(factor,"scaling_used") && logical(factor.scaling_used);
+if scalingUsed
+    assert(isfield(factor,"congruence_scale") && ...
+        numel(factor.congruence_scale)==factor.dimension, ...
+        "stageA4:scaling:FactorScaleMissing", ...
+        "%s has no valid congruence scale.",label);
+    transformedRhs = factor.congruence_scale .* rhs;
+else
+    transformedRhs = rhs;
+end
+work = factor.L \ transformedRhs(factor.permutation,:);
 work = factor.D \ work;
 work = factor.L.' \ work;
 [warningMessage, warningId] = lastwarn;
@@ -24,8 +34,13 @@ if strlength(string(warningId)) > 0 || strlength(string(warningMessage)) > 0
         label, string(warningId), string(warningMessage));
 end
 
-solution = zeros(size(rhs), "like", rhs);
-solution(factor.permutation,:) = work;
+transformedSolution = zeros(size(rhs), "like", rhs);
+transformedSolution(factor.permutation,:) = work;
+if scalingUsed
+    solution = factor.congruence_scale .* transformedSolution;
+else
+    solution = transformedSolution;
+end
 if any(~isfinite(solution), "all")
     error("stageA1:solver:LDLSolutionNonfinite", ...
         "%s solution contains NaN or Inf.", label);
@@ -33,12 +48,26 @@ end
 
 rawResidual = factor.matrix*solution-rhs;
 if isfield(factor,"factorized_operator")
-    factorizedResidual = factor.factorized_operator*solution-rhs;
+    if scalingUsed
+        factorizationCoordinateResidual = factor.factorized_operator * ...
+            transformedSolution-transformedRhs;
+        factorizedResidual = factor.factorized_operator_original * ...
+            solution-rhs;
+        factorizationCoordinateDenominator = ...
+            max(1,norm(transformedRhs,"fro"));
+    else
+        factorizationCoordinateResidual = ...
+            factor.factorized_operator*solution-rhs;
+        factorizedResidual = factor.factorized_operator*solution-rhs;
+        factorizationCoordinateDenominator = max(1,norm(rhs,"fro"));
+    end
     rawToFactorizedRelative = ...
         factor.raw_to_factorized_operator_relative;
     actualOperatorAvailable = true;
 else
     factorizedResidual = rawResidual;
+    factorizationCoordinateResidual = rawResidual;
+    factorizationCoordinateDenominator = max(1,norm(rhs,"fro"));
     rawToFactorizedRelative = 0;
     actualOperatorAvailable = false;
 end
@@ -55,6 +84,11 @@ diagnostics.factorized_operator_relative_residual = ...
     norm(factorizedResidual,"fro")/max(1,norm(rhs,"fro"));
 diagnostics.factorized_operator_max_absolute_residual = ...
     max(abs(factorizedResidual),[],"all");
+diagnostics.factorization_coordinate_relative_residual = ...
+    norm(factorizationCoordinateResidual,"fro") / ...
+    factorizationCoordinateDenominator;
+diagnostics.factorization_coordinate_max_absolute_residual = ...
+    max(abs(factorizationCoordinateResidual),[],"all");
 diagnostics.raw_to_factorized_operator_relative = ...
     rawToFactorizedRelative;
 diagnostics.actual_factorized_operator_available = ...

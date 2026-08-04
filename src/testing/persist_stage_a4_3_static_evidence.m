@@ -150,7 +150,7 @@ for k = 1:height(closure)
         token = regexp(char(text),"\(([A-Za-z0-9_]+)\)\s*$", ...
             "tokens","once");
         if isempty(token)
-            identifier(end+1,1) = "UNKNOWN"; %#ok<AGROW>
+            identifier(end+1,1) = string(observed(j).id); %#ok<AGROW>
         else
             identifier(end+1,1) = string(token{1}); %#ok<AGROW>
         end

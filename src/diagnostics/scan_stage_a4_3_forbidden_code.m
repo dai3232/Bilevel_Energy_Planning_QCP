@@ -117,12 +117,17 @@ end
 
 row = row+1;
 checkId(row) = "A43-STABLE-V2-EXPLICIT";
-requirement(row) = "Formal A4-3 explicitly selects MaxPasses=3";
+requirement(row) = ...
+    "Formal A4-3 explicitly selects stable-v2 MaxPasses=3 and congruence scaling";
 matchCount(row) = double(~contains(formalRaw, ...
-    "RecursiveRefinementMaxPasses"));
+    "RecursiveRefinementMaxPasses")) + ...
+    double(~contains(formalRaw,"UseCongruenceScaling")) + ...
+    double(~contains(formalRaw,"EquilibrationPasses"));
 filesScanned(row) = 2;
-details(row) = "formal runner option selection plus validated config";
-if matchCount(row)>0 || config.a4_3.recursive_refinement_max_passes~=3
+details(row) = "formal runner option selection plus validated stable-v2/scaling config";
+if matchCount(row)>0 || config.a4_3.recursive_refinement_max_passes~=3 || ...
+        ~config.a4_3.recursive_congruence_scaling_enabled || ...
+        config.a4_3.equilibration_passes~=8
     status(row) = "FAIL";
 end
 

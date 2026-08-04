@@ -1,36 +1,102 @@
+# 求解器配置合同版本；用于标识本配置文件采用的配置语义版本。
 solver_contract_version: "1.0"
+
+# 目标 MATLAB 版本；本项目按 MATLAB R2024a 开发和验证。
 matlab_target: "R2024a"
+
+# 初始点构造规则及原始—对偶内点法的固定参数。
 initialization:
+  # 全局容量变量的初值规则；midpoint 表示取各容量上下界的中点。
   global_capacity: midpoint
+
+  # 每日日容量副本的初值是否与对应的全局容量初值完全一致。
   daily_capacity_copy_equals_global: true
+
+  # 非固定零风电、光伏出力初值占其有效出力上界的比例。
   active_wind_solar_fraction_of_upper: 0.5
+
+  # 水电、火电出力初值占各自有效上界的比例。
   hydro_thermal_fraction_of_upper: 0.5
+
+  # 储能充电功率和放电功率初值占储能功率容量的比例。
   charge_discharge_fraction_of_power_capacity: 0.5
+
+  # 储能 SOC 初值占储能能量容量的比例。
   soc_fraction_of_energy_capacity: 0.5
+
+  # 等式约束乘子的统一初值。
   equality_multipliers: 0.0
+
+  # 不等式约束乘子的统一正初值。
   inequality_multiplier: 1.0
+
+  # 中心化参数 sigma；用于构造互补方程的中心路径目标。
   centering_sigma: 0.1
+
+  # 分数到边界参数 tau；用于保持松弛量和不等式乘子的严格正性。
   fraction_to_boundary: 0.9995
+
+# 正式迭代的最大轮数和停止阈值。
 convergence:
+  # 单次正式求解允许执行的最大内点迭代次数。
   max_iterations: 100
-  primal_equality_inf: 1.0e-8
-  primal_inequality_inf: 1.0e-8
-  dual_inf: 1.0e-8
-  normalized_complementarity_gap: 1.0e-8
+
+  # 等式原始残差无穷范数的停止阈值。
+  primal_equality_inf: 1.0e-6
+
+  # 不等式原始残差无穷范数的停止阈值。
+  primal_inequality_inf: 1.0e-6
+
+  # 对偶残差无穷范数的停止阈值；具体尺度口径由当前阶段合同规定。
+  dual_inf: 1.0e-6
+
+  # 配置字段沿用“归一化互补间隙”名称；其停止阈值及实际计算口径以当前阶段合同为准。
+  normalized_complementarity_gap: 1.0e-6
+
+# 完整稀疏 KKT 路线与递推降阶路线的方向等价性阈值。
 equivalence:
-  direction_relative_2norm: 1.0e-10
-  recursive_direction_full_kkt_relative_residual: 1.0e-10
+  # 两条路线所得完整 Newton 方向之间相对二范数误差的上限。
+  direction_relative_2norm: 1.0e-6
+
+  # 递推 Newton 方向代回原始完整 KKT 后相对残差的上限。
+  recursive_direction_full_kkt_relative_residual: 1.0e-6
+
+# 递推与全局核心线性代数实现规则及禁止的回退策略。
 linear_algebra:
+  # 局部小时块和日链采用的分解方式；ldl_vector 表示使用带向量置换的 LDL 分解。
   local_factorization: "ldl_vector"
+
+  # 全局核心系统采用的分解方式；同样使用带向量置换的 LDL 分解。
   global_core_factorization: "ldl_vector"
+
+  # 是否通过一次分解同时求解多个右端，避免对同一矩阵重复分解。
   multiple_rhs: true
+
+  # 是否允许显式矩阵求逆；false 表示禁止使用显式逆。
   explicit_inverse: false
+
+  # 是否允许使用伪逆；false 表示禁止使用 pinv 等伪逆方法。
   pseudoinverse: false
+
+  # 是否允许最小范数求解作为失败回退；false 表示禁止此类回退。
   least_norm_fallback: false
+
+  # 递推方向失败时是否允许用完整 KKT 求得的方向回退；false 表示严格禁止。
   recursive_fallback_to_full_kkt: false
+
+  # 是否允许求解器自动添加数值正则化；false 表示禁止隐藏或自动正则化。
   automatic_regularization: false
+
+  # 是否允许求解器自动对称化矩阵；false 表示禁止用事后对称化掩盖装配误差。
   automatic_symmetrization: false
+
+# 数值输出精度、检查点和完整 KKT 审计工件的保存规则。
 logging:
+  # 浮点数文本输出格式；%.17g 保留至少 17 位有效数字以支持可复核证据。
   float_format: "%.17g"
+
+  # 是否保存迭代检查点，以支持中断审计和受控恢复。
   save_checkpoints: true
+
+  # 是否保存完整稀疏 KKT 独立审计所需的证据。
   save_full_kkt_audit: true

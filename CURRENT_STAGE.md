@@ -1,8 +1,8 @@
 # 当前阶段状态
 
-- `stage_id`: `stage_A4`
+- `stage_id`: `stage_B`
 - `status`: `READY`
-- `updated_at`: `2026-07-22`
-- `next_stage_when_passed`: `stage_B`
+- `updated_at`: `2026-08-03`
+- `next_stage_when_passed`: `stage_C1`
 - `blocking_rule`: 当前阶段所有 `blocking=true` 的验收项必须为 `PASS`。
-- `notes`: stage_0、stage_A1、stage_A2、stage_A3 已 PASS。证据修复后的权威 stage_A3 正式运行 `20260721_113025_stage_A3_4edc8c66` 已通过原有 6 项阻断验收、A3 受控测试 67/67、A2 回归 32/32 和 A1 回归 37/37；真实 4340 维递推排列、历史目录与 ZIP 预检、完整 enabled_components、非零 binding residual 回归、证据哈希及中文报告视觉门禁均已验证。A4-1 已完成一次原始-对偶内点更新闭环并通过新增测试 24/24 及 A3/A2/A1 全量回归，但没有执行完整 IPM、没有创建正式 A4 run，也不表示 A4 已通过。当前仍为 `stage_A4 / READY`，不得进入 stage_B；冻结模型、输入数据、验收指标和阈值均未改变。
+- `notes`: stage_0、stage_A1、stage_A2、stage_A3 已 PASS。A4-3 正式七日收敛运行 `20260730_031530_stage_A4_146d5e16` 已完成第14—20日、每天24小时的26轮原始—对偶内点迭代，终态为 `CONVERGED`，manifest 为 `PASS`；7/7 阻断验收和 257/257 测试（失败0、不完整0）全部通过。递推 KKT 为正式 Newton 方向，完整稀疏 KKT 仅用于逐轮独立审计；stable-v2 与局部合同尺度化已启用。输入 Excel、冻结模型口径、验收阈值和历史 runs 未改变。stage_B 目前仅置为 `READY`，尚未实施水量约束、尚未运行 Stage B、尚未进入 stage_C1。

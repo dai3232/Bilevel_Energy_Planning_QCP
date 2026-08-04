@@ -1,10 +1,19 @@
-function factor = factor_symmetric_ldl(matrix, label, symmetryTolerance)
-%FACTOR_SYMMETRIC_LDL Factor one small symmetric block without modification.
+function factor = factor_symmetric_ldl(matrix, label, symmetryTolerance, options)
+%FACTOR_SYMMETRIC_LDL Factor one small symmetric block.
+%
+% The default path is byte-for-byte equivalent in mathematical behavior to
+% the original unscaled route.  The optional congruence path is reserved
+% for the independently authorized numerical-stability stress test.  It
+% factors D*M*D, solves with the corresponding transformed RHS, and keeps
+% M as the immutable residual-audit operator.
 
 arguments
     matrix {mustBeNumeric,mustBeReal}
     label (1,1) string
     symmetryTolerance (1,1) double {mustBeNonnegative,mustBeFinite} = 1.0e-12
+    options.UseCongruenceScaling (1,1) logical = false
+    options.EquilibrationPasses (1,1) double ...
+        {mustBeInteger,mustBeNonnegative} = 8
 end
 
 assert(ismatrix(matrix) && size(matrix,1) == size(matrix,2), ...
@@ -21,7 +30,28 @@ if symmetryRelative > symmetryTolerance
         label, symmetryRelative, symmetryTolerance);
 end
 
-denseDiagnostic = full(matrix); % Small hourly block or 16-by-16 core only.
+originalMatrix = matrix;
+scalingUsed = logical(options.UseCongruenceScaling);
+if scalingUsed
+    [factorizationMatrix,congruenceScale,scalingTrace] = ...
+        equilibrate_symmetric_congruence( ...
+        originalMatrix,options.EquilibrationPasses);
+else
+    factorizationMatrix = originalMatrix;
+    congruenceScale = ones(n,1);
+    scalingTrace = table();
+end
+factorizationSymmetryRelative = ...
+    norm(factorizationMatrix-factorizationMatrix.',"fro") / ...
+    max(1,norm(factorizationMatrix,"fro"));
+if factorizationSymmetryRelative > symmetryTolerance
+    error("stageA1:solver:LDLScaledAsymmetry", ...
+        "%s scaled-factor symmetry error %.17g exceeds %.17g; "+ ...
+        "no symmetrization was applied.", ...
+        label,factorizationSymmetryRelative,symmetryTolerance);
+end
+
+denseDiagnostic = full(factorizationMatrix); % Small hourly/core block only.
 numericRank = rank(denseDiagnostic);
 condition2 = cond(denseDiagnostic, 2);
 if numericRank < n || ~isfinite(condition2)
@@ -31,7 +61,7 @@ if numericRank < n || ~isfinite(condition2)
 end
 
 lastwarn("");
-[lowerFactor, blockDiagonal, permutation] = ldl(matrix, "vector");
+[lowerFactor, blockDiagonal, permutation] = ldl(factorizationMatrix, "vector");
 [warningMessage, warningId] = lastwarn;
 if strlength(string(warningId)) > 0 || strlength(string(warningMessage)) > 0
     error("stageA1:solver:LDLFactorWarning", ...
@@ -45,12 +75,23 @@ end
 
 factorResidual = solver_relative_error( ...
     lowerFactor * blockDiagonal * lowerFactor.', ...
-    matrix(permutation, permutation), "fro");
+    factorizationMatrix(permutation, permutation), "fro");
 factorizedPermuted = lowerFactor*blockDiagonal*lowerFactor.';
 factorizedOperator = sparse(n,n);
 factorizedOperator(permutation,permutation) = factorizedPermuted;
-rawToFactorizedRelative = solver_relative_error( ...
-    factorizedOperator,matrix,"fro");
+if scalingUsed
+    inverseCongruenceScale = 1 ./ congruenceScale;
+    inverseCongruenceDiagonal = ...
+        spdiags(inverseCongruenceScale,0,n,n);
+    factorizedOperatorOriginal = inverseCongruenceDiagonal * ...
+        factorizedOperator * inverseCongruenceDiagonal;
+    rawToFactorizedRelative = solver_relative_error( ...
+        factorizedOperatorOriginal,originalMatrix,"fro");
+else
+    factorizedOperatorOriginal = factorizedOperator;
+    rawToFactorizedRelative = solver_relative_error( ...
+        factorizedOperator,originalMatrix,"fro");
+end
 
 densePivot = full(blockDiagonal); % Small LDL pivot matrix only.
 eigenvalues = eig(densePivot);
@@ -66,13 +107,15 @@ end
 
 factor = struct();
 factor.label = label;
-factor.matrix = matrix;
+factor.matrix = originalMatrix;
+factor.factorization_matrix = factorizationMatrix;
 factor.factorized_operator = factorizedOperator;
+factor.factorized_operator_original = factorizedOperatorOriginal;
 factor.L = lowerFactor;
 factor.D = blockDiagonal;
 factor.permutation = permutation(:);
 factor.dimension = n;
-factor.nnz = nnz(matrix);
+factor.nnz = nnz(originalMatrix);
 factor.symmetry_relative = symmetryRelative;
 factor.numeric_rank = numericRank;
 factor.condition_2 = condition2;
@@ -84,6 +127,20 @@ factor.raw_to_factorized_operator_relative = rawToFactorizedRelative;
 factor.actual_factorized_operator_reconstruction_exact = isequal( ...
     factorizedOperator(permutation,permutation),factorizedPermuted);
 factor.actual_factorized_operator_available_for_residual_audit = true;
+factor.scaling_used = scalingUsed;
+factor.congruence_scale = congruenceScale;
+factor.equilibration_passes = options.EquilibrationPasses * scalingUsed;
+factor.scaling_trace = scalingTrace;
+factor.original_numeric_rank = rank(full(originalMatrix));
+originalSingularValues = svd(full(originalMatrix));
+factor.original_condition_2 = cond(full(originalMatrix),2);
+factor.original_smax = originalSingularValues(1);
+factor.original_smin = originalSingularValues(end);
+factor.factorization_matrix_symmetry_relative = ...
+    factorizationSymmetryRelative;
+factor.factorization_matrix_relative_to_original = ...
+    norm(factorizationMatrix-originalMatrix,"fro") / ...
+    max(1,norm(originalMatrix,"fro"));
 factor.warning_id = string(warningId);
 factor.warning_message = string(warningMessage);
 factor.warning_present = false;
