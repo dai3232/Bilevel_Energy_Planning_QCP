@@ -1,0 +1,50 @@
+stage_id: "stage_B"
+status: "READY"
+description: "第14—20日水电日用水边框递推KKT与完整KKT方向等价验证"
+days: [14, 15, 16, 17, 18, 19, 20]
+hours: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+hydro_ids: [1, 2, 3, 4]
+milestone_id: "B-2B"
+run_purpose: "stage_B_2B_water_bordered_recursive_kkt_direction_equivalence"
+time_scope_type: "formal_7_day_scope"
+soc_boundary_mode: "formal_daily_fixed_half_energy"
+start_hour: 1
+terminal_hour: 24
+terminal_soc_equality_count_per_day: 2
+water_constraints_enabled: true
+thermal_second_pass_enabled: false
+annual_scope_enabled: false
+full_kkt_enabled: true
+full_kkt_assemble_only: false
+full_kkt_solve_enabled: true
+full_kkt_role: "independent_audit_only"
+recursive_direction_enabled: true
+ipm_enabled: false
+optimization_enabled: false
+state_update_enabled: false
+parallel_enabled: false
+stage_c1_enabled: false
+direction_relative_error_tolerance: 1.0e-10
+recursive_full_kkt_residual_tolerance: 1.0e-10
+full_kkt_residual_tolerance: 1.0e-10
+reduced_symmetry_tolerance: 1.0e-12
+border_symmetry_tolerance: 1.0e-12
+lagrangian_hessian_symmetry_tolerance: 1.0e-12
+stationarity_finite_difference_tolerance: 1.0e-7
+expected_stage_a_primal_dimension: 3722
+expected_stage_a_equality_dimension: 618
+expected_stage_a_inequality_dimension: 7248
+expected_stage_a_full_kkt_dimension: 18836
+expected_stage_a_daily_hourly_chain_dimensions: [589, 590, 589, 590, 590, 590, 590]
+expected_stage_a_total_hourly_chain_dimension: 4128
+expected_stage_a_fixed_zero_count: 422
+expected_water_inequality_count: 56
+expected_water_border_dimension_per_day: 8
+expected_day_response_dimension: 14
+expected_global_core_dimension: 16
+expected_full_kkt_dimension: 18948
+water_bound_order: "upper_then_lower"
+water_border_assembly: "daily_augmented_border_low_rank_update"
+water_multiplier_initialization: "shared_positive_inequality_multiplier"
+recursive_refinement_max_passes: 0
+parallel_mode: "off"
