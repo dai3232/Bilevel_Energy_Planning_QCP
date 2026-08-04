@@ -1,2 +1,7 @@
 % RKKT.WORKFLOWS Stable workflow interface namespace.
-%   尚无冻结的生产工作流公共函数；不得使包接口反向依赖 main_stage_A4_3。
+%   stageB1  - Delegate the formal Stage B-1 workflow entry.
+%   stageB2A - Delegate the formal Stage B-2A workflow entry.
+%   stageB2B - Delegate the formal Stage B-2B workflow entry.
+%
+% These explicit facades do not infer the stage and do not execute during
+% PKG-9 delta validation.

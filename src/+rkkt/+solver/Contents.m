@@ -9,3 +9,7 @@
 %   solveGlobalCore        - Solve the retained 16-dimensional core.
 %   recoverDirection       - Recover the complete canonical direction.
 %   verifyEquivalence      - Audit recursive and complete KKT directions.
+%   assembleStageB2AFullKKT - Assemble the explicit B-2A audit KKT.
+%   solveStageB2BRecursiveDirection - Compute one official B-2B direction.
+%   solveStageB2BFullKKTDirection - Compute one independent B-2B audit.
+%   verifyStageB2BDirectionEquivalence - Compare the two B-2B directions.

@@ -1,38 +1,41 @@
 # 包接口重构辅助阶段状态
 
-- `pkg_stage_id`: `PKG-8`
+- `pkg_stage_id`: `PKG-9`
 - `status`: `READY_FOR_USER_REVIEW`
-- `updated_at`: `2026-07-29`
+- `updated_at`: `2026-08-04`
 - `branch`: `refactor/pkg-interface`
 - `worktree`: `H:\Reproduction\Hourly_Recursive_KKT_pkg`
-- `pkg_8_base_commit`: `91d31035ec6edd928a84a4c50b0bdaa23838a632`
-- `pkg_6_mapping_fix_commit`: `afd70a0f0c7bbcca8c0572d768037cfd8ace3993`
-- `formal_project_stage`: `stage_A4 / READY`
-- `package_refactor_track_complete`: `true`
-- `production_callers_migrated`: `true`
+- `pkg_9_base_commit`: `e96f548393ad67012835bfdc9aa37791c96eda2c`
+- `merge_base`: `2a70dab184ad38ad4c1b5f5ec50983c357e48397`
+- `ldl_walkthrough_protection_commit`: `02609b33e0b5dcf0d285b51db5046cb05477535a`
+- `stable_merge_commit`: `6bea7051d13dfae8afd83cd134823fdd8ce787c3`
+- `stable_merge_second_parent`: `90bf33cca0611154231588ac5d7ee09fd0e9c089`
+- `stable_upstream_commit`: `90bf33cca0611154231588ac5d7ee09fd0e9c089`
+- `formal_project_stage`: `stage_B / READY`
+- `stable_backend_integrated`: `true`
+- `b2c_integrated`: `false`
 - `production_algorithm_migrated`: `false`
-- `legacy_inventory_rows`: `164`
-- `unexpected_legacy_callers`: `0`
-- `external_blocker_cleared`: `true`
-- `external_source_baseline_at_start`: `1f3836ca629f5fc8a1de1f5ea5b783d114e1586b`
-- `external_source_baseline_accepted`: `f1251f74a8e56073a846048fe26ee4564723fba9`
-- `external_baseline_integrated`: `false`
-- `combined_state_validated`: `false`
-- `integration_validation_pending`: `true`
-- `merge_authorized`: `false`
 - `full_ipm_executed`: `false`
-- `formal_run_context_created`: `false`
-- `convergence_evaluated`: `false`
-- `convergence_claimed`: `false`
-- `pkg_8_fixed_tests`: `22 of 22 passed`
-- `pkg_1_to_pkg_7_fixed_tests`: `13/13；29/29；8/8；10/10；10/10；14/14；14/14`
-- `focused_regressions`: `A4-3 6/6；artifacts 4/4；reporting 7/7`
-- `code_analyzer`: `0 findings in 17 added or modified MATLAB files`
-- `pkg_worktree_current_stage_sha256`: `b1e39ca150759631b524cb2dc98158296db581757355b47b97f8f912b2fad5b7`
-- `external_source_current_stage_sha256`: `c779f93ec2892b6357125e8646cbff5d76cb51c76b17e68ca2cad6e13a855237`
-- `current_stage_relation`: `二者均为 stage_A4 / READY，但内容不完全相同；原工作树包含用户批准的 1e-6 阈值说明`
-- `controlled_input_sha256`: `aebb35fa80e6ba2fb8d4534b09a141feaedcb2b9d027e9924e7a0091943c4277；10baac1dc5d0b07dbbb9d2fe8f9aac82f071e43d4fb9901ff7ba0b467d05c186`
-- `runs_recursive_items`: `259（测试前后相同）`
-- `external_baseline_disposition`: `用户已接受 f1251f74a8e56073a846048fe26ee4564723fba9 作为后续受控集成目标；尚未集成或验证联合状态`
-- `unresolved_stage_a4_issue`: `gap 上升和微小步长问题仍未解决；属于受控合并后的正式 A4 收敛任务`
-- `next_action`: `USER_REVIEW_THEN_CONTROLLED_INTEGRATION_WITH_F125`
+- `optimization_executed`: `false`
+- `parallel_executed`: `false`
+- `workflow_executed`: `false`
+- `formal_run_created`: `false`
+- `stage_c1_entered`: `false`
+- `stage_b_overall_pass_claimed`: `false`
+- `delta_inventory`: `260/260 COVERED (100%)`
+- `pkg_9_delta_tests`: `31/31 passed；failed=0；incomplete=0`
+- `code_analyzer`: `0 findings in 135 added or modified MATLAB files`
+- `facade_isequaln`: `8/8 pure delegate object comparisons true`
+- `b2b_direction_relative_error`: `1.5000076826131547e-15`
+- `b2b_recursive_kkt_relative_residual`: `4.8537829603427401e-12`
+- `b2b_full_kkt_relative_residual`: `1.20685804249556e-14`
+- `fixed_zero`: `422 values and directions exactly zero`
+- `no_full_direction_fallback`: `true`
+- `full_direction_consumed`: `false`
+- `validation_artifacts`: `src/+rkkt/+data/+validation；src/+rkkt/+indexing/+validation；src/+rkkt/+model/+validation；src/+rkkt/+solver/+validation`
+- `reused_baseline_evidence`: `12/12 REUSED_NOT_RERUN；PKG-1～8、A4-3、B-1、B-2A、B-2B histories not rerun`
+- `controlled_input_sha256_before_after`: `输入数据.xlsx 10baac1dc5d0b07dbbb9d2fe8f9aac82f071e43d4fb9901ff7ba0b467d05c186；基础参数.xlsx aebb35fa80e6ba2fb8d4534b09a141feaedcb2b9d027e9924e7a0091943c4277；both unchanged`
+- `original_worktree_head_before_after`: `2560043a0bc085acc770a874264be3e3545933bc；unchanged`
+- `runs_recursive_items`: `259 before and after`
+- `untracked_pkg1_runs`: `4 original directories only`
+- `next_action`: `USER_REVIEW_PKG9`

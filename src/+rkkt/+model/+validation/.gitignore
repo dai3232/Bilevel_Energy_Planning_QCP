@@ -3,6 +3,7 @@
 /残差观察输出.mat
 /Jacobian观察输出.mat
 /Hessian观察输出.mat
+/阶段B-2A模型验证输出.mat
 /*.csv
 /*.fig
 /*.png

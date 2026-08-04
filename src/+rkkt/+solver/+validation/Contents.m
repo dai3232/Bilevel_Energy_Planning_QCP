@@ -8,3 +8,4 @@
 %   runGlobalCore     - Validate the retained 16-dimensional core.
 %   runRecovery       - Validate strict reverse canonical recovery.
 %   runEquivalence    - Cross-check the staged chain and direction audit.
+%   runStageB2B       - Validate one B-2B recursive/full audit pair.
