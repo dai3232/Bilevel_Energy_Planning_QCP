@@ -9,9 +9,9 @@ testCase.TestData.repoRoot = repoRoot;
 end
 
 function testRealDataFrameworkHasNoGapsOrOverlaps(testCase)
-data = load_project_data(testCase.TestData.repoRoot);
-index = build_canonical_index_framework(data,1,1:24,[],"UNIT_INDEX");
-audit = validate_canonical_index_framework(index);
+data = rkkt.data.load_project_data(testCase.TestData.repoRoot);
+index = rkkt.indexing.build_canonical_index_framework(data,1,1:24,[],"UNIT_INDEX");
+audit = rkkt.indexing.validate_canonical_index_framework(index);
 verifyTrue(testCase,all(audit.passed),strjoin(audit.actual_value(audit.status=="FAIL"),"; "));
 verifyEqual(testCase,index.counts.global_capacity_bounds,28);
 verifyEqual(testCase,index.variable_index.global_index_start,(1:height(index.variable_index))');
@@ -20,10 +20,10 @@ verifyTrue(testCase,all(index.fixed_zero_map.fixed_value==0));
 end
 
 function testThermalMaskRemovesVariablesExactly(testCase)
-data = load_project_data(testCase.TestData.repoRoot);
+data = rkkt.data.load_project_data(testCase.TestData.repoRoot);
 mask = true(data.meta.nDays,data.meta.nHours,data.meta.nThermal);
 mask(1,1,1) = false;
-index = build_canonical_index_framework(data,1,1,mask,"UNIT_MASK");
+index = rkkt.indexing.build_canonical_index_framework(data,1,1,mask,"UNIT_MASK");
 row = index.fixed_zero_map(index.fixed_zero_map.day==1 & ...
     index.fixed_zero_map.hour==1 & string(index.fixed_zero_map.asset_type)=="thermal" & ...
     index.fixed_zero_map.asset_id==1,:);

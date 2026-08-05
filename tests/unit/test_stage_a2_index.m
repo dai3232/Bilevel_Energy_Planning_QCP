@@ -6,9 +6,9 @@ end
 function setupOnce(testCase)
 projectRoot = string(fileparts(fileparts(fileparts(mfilename('fullpath')))));
 addpath(genpath(fullfile(projectRoot,"src")));
-data = load_project_data(projectRoot);
-config = load_stage_a2_configuration(projectRoot);
-index = build_stage_a2_index(data,"RunId","A2_INDEX_TEST");
+data = rkkt.data.load_project_data(projectRoot);
+config = rkkt.model.load_stage_a2_configuration(projectRoot);
+index = rkkt.indexing.build_stage_a2_index(data,"RunId","A2_INDEX_TEST");
 testCase.TestData.projectRoot = projectRoot;
 testCase.TestData.data = data;
 testCase.TestData.config = config;
@@ -127,7 +127,7 @@ end
 function testOnlyExactZeroAvailabilityIsRemoved(testCase)
 data = testCase.TestData.data;
 data.timeseries.solarAvailability(14,1,1) = eps;
-index = build_canonical_index_framework(data,14,1:24,[], ...
+index = rkkt.indexing.build_canonical_index_framework(data,14,1:24,[], ...
     "A2_EXACT_ZERO_TEST");
 active = index.variable_index.day == 14 & ...
     index.variable_index.hour == 1 & ...
@@ -147,7 +147,7 @@ index = testCase.TestData.index;
 data = testCase.TestData.data;
 xi = zeros(height(index.variable_index),1);
 deltaXi = zeros(height(index.variable_index),1);
-physical = recover_stage_a_physical_arrays(xi,deltaXi,index,data);
+physical = rkkt.model.recover_stage_a_physical_arrays(xi,deltaXi,index,data);
 verifyEqual(testCase,physical.fixed_zero_audit.count,61);
 verifyEqual(testCase,physical.fixed_zero_audit.maximum_absolute_value,0, ...
     "AbsTol",0);

@@ -6,11 +6,11 @@ end
 function setupOnce(testCase)
 root = string(fileparts(fileparts(fileparts(mfilename("fullpath")))));
 addpath(genpath(fullfile(root,"src")));
-c = load_stage_b2a_configuration(root);
-d = load_project_data(root);
-idx = build_stage_b_index(d,c,"RunId","B2A_LINEARIZATION_TEST");
-s = initialize_stage_b2a_state(d,idx,c);
-lin = build_stage_b_multiday_linearization(s,d,idx,c);
+c = rkkt.model.load_stage_b2a_configuration(root);
+d = rkkt.data.load_project_data(root);
+idx = rkkt.indexing.build_stage_b_index(d,c,"RunId","B2A_LINEARIZATION_TEST");
+s = rkkt.model.initialize_stage_b2a_state(d,idx,c);
+lin = rkkt.model.build_stage_b_multiday_linearization(s,d,idx,c);
 testCase.TestData.root = root;
 testCase.TestData.config = c;
 testCase.TestData.data = d;
@@ -85,7 +85,7 @@ end
 function testB1FiniteDifferenceDerivativeEvidenceRemainsAtThreshold(testCase)
 d = testCase.TestData.data;
 c = testCase.TestData.config;
-[checks,~] = run_stage_b1_derivative_checks(d);
+[checks,~] = rkkt.diagnostics.run_stage_b1_derivative_checks(d);
 verifyEqual(testCase,height(checks),112);
 verifyLessThanOrEqual(testCase,max(checks.gradient_relative_error), ...
     c.derivative_relative_error_threshold);
@@ -97,10 +97,10 @@ function testRepeatedLinearizationIsBitwiseDeterministic(testCase)
 root = testCase.TestData.root;
 c = testCase.TestData.config;
 d = testCase.TestData.data;
-idx = build_stage_b_index(d,c,"RunId","B2A_LINEARIZATION_TEST");
-s = initialize_stage_b2a_state(d,idx,c);
-first = build_stage_b_multiday_linearization(s,d,idx,c);
-second = build_stage_b_multiday_linearization(s,d,idx,c);
+idx = rkkt.indexing.build_stage_b_index(d,c,"RunId","B2A_LINEARIZATION_TEST");
+s = rkkt.model.initialize_stage_b2a_state(d,idx,c);
+first = rkkt.model.build_stage_b_multiday_linearization(s,d,idx,c);
+second = rkkt.model.build_stage_b_multiday_linearization(s,d,idx,c);
 verifyEqual(testCase,string(first.identity),string(second.identity));
 verifyEqual(testCase,first.H,second.H,"AbsTol",0);
 verifyEqual(testCase,first.G,second.G,"AbsTol",0);

@@ -12,7 +12,7 @@ testCase.TestData.pathCleanup = onCleanup(@() path(originalPath));
 addpath(sourceRoot);
 addpath(legacyDataRoot);
 
-legacyData = load_project_data(repositoryRoot);
+legacyData = rkkt.data.load_project_data(repositoryRoot);
 pathBeforeFacade = path;
 facadeData = rkkt.data.load(repositoryRoot);
 pathAfterFacade = path;
@@ -31,13 +31,13 @@ end
 
 function testPackageInfoRetainsDataFacadeInFinalClosure(testCase)
 value = rkkt.info();
-verifyEqual(testCase, value.package_version, "0.8.0");
-verifyEqual(testCase, value.pkg_stage, "PKG-8");
+verifyEqual(testCase, value.package_version, "1.0.0");
+verifyEqual(testCase, value.pkg_stage, "PACKAGE-HARD-CUT");
 verifyTrue(testCase,ismember("rkkt.data.load", ...
     string(value.implemented_public_interfaces)));
 verifyTrue(testCase,value.production_callers_migrated);
-verifyFalse(testCase, value.production_algorithm_migrated);
-verifyFalse(testCase,value.convergence_evaluated);
+verifyTrue(testCase, value.production_algorithm_migrated);
+verifyFalse(testCase,value.legacy_source_directories_present);
 end
 
 function testFacadeMatchesLegacyObjectExactly(testCase)
@@ -145,7 +145,7 @@ function testFacadeDelegatesWithoutExcelReaderDuplication(testCase)
 sourcePath = fullfile(testCase.TestData.sourceRoot, ...
     "+rkkt", "+data", "load.m");
 source = string(fileread(sourcePath));
-verifyEqual(testCase, count(lower(source), "load_project_data("), 1);
+verifyEqual(testCase, count(lower(source), "rkkt.data.load_project_data("), 1);
 verifyFalse(testCase, contains(lower(source), "readcell("));
 verifyFalse(testCase, contains(lower(source), "readtable("));
 verifyFalse(testCase, contains(lower(source), "sheetnames("));

@@ -6,11 +6,11 @@ function result = main_stage_A4_2D_2A()
 
 projectRoot = string(fileparts(mfilename("fullpath")));
 addpath(genpath(fullfile(projectRoot,"src")));
-config = load_stage_a4_configuration(projectRoot);
-data = load_project_data(projectRoot);
-index = build_stage_a4_index( ...
-    data,"RunId","A4_2D_2A_OBJECTIVE_UNITIZATION_DIAGNOSTIC");
-result = run_stage_a4_objective_unitization_diagnostic( ...
+config = rkkt.model.load_stage_a4_configuration(projectRoot);
+data = rkkt.data.load_project_data(projectRoot);
+index = rkkt.indexing.build_stage_a4_index( ...
+    data,config,"RunId","A4_2D_2A_OBJECTIVE_UNITIZATION_DIAGNOSTIC");
+result = rkkt.diagnostics.run_stage_a4_objective_unitization_diagnostic( ...
     data,index,config,projectRoot);
 
 assert(ismember(result.milestone_status,["PASS","FAIL_RETRYABLE"]) && ...

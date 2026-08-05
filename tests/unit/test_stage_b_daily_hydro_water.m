@@ -7,7 +7,7 @@ function setupOnce(testCase)
 root = string(fileparts(fileparts(fileparts(mfilename("fullpath")))));
 addpath(genpath(fullfile(root,"src")));
 testCase.TestData.root = root;
-testCase.TestData.data = load_project_data(root);
+testCase.TestData.data = rkkt.data.load_project_data(root);
 testCase.TestData.threshold = 1e-7;
 end
 
@@ -18,7 +18,7 @@ for hydro = 1:4
     points = deterministic_points(pmax);
     for point = 1:size(points,2)
         power = points(:,point);
-        actual = evaluate_stage_b_daily_hydro_water(power,a,b,c);
+        actual = rkkt.model.evaluate_stage_b_daily_hydro_water(power,a,b,c);
         independentlyRebuilt = sum(a.*power.^2+b.*power+c);
         tolerance = 64*eps(max(1,abs(independentlyRebuilt)));
         verifyEqual(testCase,actual.value,independentlyRebuilt, ...
@@ -31,7 +31,7 @@ function testConstantTermAccumulatesTwentyFourTimes(testCase)
 data = testCase.TestData.data;
 for hydro = 1:4
     [a,b,c] = coefficients(data,hydro);
-    actual = evaluate_stage_b_daily_hydro_water(zeros(24,1),a,b,c);
+    actual = rkkt.model.evaluate_stage_b_daily_hydro_water(zeros(24,1),a,b,c);
     expected = 24*c;
     verifyEqual(testCase,actual.value,expected, ...
         "AbsTol",64*eps(max(1,abs(expected))));
@@ -46,7 +46,7 @@ for hydro = 1:4
     points = deterministic_points(pmax);
     for point = 1:size(points,2)
         power = points(:,point);
-        analytic = evaluate_stage_b_daily_hydro_water(power,a,b,c);
+        analytic = rkkt.model.evaluate_stage_b_daily_hydro_water(power,a,b,c);
         numeric = value_central_difference(power,a,b,c,pmax);
         errorValue = relative_error(analytic.gradient,numeric);
         verifyLessThanOrEqual(testCase,errorValue,threshold, ...
@@ -64,7 +64,7 @@ for hydro = 1:4
     points = deterministic_points(pmax);
     for point = 1:size(points,2)
         power = points(:,point);
-        analytic = evaluate_stage_b_daily_hydro_water(power,a,b,c);
+        analytic = rkkt.model.evaluate_stage_b_daily_hydro_water(power,a,b,c);
         numeric = gradient_central_difference(power,a,b,c,pmax);
         errorValue = relative_error(full(analytic.hessian),numeric);
         verifyLessThanOrEqual(testCase,errorValue,threshold, ...
@@ -79,7 +79,7 @@ data = testCase.TestData.data;
 for hydro = 1:4
     [a,b,c,pmax] = coefficients(data,hydro);
     power = deterministic_points(pmax);
-    result = evaluate_stage_b_daily_hydro_water(power(:,2),a,b,c);
+    result = rkkt.model.evaluate_stage_b_daily_hydro_water(power(:,2),a,b,c);
     verifyEqual(testCase,result.upper.gradient,result.gradient,"AbsTol",0);
     verifyEqual(testCase,result.upper.hessian,result.hessian,"AbsTol",0);
     verifyEqual(testCase,result.lower.gradient,-result.gradient,"AbsTol",0);
@@ -92,7 +92,7 @@ data = testCase.TestData.data;
 for hydro = 1:4
     [a,b,c,pmax] = coefficients(data,hydro);
     power = deterministic_points(pmax);
-    result = evaluate_stage_b_daily_hydro_water(power(:,1),a,b,c);
+    result = rkkt.model.evaluate_stage_b_daily_hydro_water(power(:,1),a,b,c);
     verifyTrue(testCase,issparse(result.hessian));
     verifySize(testCase,result.hessian,[24,24]);
     diagonal = diag(result.hessian);
@@ -104,7 +104,7 @@ end
 
 function testCrossDayAndAssetEvaluationsAreIndependent(testCase)
 data = testCase.TestData.data;
-[audit,details] = run_stage_b1_derivative_checks(data);
+[audit,details] = rkkt.diagnostics.run_stage_b1_derivative_checks(data);
 required = ["day","hydro_id","test_point_id","cross_hour_zero_pass", ...
     "cross_asset_zero_pass","status"];
 verifyTrue(testCase,all(ismember(required, ...
@@ -115,7 +115,7 @@ verifyTrue(testCase,all(audit.cross_asset_zero_pass));
 verifyEqual(testCase,string(audit.status),repmat("PASS",height(audit),1));
 verifyFalse(testCase,isempty(details));
 
-index = build_canonical_index_framework(data,14:20,1:24,[], ...
+index = rkkt.indexing.build_canonical_index_framework(data,14:20,1:24,[], ...
     "B1_HYDRO_INDEX_TEST");
 variables = index.variable_index;
 hydroRows = variables(string(variables.variable_name)=="PH" & ...
@@ -141,7 +141,7 @@ invalid = {valid.',valid(1:23),[valid,valid], ...
     replace_element(valid,1,NaN),replace_element(valid,2,Inf), ...
     complex(valid,ones(24,1))};
 for k = 1:numel(invalid)
-    verify_rejected(testCase,@()evaluate_stage_b_daily_hydro_water( ...
+    verify_rejected(testCase,@()rkkt.model.evaluate_stage_b_daily_hydro_water( ...
         invalid{k},a,b,c));
 end
 end
@@ -150,11 +150,11 @@ function testDeterministicRepeatIsBitwiseIdentical(testCase)
 data = testCase.TestData.data;
 [a,b,c,pmax] = coefficients(data,3);
 points = deterministic_points(pmax);
-first = evaluate_stage_b_daily_hydro_water(points(:,2),a,b,c);
-second = evaluate_stage_b_daily_hydro_water(points(:,2),a,b,c);
+first = rkkt.model.evaluate_stage_b_daily_hydro_water(points(:,2),a,b,c);
+second = rkkt.model.evaluate_stage_b_daily_hydro_water(points(:,2),a,b,c);
 verifyTrue(testCase,isequaln(first,second));
-[firstAudit,firstDetails] = run_stage_b1_derivative_checks(data);
-[secondAudit,secondDetails] = run_stage_b1_derivative_checks(data);
+[firstAudit,firstDetails] = rkkt.diagnostics.run_stage_b1_derivative_checks(data);
+[secondAudit,secondDetails] = rkkt.diagnostics.run_stage_b1_derivative_checks(data);
 verifyTrue(testCase,isequaln(firstAudit,secondAudit));
 verifyTrue(testCase,isequaln(firstDetails,secondDetails));
 end

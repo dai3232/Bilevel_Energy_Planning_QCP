@@ -5,11 +5,11 @@ end
 function setupOnce(testCase)
 repoRoot = fileparts(fileparts(fileparts(mfilename('fullpath'))));
 addpath(genpath(fullfile(repoRoot,'src')));
-data = load_project_data(repoRoot);
+data = rkkt.data.load_project_data(repoRoot);
 testCase.TestData.repoRoot = repoRoot;
 testCase.TestData.data = data;
 testCase.TestData.windowSpec = valid_window_spec();
-testCase.TestData.index = build_stage_a1_index(data,RunId="UNIT_A1_INDEX");
+testCase.TestData.index = rkkt.indexing.build_stage_a1_index(data,RunId="UNIT_A1_INDEX");
 end
 
 function testExactA1CanonicalCountsAndBlockDimensions(testCase)
@@ -82,7 +82,7 @@ verifyEqual(testCase,links.terminal_energy_fraction(links.hour == 10), ...
 end
 
 function testDefaultFullDayBehaviorStillClosesOnlyAtHourTwentyFour(testCase)
-index = build_canonical_index_framework(testCase.TestData.data,1,1:24,[], ...
+index = rkkt.indexing.build_canonical_index_framework(testCase.TestData.data,1,1:24,[], ...
     "UNIT_DEFAULT_FULL_DAY");
 verifyFalse(testCase,index.scope.is_explicit_window);
 verifyEqual(testCase,index.scope.terminal_hour,24);
@@ -101,7 +101,7 @@ verifyTrue(testCase,all(isnan(hour1Links.predecessor_hour)));
 verifyEqual(testCase,string(hour1Links.boundary_source), ...
     repmat("formal_daily_fixed_half_energy",2,1));
 
-audit = validate_canonical_index_framework(index);
+audit = rkkt.indexing.validate_canonical_index_framework(index);
 verifyTrue(testCase,all(audit.passed), ...
     strjoin(audit.actual_value(audit.status == "FAIL"),"; "));
 end
@@ -111,21 +111,21 @@ data = testCase.TestData.data;
 spec = testCase.TestData.windowSpec;
 
 missing = rmfield(spec,'terminal_hour');
-verifyError(testCase,@() build_canonical_index_framework( ...
+verifyError(testCase,@() rkkt.indexing.build_canonical_index_framework( ...
     data,1,8:10,[],"UNIT_MISSING",missing), ...
     "stage0:index:WindowSpecMissingField");
 
-verifyError(testCase,@() build_canonical_index_framework( ...
+verifyError(testCase,@() rkkt.indexing.build_canonical_index_framework( ...
     data,1,[8,10,9],[],"UNIT_UNSORTED",spec), ...
     "stage0:index:WindowHoursOrder");
 
-verifyError(testCase,@() build_canonical_index_framework( ...
+verifyError(testCase,@() rkkt.indexing.build_canonical_index_framework( ...
     data,1,[8,10],[],"UNIT_GAPPED",spec), ...
     "stage0:index:WindowHoursNotContiguous");
 
 wrongBoundary = spec;
 wrongBoundary.soc_boundary_mode = "previous_physical_hour";
-verifyError(testCase,@() build_canonical_index_framework( ...
+verifyError(testCase,@() rkkt.indexing.build_canonical_index_framework( ...
     data,1,8:10,[],"UNIT_WRONG_BOUNDARY",wrongBoundary), ...
     "stage0:index:UnsupportedSocBoundaryMode");
 end
@@ -133,7 +133,7 @@ end
 function testSyntheticFixedZeroMappingDeletesVariableAndBothBounds(testCase)
 data = testCase.TestData.data;
 data.timeseries.windAvailability(1,8,1) = 0;
-index = build_canonical_index_framework(data,1,8:10,[], ...
+index = rkkt.indexing.build_canonical_index_framework(data,1,8:10,[], ...
     "UNIT_SYNTHETIC_FIXED_ZERO",testCase.TestData.windowSpec);
 
 fixed = index.fixed_zero_map(index.fixed_zero_map.day == 1 & ...
@@ -166,20 +166,20 @@ hour8 = index.block_index(index.block_index.day == 1 & ...
     index.block_index.hour_start == 8,:);
 verifyEqual(testCase,hour8.n_primal,23);
 verifyEqual(testCase,hour8.kkt_block_dimension,26);
-audit = validate_canonical_index_framework(index);
+audit = rkkt.indexing.validate_canonical_index_framework(index);
 verifyTrue(testCase,all(audit.passed), ...
     strjoin(audit.actual_value(audit.status == "FAIL"),"; "));
 
 xi = zeros(height(index.variable_index),1);
 deltaXi = zeros(height(index.variable_index),1);
-physical = recover_stage_a_physical_arrays(xi,deltaXi,index,data);
+physical = rkkt.model.recover_stage_a_physical_arrays(xi,deltaXi,index,data);
 verifyEqual(testCase,physical.fixed_zero_audit.count,1);
 verifyTrue(testCase,physical.fixed_zero_audit.values_exact_zero);
 verifyTrue(testCase,physical.fixed_zero_audit.directions_exact_zero);
 
 corrupt = index;
 corrupt.fixed_zero_map.fixed_direction_value(1) = 1;
-verifyError(testCase,@() recover_stage_a_physical_arrays( ...
+verifyError(testCase,@() rkkt.model.recover_stage_a_physical_arrays( ...
     xi,deltaXi,corrupt,data),"stageA:recovery:FixedZeroMapNonzero");
 end
 

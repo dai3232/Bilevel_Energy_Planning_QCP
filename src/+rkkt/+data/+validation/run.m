@@ -1,7 +1,7 @@
 function moduleResult = run(projectRoot, options)
 %RUN Run the standalone manual validation for the PKG-2 data module.
 %   MODULERESULT = RKKT.DATA.VALIDATION.RUN(PROJECTROOT) loads the complete
-%   365-day production object through both the legacy entry point and
+%   365-day production object through both the implementation and
 %   RKKT.DATA.LOAD, compares them without modification, and builds a
 %   day-14-through-day-20 observation view. It does not call indexing,
 %   model, solver, KKT, or IPM code.
@@ -31,7 +31,7 @@ end
 
 selectedDays = 14:20;
 selectedHours = 1:24;
-legacyData = call_legacy_loader(projectRoot);
+directData = call_direct_loader(projectRoot);
 projectData = rkkt.data.load(projectRoot);
 validate_scope(projectData, selectedDays, selectedHours);
 
@@ -41,7 +41,7 @@ hourMapping = build_hour_mapping( ...
     projectData, selectedDays, selectedHours);
 fieldSummary = build_field_summary(sevenDayData);
 chronologySummary = build_chronology_summary(sevenDayData);
-comparison = compare_data_objects(legacyData, projectData);
+comparison = compare_data_objects(directData, projectData);
 comparisonSummary = comparison_table(comparison);
 
 [tableFiles, tableValues] = planned_tables( ...
@@ -160,25 +160,8 @@ metadata = struct( ...
     "artifacts_requested", options.WriteArtifacts);
 end
 
-function data = call_legacy_loader(projectRoot)
-legacyDataDirectory = fullfile(projectRoot, "src", "data");
-if ~isfolder(legacyDataDirectory)
-    error("rkkt:data:validation:LegacyDataDirectoryMissing", ...
-        "The production data directory does not exist: %s", ...
-        legacyDataDirectory);
-end
-originalPath = path;
-pathGuard = onCleanup(@() path(originalPath));
-addpath(legacyDataDirectory, "-begin");
-resolved = string(which("load_project_data"));
-expected = fullfile(legacyDataDirectory, "load_project_data.m");
-if ~same_path(resolved, expected)
-    error("rkkt:data:validation:ProductionFunctionShadowed", ...
-        "Expected load_project_data at '%s'; MATLAB resolved '%s'.", ...
-        expected, resolved);
-end
-data = load_project_data(projectRoot);
-clear pathGuard
+function data = call_direct_loader(projectRoot)
+data = rkkt.data.load_project_data(projectRoot);
 end
 
 function validate_scope(projectData, selectedDays, selectedHours)
@@ -484,7 +467,7 @@ if numel(files) ~= numel(values)
         "The table-file plan does not match the in-memory table count.");
 end
 for k = 1:numel(files)
-    write_table_csv_17g_atomic(values{k}, files(k));
+    rkkt.artifacts.write_table_csv_17g_atomic(values{k}, files(k));
 end
 end
 
@@ -613,107 +596,6 @@ if ~interactive && isgraphics(fig)
 end
 end
 
-function write_table_csv_17g_atomic(value, destination)
-if ~istable(value)
-    error("rkkt:data:validation:ExpectedTable", ...
-        "CSV output requires a table; actual class=%s.", class(value));
-end
-names = string(value.Properties.VariableNames);
-lines = strings(height(value) + 1, 1);
-header = strings(1, width(value));
-for columnIndex = 1:width(value)
-    header(columnIndex) = csv_escape(names(columnIndex));
-end
-lines(1) = strjoin(header, ",");
-for rowIndex = 1:height(value)
-    cells = strings(1, width(value));
-    for columnIndex = 1:width(value)
-        column = value.(value.Properties.VariableNames{columnIndex});
-        if size(column, 2) ~= 1
-            error("rkkt:data:validation:WideTableVariable", ...
-                "CSV table variable '%s' must be a single column.", ...
-                value.Properties.VariableNames{columnIndex});
-        end
-        if iscell(column)
-            element = column{rowIndex};
-        else
-            element = column(rowIndex);
-        end
-        cells(columnIndex) = serialize_csv_value(element);
-    end
-    lines(rowIndex + 1) = strjoin(cells, ",");
-end
-write_text_atomic(destination, strjoin(lines, newline) + newline);
-end
-
-function value = serialize_csv_value(element)
-if isnumeric(element)
-    if ~isscalar(element)
-        error("rkkt:data:validation:NonScalarCsvValue", ...
-            "Numeric CSV cells must be scalar.");
-    end
-    if isnan(element)
-        value = "NaN";
-    elseif isinf(element)
-        if element > 0
-            value = "Inf";
-        else
-            value = "-Inf";
-        end
-    else
-        value = compose("%.17g", double(element));
-    end
-elseif islogical(element)
-    if ~isscalar(element)
-        error("rkkt:data:validation:NonScalarCsvValue", ...
-            "Logical CSV cells must be scalar.");
-    end
-    value = lower(string(element));
-elseif isstring(element)
-    if ~isscalar(element) || ismissing(element)
-        error("rkkt:data:validation:InvalidCsvText", ...
-            "String CSV cells must be nonmissing scalars.");
-    end
-    value = csv_escape(element);
-elseif ischar(element)
-    value = csv_escape(string(element));
-else
-    error("rkkt:data:validation:UnsupportedCsvType", ...
-        "Unsupported CSV value class: %s.", class(element));
-end
-end
-
-function value = csv_escape(value)
-value = string(value);
-value = replace(value, """", """""");
-value = """" + value + """";
-end
-
-function write_text_atomic(destination, textValue)
-temporary = string(tempname(fileparts(destination))) + ".tmp";
-cleanup = onCleanup(@() delete_files(temporary));
-[fileId, message] = fopen(temporary, "wb", "n", "UTF-8");
-if fileId < 0
-    error("rkkt:data:validation:TextOpen", ...
-        "Could not open temporary output: %s", message);
-end
-fileGuard = onCleanup(@() close_file(fileId));
-bytes = unicode2native(char(textValue), "UTF-8");
-count = fwrite(fileId, bytes, "uint8");
-if count ~= numel(bytes)
-    error("rkkt:data:validation:TextWrite", ...
-        "Incomplete UTF-8 write for %s.", destination);
-end
-status = fclose(fileId);
-clear fileGuard
-if status ~= 0
-    error("rkkt:data:validation:TextClose", ...
-        "Could not close temporary output for %s.", destination);
-end
-movefile(temporary, destination, "f");
-clear cleanup
-end
-
 function save_module_result(outputFile, moduleResult)
 temporary = string(tempname(fileparts(outputFile))) + ".mat";
 cleanup = onCleanup(@() delete_files(temporary));
@@ -750,40 +632,18 @@ end
 end
 
 function root = default_project_root()
-validationDirectory = string(fileparts(mfilename("fullpath")));
-dataPackageDirectory = string(fileparts(validationDirectory));
-rkktPackageDirectory = string(fileparts(dataPackageDirectory));
-sourceDirectory = string(fileparts(rkktPackageDirectory));
-root = string(fileparts(sourceDirectory));
+root = rkkt.projectRoot();
 end
 
 function directory = default_output_directory()
 directory = string(fileparts(mfilename("fullpath")));
 end
 
-function equal = same_path(left, right)
-left = replace(string(left), "/", "\");
-right = replace(string(right), "/", "\");
-if ispc
-    equal = strcmpi(left, right);
-else
-    equal = strcmp(left, right);
-end
-end
 
 function delete_files(paths)
 for k = 1:numel(paths)
     if isfile(paths(k))
         delete(paths(k));
     end
-end
-end
-
-function close_file(fileId)
-try
-    if ischar(fopen(fileId))
-        fclose(fileId);
-    end
-catch
 end
 end

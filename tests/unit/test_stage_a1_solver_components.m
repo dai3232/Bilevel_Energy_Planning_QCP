@@ -6,18 +6,18 @@ end
 function setupOnce(testCase)
 projectRoot = string(fileparts(fileparts(fileparts(mfilename('fullpath')))));
 addpath(genpath(fullfile(projectRoot,"src")));
-config = load_stage_a1_configuration(projectRoot);
-data = load_project_data(projectRoot);
-index = build_stage_a1_index(data,"RunId","A1_SOLVER_COMPONENT_TEST");
-state = initialize_stage_a1_state(data,index,config);
-linearization = build_stage_a1_linearization(state,data,index,config);
-reduced = eliminate_inequality_directions(linearization);
-partition = partition_recursive_system(linearization,reduced, ...
+config = rkkt.model.load_stage_a1_configuration(projectRoot);
+data = rkkt.data.load_project_data(projectRoot);
+index = rkkt.indexing.build_stage_a1_index(data,"RunId","A1_SOLVER_COMPONENT_TEST");
+state = rkkt.model.initialize_stage_a1_state(data,index,config);
+linearization = rkkt.model.build_stage_a1_linearization(state,data,index,config);
+reduced = rkkt.solver.eliminate_inequality_directions(linearization);
+partition = rkkt.solver.partition_recursive_system(linearization,reduced, ...
     AssemblyTolerance=1e-12);
-thomas = solve_block_thomas_ldl(partition, ...
+thomas = rkkt.solver.solve_block_thomas_ldl(partition, ...
     SymmetryTolerance=config.tolerances.symmetry_relative);
-response = form_day_response(partition,thomas);
-core = solve_core16_ldl(partition,response, ...
+response = rkkt.solver.form_day_response(partition,thomas);
+core = rkkt.solver.solve_core16_ldl(partition,response, ...
     SymmetryTolerance=config.tolerances.symmetry_relative);
 testCase.TestData.config = config;
 testCase.TestData.linearization = linearization;
@@ -89,7 +89,7 @@ end
 function testAsymmetricPivotIsRejectedWithoutModification(testCase)
 partition = testCase.TestData.partition;
 partition.Q(1,2) = partition.Q(1,2) + 1;
-verifyError(testCase,@() solve_core16_ldl( ...
+verifyError(testCase,@() rkkt.solver.solve_core16_ldl( ...
     partition,testCase.TestData.response,SymmetryTolerance=1e-12), ...
     "stageA1:solver:Core16Failure");
 end

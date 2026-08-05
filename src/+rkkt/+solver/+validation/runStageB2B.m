@@ -10,7 +10,7 @@ arguments
     options.Interactive (1,1) logical = false
     options.WriteArtifacts (1,1) logical = false
     options.OutputDirectory (1,1) string = ...
-        rkkt.solver.validation.ValidationSupport.outputDirectory()
+        rkkt.validation.outputDirectory("solver")
 end
 
 projectRoot = strip(options.ProjectRoot);
@@ -20,8 +20,7 @@ if ~isfolder(projectRoot)
         "ProjectRoot does not exist: %s",projectRoot);
 end
 
-support = rkkt.solver.validation.ValidationSupport;
-support.requireOutputDirectory(outputDirectory,options.WriteArtifacts);
+rkkt.validation.requireOutputDirectory(outputDirectory,options.WriteArtifacts);
 config = load_stage_b2b_config(projectRoot);
 configPath = fullfile(projectRoot,"config","stage_B_2B.yaml");
 
@@ -60,13 +59,13 @@ if ~all(structfun(@(value) logical(value),facts))
 end
 
 [outputFile,tableFiles,figureFiles,figureIndex] = ...
-    support.outputPaths(outputDirectory, ...
+    rkkt.validation.outputPaths(outputDirectory, ...
         "Stage_B2B求解器验证输出.mat", ...
         ["Stage_B2B每日边框与响应维数.csv"; ...
          "Stage_B2B方向误差与KKT残差.csv"], ...
         "Stage_B2B_16维核心稀疏结构",options.WriteArtifacts);
 
-metadata = support.metadata( ...
+metadata = rkkt.validation.metadata( ...
     "rkkt.solver.solveStageB2BRecursiveDirection", ...
     "solve_stage_b2b_recursive_direction",configPath,outputFile, ...
     "Stage B-2B求解器验证",state.iteration_index, ...
@@ -132,15 +131,15 @@ moduleResult.figureFiles = figureFiles;
 rkkt.contracts.validateModuleResult(moduleResult);
 
 if options.WriteArtifacts
-    support.writeTable17(dailySummary,tableFiles(1));
-    support.writeTable17(metricSummary,tableFiles(2));
+    rkkt.validation.writeTable17(dailySummary,tableFiles(1));
+    rkkt.validation.writeTable17(metricSummary,tableFiles(2));
     fig = core_sparsity_figure( ...
         recursiveResult.core.matrix,options.Interactive);
-    support.saveFigurePair(fig,figureIndex.figPath,figureIndex.pngPath);
+    rkkt.validation.saveFigurePair(fig,figureIndex.figPath,figureIndex.pngPath);
     if ~options.Interactive
         close(fig);
     end
-    support.saveResult(outputFile,moduleResult);
+    rkkt.validation.saveResult(outputFile,moduleResult);
 end
 
 fprintf("当前模块：Stage B-2B求解器验证\n");
@@ -159,25 +158,7 @@ end
 end
 
 function config = load_stage_b2b_config(projectRoot)
-modelDirectory = fullfile(projectRoot,"src","model");
-productionFile = fullfile(modelDirectory, ...
-    "load_stage_b2b_configuration.m");
-if ~isfile(productionFile)
-    error("rkkt:solver:validation:StageB2BConfigMissing", ...
-        "Production configuration loader is missing: %s", ...
-        productionFile);
-end
-originalPath = path;
-pathGuard = onCleanup(@() path(originalPath));
-addpath(modelDirectory,"-begin");
-resolved = string(which("load_stage_b2b_configuration"));
-if ~same_path(resolved,productionFile)
-    error("rkkt:solver:validation:StageB2BConfigShadowed", ...
-        "Expected load_stage_b2b_configuration at '%s'; resolved '%s'.", ...
-        productionFile,resolved);
-end
-config = load_stage_b2b_configuration(projectRoot);
-clear pathGuard
+config = rkkt.model.load_stage_b2b_configuration(projectRoot);
 end
 
 function value = build_daily_summary(recursiveResult)
@@ -338,7 +319,7 @@ end
 end
 
 function fig = core_sparsity_figure(coreMatrix,interactive)
-fig = rkkt.solver.validation.ValidationSupport.newFigure( ...
+fig = rkkt.validation.newFigure( ...
     "Stage B-2B 16维全局核心稀疏结构",interactive);
 spy(coreMatrix);
 xlabel("列索引");
@@ -347,15 +328,5 @@ title("Stage B-2B 16维全局核心稀疏结构");
 end
 
 function value = default_project_root()
-value = rkkt.solver.validation.ValidationSupport.repositoryRoot();
-end
-
-function value = same_path(left,right)
-left = replace(string(left),"/","\");
-right = replace(string(right),"/","\");
-if ispc
-    value = strcmpi(left,right);
-else
-    value = strcmp(left,right);
-end
+value = rkkt.projectRoot();
 end

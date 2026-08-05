@@ -16,8 +16,9 @@ dataArtifact = fullfile(sourceRoot, "+rkkt", "+data", ...
     "+validation", "数据导入模块输出.mat");
 loaded = load(dataArtifact, "moduleResult");
 data = loaded.moduleResult.output.projectData;
-legacyIndex = build_stage_a4_index(data);
-facadeIndex = rkkt.indexing.build(data);
+config = rkkt.model.load_stage_a4_configuration(repositoryRoot);
+legacyIndex = rkkt.indexing.build_stage_a4_index(data,config);
+facadeIndex = rkkt.indexing.build(data,config);
 manualResult = rkkt.indexing.validation.run( ...
     Interactive=false, WriteArtifacts=true);
 

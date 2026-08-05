@@ -7,9 +7,9 @@ function setupOnce(testCase)
 root = string(fileparts(fileparts(fileparts(mfilename("fullpath")))));
 addpath(genpath(fullfile(root,"src")));
 testCase.TestData.root = root;
-testCase.TestData.config = load_stage_b2a_configuration(root);
-testCase.TestData.data = load_project_data(root);
-testCase.TestData.index = build_stage_b_index( ...
+testCase.TestData.config = rkkt.model.load_stage_b2a_configuration(root);
+testCase.TestData.data = rkkt.data.load_project_data(root);
+testCase.TestData.index = rkkt.indexing.build_stage_b_index( ...
     testCase.TestData.data,testCase.TestData.config,"RunId","B2A_INDEX_TEST");
 end
 
@@ -69,7 +69,7 @@ function testStageAPrefixFixedZeroAndSocMapsAreUnchanged(testCase)
 root = testCase.TestData.root;
 d = testCase.TestData.data;
 idx = testCase.TestData.index;
-base = build_canonical_index_framework(d,14:20,1:24,[] ,"B2A_INDEX_TEST");
+base = rkkt.indexing.build_canonical_index_framework(d,14:20,1:24,[] ,"B2A_INDEX_TEST");
 verifyEqual(testCase,idx.variable_index,base.variable_index);
 verifyEqual(testCase,idx.block_index,base.block_index);
 verifyEqual(testCase,idx.fixed_zero_map,base.fixed_zero_map);

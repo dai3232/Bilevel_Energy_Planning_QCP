@@ -6,10 +6,10 @@ end
 function setupOnce(testCase)
 root = string(fileparts(fileparts(fileparts(mfilename("fullpath")))));
 addpath(genpath(fullfile(root,"src")));
-c = load_stage_b2a_configuration(root);
-d = load_project_data(root);
-idx = build_stage_b_index(d,c,"RunId","B2A_STAGE_A_REGRESSION");
-base = build_canonical_index_framework(d,14:20,1:24,[], ...
+c = rkkt.model.load_stage_b2a_configuration(root);
+d = rkkt.data.load_project_data(root);
+idx = rkkt.indexing.build_stage_b_index(d,c,"RunId","B2A_STAGE_A_REGRESSION");
+base = rkkt.indexing.build_canonical_index_framework(d,14:20,1:24,[], ...
     "B2A_STAGE_A_REGRESSION");
 testCase.TestData.root = root;
 testCase.TestData.data = d;
@@ -49,8 +49,8 @@ function testFrozenBuildIsDeterministicAndNoStageASolverIsCalled(testCase)
 root = testCase.TestData.root;
 c = testCase.TestData.config;
 d = testCase.TestData.data;
-one = build_stage_b_index(d,c,"RunId","B2A_STAGE_A_REGRESSION");
-two = build_stage_b_index(d,c,"RunId","B2A_STAGE_A_REGRESSION");
+one = rkkt.indexing.build_stage_b_index(d,c,"RunId","B2A_STAGE_A_REGRESSION");
+two = rkkt.indexing.build_stage_b_index(d,c,"RunId","B2A_STAGE_A_REGRESSION");
 verifyEqual(testCase,one.variable_index,two.variable_index);
 verifyEqual(testCase,one.constraint_index,two.constraint_index);
 current = string(fileread(fullfile(root,"CURRENT_STAGE.md")));

@@ -6,8 +6,8 @@ end
 function setupOnce(testCase)
 root = string(fileparts(fileparts(fileparts(mfilename("fullpath")))));
 addpath(genpath(fullfile(root,"src")));
-data = load_project_data(root);
-audit = build_stage_b1_water_input_audit(data,"B1_TEST");
+data = rkkt.data.load_project_data(root);
+audit = rkkt.diagnostics.build_stage_b1_water_input_audit(data,"B1_TEST");
 testCase.TestData.root = root;
 testCase.TestData.data = data;
 testCase.TestData.audit = audit;

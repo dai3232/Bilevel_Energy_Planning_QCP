@@ -10,8 +10,8 @@ addpath(genpath(fullfile(projectRoot,"src")));
 beforeRuns = recursive_run_inventory(projectRoot);
 currentStagePath = fullfile(projectRoot,"CURRENT_STAGE.md");
 solverPath = fullfile(projectRoot,"config","solver.yaml");
-currentStageHashBefore = string(compute_sha256_file(currentStagePath));
-solverHashBefore = string(compute_sha256_file(solverPath));
+currentStageHashBefore = string(rkkt.data.compute_sha256_file(currentStagePath));
+solverHashBefore = string(rkkt.data.compute_sha256_file(solverPath));
 result = main_stage_A4_2A();
 testCase.TestData.project_root = projectRoot;
 testCase.TestData.result = result;
@@ -19,9 +19,9 @@ testCase.TestData.before_runs = beforeRuns;
 testCase.TestData.after_runs = recursive_run_inventory(projectRoot);
 testCase.TestData.current_stage_hash_before = currentStageHashBefore;
 testCase.TestData.current_stage_hash_after = ...
-    string(compute_sha256_file(currentStagePath));
+    string(rkkt.data.compute_sha256_file(currentStagePath));
 testCase.TestData.solver_hash_before = solverHashBefore;
-testCase.TestData.solver_hash_after = string(compute_sha256_file(solverPath));
+testCase.TestData.solver_hash_after = string(rkkt.data.compute_sha256_file(solverPath));
 end
 
 function testExactlyFiveExplicitStateRevisions(testCase)
@@ -274,7 +274,7 @@ verifyEqual(testCase,testCase.TestData.solver_hash_after, ...
 end
 
 function testA4ProductionClosurePassesForbiddenCallScan(testCase)
-audit = scan_stage_a4_forbidden_code( ...
+audit = rkkt.diagnostics.scan_stage_a4_forbidden_code( ...
     testCase.TestData.project_root,testCase.TestData.result.config);
 verifyEqual(testCase,string(audit.status), ...
     repmat("PASS",height(audit),1), ...

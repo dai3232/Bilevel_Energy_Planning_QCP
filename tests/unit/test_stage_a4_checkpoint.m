@@ -52,14 +52,14 @@ runManifest = struct( ...
     "full_ipm_executed",false, ...
     "git_commit",repmat('c',1,40), ...
     "input_hashes",inputHashes);
-write_json_file(context.run_manifest_path,runManifest);
+rkkt.artifacts.write_json_file(context.run_manifest_path,runManifest);
 
 state0 = make_state(0);
 testCase.TestData.temporary_root = temporaryRoot;
 testCase.TestData.context = context;
 testCase.TestData.input_hashes = inputHashes;
 testCase.TestData.config_sha256 = ...
-    compute_sha256_file(string(configPath));
+    rkkt.data.compute_sha256_file(string(configPath));
 testCase.TestData.git_commit = string(runManifest.git_commit);
 testCase.TestData.initial_state_fingerprint = state_fingerprint(state0);
 end
@@ -75,7 +75,7 @@ function testRoundTripAtomicHashChainAndLatestLoad(testCase)
 context = testCase.TestData.context;
 state0 = make_state(0);
 metadata0 = make_metadata(testCase,state0,0);
-record0 = write_stage_a4_checkpoint(context,state0,metadata0);
+record0 = rkkt.artifacts.write_stage_a4_checkpoint(context,state0,metadata0);
 verifyEqual(testCase,height(record0),1);
 verifyTrue(testCase,isfile(fullfile(context.checkpoints_dir, ...
     "stage_A4_checkpoint_000.mat")));
@@ -83,11 +83,11 @@ verifyTrue(testCase,isfile(context.checkpoint_manifest_path));
 
 state1 = make_state(1);
 metadata1 = make_metadata(testCase,state1,1);
-record1 = write_stage_a4_checkpoint(context,state1,metadata1);
+record1 = rkkt.artifacts.write_stage_a4_checkpoint(context,state1,metadata1);
 verifyEqual(testCase,string(record1.previous_checkpoint_sha256), ...
     string(record0.sha256));
 
-[checkpoint,selected,audit] = load_stage_a4_checkpoint(context, ...
+[checkpoint,selected,audit] = rkkt.artifacts.load_stage_a4_checkpoint(context, ...
     "ExpectedMetadata",stable_expected(testCase), ...
     "RebuiltLinearizationFingerprint", ...
         metadata1.linearization_fingerprint);
@@ -110,9 +110,9 @@ failure = struct("present",true,"iteration",2, ...
     "report","test-only failure report");
 failurePath = fullfile(context.root, ...
     strrep(failure.evidence_path,"/",filesep));
-save_mat_artifact(failurePath,"state_before_failure",state1, ...
+rkkt.artifacts.save_mat_artifact(failurePath,"state_before_failure",state1, ...
     "failure",failure);
-failureSha = compute_sha256_file(string(failurePath));
+failureSha = rkkt.data.compute_sha256_file(string(failurePath));
 failureLedger = table(1,string(context.run_id),1,2,1, ...
     "NUMERICAL_FAILURE",string(failure.identifier), ...
     string(failure.message),string(failure.state_fingerprint), ...
@@ -121,34 +121,34 @@ failureLedger = table(1,string(context.run_id),1,2,1, ...
     'VariableNames',{'failure_sequence','run_id','solver_invocation', ...
     'iteration','state_revision','terminal_state','identifier','message', ...
     'state_fingerprint','relative_path','sha256','recorded_at_utc'});
-write_table_csv_17g(context.checkpoints_dir+ ...
+rkkt.artifacts.write_table_csv_17g(context.checkpoints_dir+ ...
     filesep+"failure_ledger.csv",failureLedger);
-failureAudit = validate_stage_a4_checkpoint(context);
+failureAudit = rkkt.artifacts.validate_stage_a4_checkpoint(context);
 verifyTrue(testCase,failureAudit.failure_ledger_audit.passed);
 verifyEqual(testCase,failureAudit.failure_ledger_audit.failure_count,1);
 failureLedger.sha256(1) = string(repmat('0',1,64));
-write_table_csv_17g(context.checkpoints_dir+ ...
+rkkt.artifacts.write_table_csv_17g(context.checkpoints_dir+ ...
     filesep+"failure_ledger.csv",failureLedger);
-verifyError(testCase,@()validate_stage_a4_checkpoint(context), ...
+verifyError(testCase,@()rkkt.artifacts.validate_stage_a4_checkpoint(context), ...
     "stageA4:checkpoint:FailureEvidenceHashMismatch");
 end
 
 function testNoncontiguousRevisionAndWrongStateFingerprintRejected(testCase)
 context = testCase.TestData.context;
 state0 = make_state(0);
-write_stage_a4_checkpoint(context,state0, ...
+rkkt.artifacts.write_stage_a4_checkpoint(context,state0, ...
     make_metadata(testCase,state0,0));
 
 state2 = make_state(2);
 metadata2 = make_metadata(testCase,state2,2);
-verifyError(testCase,@()write_stage_a4_checkpoint( ...
+verifyError(testCase,@()rkkt.artifacts.write_stage_a4_checkpoint( ...
     context,state2,metadata2), ...
     "stageA4:checkpoint:NoncontiguousRevision");
 
 state1 = make_state(1);
 metadata1 = make_metadata(testCase,state1,1);
 metadata1.state_fingerprint = repmat('f',1,64);
-verifyError(testCase,@()write_stage_a4_checkpoint( ...
+verifyError(testCase,@()rkkt.artifacts.write_stage_a4_checkpoint( ...
     context,state1,metadata1), ...
     "stageA4:checkpoint:StateFingerprintMismatch");
 end
@@ -157,24 +157,24 @@ function testExpectedAndRebuiltLinearizationIdentityMismatchRejected(testCase)
 context = testCase.TestData.context;
 state0 = make_state(0);
 metadata0 = make_metadata(testCase,state0,0);
-write_stage_a4_checkpoint(context,state0,metadata0);
+rkkt.artifacts.write_stage_a4_checkpoint(context,state0,metadata0);
 
 expected = stable_expected(testCase);
 expected.config_sha256 = repmat('0',1,64);
-verifyError(testCase,@()validate_stage_a4_checkpoint( ...
+verifyError(testCase,@()rkkt.artifacts.validate_stage_a4_checkpoint( ...
     context,"ExpectedMetadata",expected), ...
     "stageA4:checkpoint:ExpectedIdentityMismatch");
 expected = stable_expected(testCase);
 expected.git_commit = repmat('0',1,40);
-verifyError(testCase,@()validate_stage_a4_checkpoint( ...
+verifyError(testCase,@()rkkt.artifacts.validate_stage_a4_checkpoint( ...
     context,"ExpectedMetadata",expected), ...
     "stageA4:checkpoint:ExpectedIdentityMismatch");
 expected = stable_expected(testCase);
 expected.input_hashes.timeseries = repmat('f',1,64);
-verifyError(testCase,@()validate_stage_a4_checkpoint( ...
+verifyError(testCase,@()rkkt.artifacts.validate_stage_a4_checkpoint( ...
     context,"ExpectedMetadata",expected), ...
     "stageA4:checkpoint:ExpectedIdentityMismatch");
-verifyError(testCase,@()validate_stage_a4_checkpoint( ...
+verifyError(testCase,@()rkkt.artifacts.validate_stage_a4_checkpoint( ...
     context,"RebuiltLinearizationFingerprint",repmat('0',1,64)), ...
     "stageA4:checkpoint:RebuiltLinearizationMismatch");
 end
@@ -182,13 +182,13 @@ end
 function testManifestHashTamperDetected(testCase)
 context = testCase.TestData.context;
 state0 = make_state(0);
-write_stage_a4_checkpoint(context,state0, ...
+rkkt.artifacts.write_stage_a4_checkpoint(context,state0, ...
     make_metadata(testCase,state0,0));
 manifest = readtable(context.checkpoint_manifest_path, ...
     TextType="string",VariableNamingRule="preserve");
 manifest.sha256(1) = string(repmat('0',1,64));
-write_table_csv_17g(context.checkpoint_manifest_path,manifest);
-verifyError(testCase,@()validate_stage_a4_checkpoint(context), ...
+rkkt.artifacts.write_table_csv_17g(context.checkpoint_manifest_path,manifest);
+verifyError(testCase,@()rkkt.artifacts.validate_stage_a4_checkpoint(context), ...
     "stageA4:checkpoint:FileHashMismatch");
 end
 
@@ -196,17 +196,17 @@ function testMatchingOrphanIsAdoptedWithoutOverwrite(testCase)
 context = testCase.TestData.context;
 state0 = make_state(0);
 metadata0 = make_metadata(testCase,state0,0);
-first = write_stage_a4_checkpoint(context,state0,metadata0);
+first = rkkt.artifacts.write_stage_a4_checkpoint(context,state0,metadata0);
 checkpointPath = fullfile(context.checkpoints_dir, ...
     "stage_A4_checkpoint_000.mat");
-firstSha = compute_sha256_file(string(checkpointPath));
+firstSha = rkkt.data.compute_sha256_file(string(checkpointPath));
 delete(context.checkpoint_manifest_path);
 
-adopted = write_stage_a4_checkpoint(context,state0,metadata0);
-secondSha = compute_sha256_file(string(checkpointPath));
+adopted = rkkt.artifacts.write_stage_a4_checkpoint(context,state0,metadata0);
+secondSha = rkkt.data.compute_sha256_file(string(checkpointPath));
 verifyEqual(testCase,secondSha,firstSha);
 verifyEqual(testCase,string(adopted.sha256),string(first.sha256));
-audit = validate_stage_a4_checkpoint(context);
+audit = rkkt.artifacts.validate_stage_a4_checkpoint(context);
 verifyEqual(testCase,audit.revision_count,1);
 verifyEqual(testCase,audit.orphan_file_count,0);
 end
@@ -215,9 +215,9 @@ function testWriterRejectsTerminalRun(testCase)
 context = testCase.TestData.context;
 manifest = jsondecode(fileread(context.run_manifest_path));
 manifest.status = "PASS";
-write_json_file(context.run_manifest_path,manifest);
+rkkt.artifacts.write_json_file(context.run_manifest_path,manifest);
 state0 = make_state(0);
-verifyError(testCase,@()write_stage_a4_checkpoint( ...
+verifyError(testCase,@()rkkt.artifacts.write_stage_a4_checkpoint( ...
     context,state0,make_metadata(testCase,state0,0)), ...
     "stageA4:checkpoint:RunNotRunning");
 end
@@ -227,7 +227,7 @@ context = testCase.TestData.context;
 state0 = make_state(0);
 metadata0 = make_metadata(testCase,state0,0);
 metadata0.recursive_refinement_max_passes = 0;
-verifyError(testCase,@()write_stage_a4_checkpoint( ...
+verifyError(testCase,@()rkkt.artifacts.write_stage_a4_checkpoint( ...
     context,state0,metadata0), ...
     "stageA4:checkpoint:StableV2Passes");
 
@@ -235,7 +235,7 @@ metadata0 = make_metadata(testCase,state0,0);
 write_text(context.effective_config_path, ...
     "stage_id: ""stage_A4"""+newline+ ...
     "run_purpose: ""tampered_after_identity_capture"""+newline);
-verifyError(testCase,@()write_stage_a4_checkpoint( ...
+verifyError(testCase,@()rkkt.artifacts.write_stage_a4_checkpoint( ...
     context,state0,metadata0), ...
     "stageA4:checkpoint:EffectiveConfigMismatch");
 end
@@ -250,7 +250,7 @@ checkpointPath = fullfile(context.checkpoints_dir, ...
 checkpoint = struct("partial",true);
 save(checkpointPath,"checkpoint");
 
-audit = reconcile_stage_a4_uncommitted_transactions(context,0);
+audit = rkkt.artifacts.reconcile_stage_a4_uncommitted_transactions(context,0);
 verifyTrue(testCase,audit.passed);
 verifyEqual(testCase,audit.orphan_count,2);
 verifyEqual(testCase,sort(audit.artifact_types), ...
@@ -268,7 +268,7 @@ write_text(fullfile(context.indices_dir,"partial.csv"),"a,b"+newline);
 resultsRoot = fullfile(context.root,"results");
 verifyFalse(testCase,isfolder(resultsRoot));
 
-audit = prepare_stage_a4_postprocess_resume(context);
+audit = rkkt.artifacts.prepare_stage_a4_postprocess_resume(context);
 verifyTrue(testCase,audit.passed);
 verifyTrue(testCase,isfolder(context.indices_dir));
 verifyTrue(testCase,isfolder(resultsRoot));
@@ -281,13 +281,13 @@ end
 
 function testFullIpmExecutionMarkerIsOneWayAndCountsResume(testCase)
 context = testCase.TestData.context;
-first = mark_stage_a4_full_ipm_execution(context);
+first = rkkt.artifacts.mark_stage_a4_full_ipm_execution(context);
 verifyTrue(testCase,logical(first.optimization_executed));
 verifyTrue(testCase,logical(first.full_ipm_executed));
 verifyTrue(testCase,logical(first.solver_invocation_started));
 verifyEqual(testCase,double(first.solver_invocation_count),1);
 
-second = mark_stage_a4_full_ipm_execution(context);
+second = rkkt.artifacts.mark_stage_a4_full_ipm_execution(context);
 verifyTrue(testCase,logical(second.optimization_executed));
 verifyTrue(testCase,logical(second.full_ipm_executed));
 verifyEqual(testCase,double(second.solver_invocation_count),2);

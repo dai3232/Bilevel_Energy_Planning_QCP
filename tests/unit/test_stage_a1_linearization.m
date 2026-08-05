@@ -6,11 +6,11 @@ end
 function setupOnce(testCase)
 projectRoot = string(fileparts(fileparts(fileparts(mfilename('fullpath')))));
 addpath(genpath(fullfile(projectRoot,"src")));
-config = load_stage_a1_configuration(projectRoot);
-data = load_project_data(projectRoot);
-index = build_stage_a1_index(data,"RunId","A1_LINEARIZATION_TEST");
-state = initialize_stage_a1_state(data,index,config);
-linearization = build_stage_a1_linearization(state,data,index,config);
+config = rkkt.model.load_stage_a1_configuration(projectRoot);
+data = rkkt.data.load_project_data(projectRoot);
+index = rkkt.indexing.build_stage_a1_index(data,"RunId","A1_LINEARIZATION_TEST");
+state = rkkt.model.initialize_stage_a1_state(data,index,config);
+linearization = rkkt.model.build_stage_a1_linearization(state,data,index,config);
 testCase.TestData.projectRoot = projectRoot;
 testCase.TestData.config = config;
 testCase.TestData.data = data;
@@ -98,8 +98,8 @@ function testIdentityIsDeterministicAndUsesControlledHashes(testCase)
 config = testCase.TestData.config;
 data = testCase.TestData.data;
 index = testCase.TestData.index;
-state = initialize_stage_a1_state(data,index,config);
-second = build_stage_a1_linearization(state,data,index,config);
+state = rkkt.model.initialize_stage_a1_state(data,index,config);
+second = rkkt.model.build_stage_a1_linearization(state,data,index,config);
 verifyEqual(testCase,second.identity,testCase.TestData.linearization.identity);
 for k = 1:height(data.hashes)
     verifyTrue(testCase,contains(second.identity, ...
@@ -121,24 +121,24 @@ verifyEqual(testCase,config.tolerances.recursive_full_kkt_relative_residual,1e-1
 end
 
 function testAcceptanceInventoryIsCompleteAndStrict(testCase)
-acceptance = initialize_stage_a1_acceptance(testCase.TestData.projectRoot);
+acceptance = rkkt.diagnostics.initialize_stage_a1_acceptance(testCase.TestData.projectRoot);
 verifyEqual(testCase,height(acceptance),15);
 verifyEqual(testCase,numel(unique(acceptance.test_id)),15);
 verifyTrue(testCase,all(acceptance.blocking));
-verifyError(testCase,@() aggregate_stage_a1_status(acceptance), ...
+verifyError(testCase,@() rkkt.diagnostics.aggregate_stage_a1_status(acceptance), ...
     "stageA1:acceptance:Incomplete");
 for k = 1:height(acceptance)
-    acceptance = set_stage_a1_acceptance_result(acceptance, ...
+    acceptance = rkkt.diagnostics.set_stage_a1_acceptance_result(acceptance, ...
         acceptance.test_id(k),"PASS","test","test","tests");
 end
-verifyEqual(testCase,aggregate_stage_a1_status(acceptance),"PASS");
+verifyEqual(testCase,rkkt.diagnostics.aggregate_stage_a1_status(acceptance),"PASS");
 end
 
 function testParallelCallScannerRejectsInjectedA1Source(testCase)
 temporaryRoot = string(tempname(tempdir));
-mkdir(fullfile(temporaryRoot,"src","diagnostics"));
+mkdir(fullfile(temporaryRoot,"src","+rkkt","+diagnostics"));
 cleanup = onCleanup(@() remove_temporary_root(temporaryRoot)); %#ok<NASGU>
-pathValue = fullfile(temporaryRoot,"src","diagnostics", ...
+pathValue = fullfile(temporaryRoot,"src","+rkkt","+diagnostics", ...
     "injected_stage_a1_parallel.m");
 fileId = fopen(pathValue,"wb","n","UTF-8");
 assert(fileId>=0);
@@ -147,7 +147,7 @@ fwrite(fileId,unicode2native("function injected_stage_a1_parallel; parpool(); en
     newline,"UTF-8"),"uint8");
 fclose(fileId);
 clear closeGuard;
-audit = scan_stage_a1_forbidden_code(temporaryRoot,testCase.TestData.config);
+audit = rkkt.diagnostics.scan_stage_a1_forbidden_code(temporaryRoot,testCase.TestData.config);
 row = audit.rule_id=="NO_PARALLEL_CALL";
 verifyEqual(testCase,nnz(row),1);
 verifyEqual(testCase,audit.status(row),"FAIL");
@@ -166,7 +166,7 @@ source = regexprep(source, ...
     "(?m)^expected_global_core_dimension:\s*16\s*\r?\n","", ...
     "once");
 write_test_text(fullfile(temporaryRoot,"config","stage_A1.yaml"),source);
-verifyError(testCase,@() load_stage_a1_configuration(temporaryRoot), ...
+verifyError(testCase,@() rkkt.model.load_stage_a1_configuration(temporaryRoot), ...
     "stageA1:config:MissingKey");
 end
 

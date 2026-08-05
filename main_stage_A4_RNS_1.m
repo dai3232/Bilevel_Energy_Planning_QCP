@@ -6,7 +6,7 @@ function result = main_stage_A4_RNS_1()
 
 projectRoot = string(fileparts(mfilename("fullpath")));
 addpath(genpath(fullfile(projectRoot,"src")));
-result = run_stage_a4_rns1_stability_audit(projectRoot);
+result = rkkt.diagnostics.run_stage_a4_rns1_stability_audit(projectRoot);
 if result.milestone_status~="PASS"
     fprintf(2,"A4-RNS-1 blocking audit failed:\n");
     if isfield(result,"blocking")

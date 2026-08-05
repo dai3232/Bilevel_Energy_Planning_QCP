@@ -12,10 +12,10 @@ end
 
 inputArtifact = string(options.InputArtifact);
 outputDirectory = string(options.OutputDirectory);
-rkkt.model.validation.ValidationSupport.requireOutputDirectory( ...
+rkkt.validation.requireOutputDirectory( ...
     outputDirectory,options.WriteArtifacts);
 
-upstream = rkkt.model.validation.ValidationSupport.loadResult( ...
+upstream = rkkt.validation.loadResult( ...
     inputArtifact,"runLinearization");
 if string(upstream.meta.interface_name) ~= "rkkt.model.initialize"
     error("rkkt:model:validation:LinearizationUpstreamInterface", ...
@@ -31,7 +31,7 @@ index = upstream.input.index;
 config = upstream.input.config;
 state = upstream.output.state;
 
-legacyLinearization = call_legacy_linearization( ...
+legacyLinearization = call_direct_linearization( ...
     state,data,index,config);
 linearization = rkkt.model.linearize(state,data,index,config);
 legacyFacadeExact = isequaln(legacyLinearization,linearization);
@@ -46,9 +46,9 @@ fieldSummary = linearization_summary(linearization);
 residualSummary = residual_summary(linearization);
 [outputFile,tableFiles,figureFiles,figureIndex] = output_paths( ...
     outputDirectory,options.WriteArtifacts);
-metadata = rkkt.model.validation.ValidationSupport.metadata( ...
+metadata = rkkt.validation.metadata( ...
     "rkkt.model.linearize","build_stage_a4_linearization", ...
-    inputArtifact,string(data.projectRoot),outputFile, ...
+    inputArtifact,outputFile, ...
     "统一线性化模块",state.iteration_index,state.state_revision, ...
     options.Interactive,options.WriteArtifacts);
 moduleResult = rkkt.contracts.moduleResultTemplate(metadata);
@@ -82,17 +82,17 @@ moduleResult.figureFiles = figureFiles;
 rkkt.contracts.validateModuleResult(moduleResult);
 
 if options.WriteArtifacts
-    rkkt.model.validation.ValidationSupport.writeTable17( ...
+    rkkt.validation.writeTable17( ...
         fieldSummary,tableFiles(1));
-    rkkt.model.validation.ValidationSupport.writeTable17( ...
+    rkkt.validation.writeTable17( ...
         residualSummary,tableFiles(2));
     fig = sparsity_figure(linearization,options.Interactive);
-    rkkt.model.validation.ValidationSupport.saveFigurePair( ...
+    rkkt.validation.saveFigurePair( ...
         fig,figureIndex.figPath,figureIndex.pngPath);
     if ~options.Interactive
         close(fig);
     end
-    rkkt.model.validation.ValidationSupport.saveResult( ...
+    rkkt.validation.saveResult( ...
         outputFile,moduleResult);
 end
 
@@ -108,21 +108,8 @@ if options.WriteArtifacts
 end
 end
 
-function value = call_legacy_linearization(state,data,index,config)
-modelDirectory = fullfile(string(data.projectRoot),"src","model");
-productionFile = fullfile(modelDirectory, ...
-    "build_stage_a4_linearization.m");
-originalPath = path;
-pathGuard = onCleanup(@() path(originalPath));
-addpath(modelDirectory,"-begin");
-resolved = string(which("build_stage_a4_linearization"));
-if ~same_path(resolved,productionFile)
-    error("rkkt:model:validation:LinearizationFunctionShadowed", ...
-        "Expected build_stage_a4_linearization at '%s'; resolved '%s'.", ...
-        productionFile,resolved);
-end
-value = build_stage_a4_linearization(state,data,index,config);
-clear pathGuard
+function value = call_direct_linearization(state,data,index,config)
+value = rkkt.model.build_stage_a4_linearization(state,data,index,config);
 end
 
 function facts = inspect_linearization_facts( ...
@@ -289,14 +276,4 @@ end
 
 function value = default_output_directory()
 value = string(fileparts(mfilename("fullpath")));
-end
-
-function value = same_path(left,right)
-left = replace(string(left),"/","\");
-right = replace(string(right),"/","\");
-if ispc
-    value = strcmpi(left,right);
-else
-    value = strcmp(left,right);
-end
 end

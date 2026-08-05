@@ -1,0 +1,53 @@
+{
+  "freeze_id": "A4-PACKAGE-CLOSURE-FREEZE-20260805",
+  "parent_freeze_id": "A4-NUMERICAL-STABILITY-REPAIR-FREEZE-20260728",
+  "parent_freeze_sha256": "72f4d5755565f82f308fe0ca677461ca15176c3e836889c938f96da6eb2b9d6b",
+  "project_stage": "stage_B / READY",
+  "model_regression_stage": "stage_A4",
+  "branch": "refactor/pkg-interface",
+  "purpose": "Freeze the package-owned paths after the algorithm hard cut without changing the approved A4 model, initialization, solver factors, thresholds, inputs, or numerical fingerprints.",
+  "frozen_algorithm": {
+    "centering_sigma": 0.1,
+    "fraction_to_boundary": 0.9995,
+    "step_strategy": "independent",
+    "common_step_enabled": false,
+    "dynamic_sigma_enabled": false,
+    "predictor_corrector_enabled": false,
+    "line_search_enabled": false,
+    "regularization_enabled": false,
+    "automatic_symmetrization_enabled": false,
+    "full_kkt_direction_fallback_enabled": false
+  },
+  "frozen_model": {
+    "days": [14, 15, 16, 17, 18, 19, 20],
+    "hours_per_day": 24,
+    "objective_mode": "investment_cost_only",
+    "thermal_pass": "first",
+    "formal_soc_boundary": "daily_fixed_half_energy_no_interday_link",
+    "water_constraints_enabled": false,
+    "thermal_second_pass_enabled": false,
+    "annual_scope_enabled": false,
+    "parallel_mode": "off",
+    "full_kkt_dimension": 18836,
+    "fixed_zero_count": 422,
+    "initial_state_fingerprint": "7277a250e33e3a1cfa310b4581faa7232a2c3cb99ff6d7cc6b4602e40970c3aa",
+    "initial_linearization_fingerprint": "0d624a4b3050ce511e4271c3ce0f49872df3bec69e1cee1fe50e797ce981d02d"
+  },
+  "protected_files": [
+    {"relative_path": "config/model.yaml", "sha256": "10c7ae1edb9d1764ac16a7a2de7dc7d7e06004ce2cbf2e0dde902a711ae49171"},
+    {"relative_path": "docs/00_用户确认的模型口径_v1.0.md", "sha256": "6ffac68b7c70cc07ccf4e3e3cf88bf0f9689d2c9ac3211c72967b1e1a810ec15"},
+    {"relative_path": "docs/02_最终模型合同_v1.0.md", "sha256": "7852c044f64506f26471df2fa66042388c0e6317d425a6c126208b36481297f4"},
+    {"relative_path": "docs/03_阶段模型启用矩阵.csv", "sha256": "6b73deac3cec15ad0086b04fd30658aa04be4a19c398780811e15a5a43e16c36"},
+    {"relative_path": "inputs/raw/基础参数.xlsx", "sha256": "aebb35fa80e6ba2fb8d4534b09a141feaedcb2b9d027e9924e7a0091943c4277"},
+    {"relative_path": "inputs/raw/输入数据.xlsx", "sha256": "10baac1dc5d0b07dbbb9d2fe8f9aac82f071e43d4fb9901ff7ba0b467d05c186"},
+    {"relative_path": "src/+rkkt/+model/initialize_stage_a4_state.m", "sha256": "6e2775e21d27e58f023636a06464d2f258225b0f5bc505da7bf05442b4de4a45"},
+    {"relative_path": "src/+rkkt/+model/initialize_stage_a_multiday_state.m", "sha256": "1125b5dfb9d19cba54147bf0bd15af3a6b39a2a0b6e7fba4c71cb20cd4e0d255"},
+    {"relative_path": "src/+rkkt/+indexing/build_stage_a4_index.m", "sha256": "610fce0dd44c3a54eac7cd0edd58dd0f2eba71690ae7f9205039978ee553bd55"},
+    {"relative_path": "src/+rkkt/+indexing/build_stage_a_multiday_index.m", "sha256": "3835920bba49b98924fa9a5415199ac98f1e5a32e4db6c9e53128a8fb2d6bb42"},
+    {"relative_path": "src/+rkkt/+model/build_stage_a4_linearization.m", "sha256": "51e343402dfb46c28e258e2e248fca741c3f16efad7adf41f042ddbdfc0d7efe"},
+    {"relative_path": "src/+rkkt/+model/build_stage_a_multiday_linearization.m", "sha256": "c353baac38de2993af9c8f6fc45c2255326d0c92ae3ce8d1cdcfe07799b0c676"},
+    {"relative_path": "src/+rkkt/+model/build_stage_a4_scaled_objective_linearization.m", "sha256": "397c086e1de4fd06d6735aca8d4221179f5ebffb482a328609d4ab82f37f5569"},
+    {"relative_path": "src/+rkkt/+solver/compute_fraction_to_boundary_step.m", "sha256": "99de117d2754d1ad2ea8ec8c82100eb42cdf2255364115019d78b94a547dd381"},
+    {"relative_path": "src/+rkkt/+solver/update_primal_dual_state.m", "sha256": "36f65b3f714eabe5ed78f7a7f91f99f60082493350576e05c1c288e76700ddbc"}
+  ]
+}

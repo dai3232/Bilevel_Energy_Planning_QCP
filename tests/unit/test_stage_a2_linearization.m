@@ -6,11 +6,11 @@ end
 function setupOnce(testCase)
 projectRoot = string(fileparts(fileparts(fileparts(mfilename('fullpath')))));
 addpath(genpath(fullfile(projectRoot,"src")));
-config = load_stage_a2_configuration(projectRoot);
-data = load_project_data(projectRoot);
-index = build_stage_a2_index(data,"RunId","A2_LINEARIZATION_TEST");
-state = initialize_stage_a2_state(data,index,config);
-linearization = build_stage_a2_linearization(state,data,index,config);
+config = rkkt.model.load_stage_a2_configuration(projectRoot);
+data = rkkt.data.load_project_data(projectRoot);
+index = rkkt.indexing.build_stage_a2_index(data,"RunId","A2_LINEARIZATION_TEST");
+state = rkkt.model.initialize_stage_a2_state(data,index,config);
+linearization = rkkt.model.build_stage_a2_linearization(state,data,index,config);
 testCase.TestData.projectRoot = projectRoot;
 testCase.TestData.config = config;
 testCase.TestData.data = data;
@@ -157,9 +157,9 @@ function testSharedBuilderIsDeterministicAndA2WrapperIsThin(testCase)
 config = testCase.TestData.config;
 data = testCase.TestData.data;
 index = testCase.TestData.index;
-state = initialize_stage_a_state(data,index,config);
-shared = build_stage_a_linearization(state,data,index,config);
-wrapped = build_stage_a2_linearization(state,data,index,config);
+state = rkkt.model.initialize_stage_a_state(data,index,config);
+shared = rkkt.model.build_stage_a_linearization(state,data,index,config);
+wrapped = rkkt.model.build_stage_a2_linearization(state,data,index,config);
 verifyEqual(testCase,shared.identity,wrapped.identity);
 verifyEqual(testCase,shared.A,wrapped.A,"AbsTol",0);
 verifyEqual(testCase,shared.G,wrapped.G,"AbsTol",0);

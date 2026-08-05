@@ -82,11 +82,11 @@ function [resultTable,summary,paths] = run_with_evidence( ...
         suite,inventory,evidenceDirectory,commandText)
 paths=evidence_paths(evidenceDirectory);
 prepare_evidence_directory(evidenceDirectory,paths);
-write_table_csv_17g(paths.inventory,inventory);
+rkkt.artifacts.write_table_csv_17g(paths.inventory,inventory);
 write_utf8_text(paths.command,[commandText,newline]);
 initial=incomplete_result_table(inventory,"Test execution has not completed.");
-write_table_csv_17g(paths.results_csv,initial);
-write_json_file(paths.summary,make_summary(initial,0,"RUNNING","",""));
+rkkt.artifacts.write_table_csv_17g(paths.results_csv,initial);
+rkkt.artifacts.write_json_file(paths.summary,make_summary(initial,0,"RUNNING","",""));
 write_utf8_text(paths.console_log,sprintf( ...
     'Stage A2 test console evidence initialized at %s.\n',char(now_text())));
 rawResults=matlab.unittest.TestResult.empty;
@@ -103,8 +103,8 @@ try
     resultTable=result_table_from_results(rawResults);
     assert_result_identity(resultTable,inventory);
     summary=make_summary(resultTable,wall,"COMPLETE","","");
-    write_table_csv_17g(paths.results_csv,resultTable);
-    write_json_file(paths.summary,summary);
+    rkkt.artifacts.write_table_csv_17g(paths.results_csv,resultTable);
+    rkkt.artifacts.write_json_file(paths.summary,summary);
     assert(is_complete_junit(paths.results_xml,height(inventory)), ...
         'stageA2:tests:IncompleteJUnit', ...
         'JUnit evidence does not contain the complete A2 inventory.');
@@ -211,7 +211,7 @@ else
 end
 summary=make_summary(result,wall,"ERROR",exception.identifier,exception.message);
 try
-    write_table_csv_17g(paths.results_csv,result); write_json_file(paths.summary,summary);
+    rkkt.artifacts.write_table_csv_17g(paths.results_csv,result); rkkt.artifacts.write_json_file(paths.summary,summary);
 catch persistenceException
     fprintf(2,'Could not update A2 CSV/JSON evidence: %s\n',persistenceException.message);
 end

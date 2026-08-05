@@ -6,11 +6,11 @@ end
 function setupOnce(testCase)
 projectRoot = string(fileparts(fileparts(fileparts(mfilename('fullpath')))));
 addpath(genpath(fullfile(projectRoot,"src")));
-config = load_stage_a3_configuration(projectRoot);
-data = load_project_data(projectRoot);
-index = build_stage_a3_index(data,"RunId","A3_LINEARIZATION_TEST");
-state = initialize_stage_a3_state(data,index,config);
-lin = build_stage_a3_linearization(state,data,index,config);
+config = rkkt.model.load_stage_a3_configuration(projectRoot);
+data = rkkt.data.load_project_data(projectRoot);
+index = rkkt.indexing.build_stage_a3_index(data,"RunId","A3_LINEARIZATION_TEST");
+state = rkkt.model.initialize_stage_a3_state(data,index,config);
+lin = rkkt.model.build_stage_a3_linearization(state,data,index,config);
 testCase.TestData.config = config;
 testCase.TestData.data = data;
 testCase.TestData.index = index;
@@ -116,7 +116,7 @@ end
 
 function testRebuildingConsumesTheSameCanonicalOrdering(testCase)
 lin = testCase.TestData.lin;
-again = build_stage_a3_linearization( ...
+again = rkkt.model.build_stage_a3_linearization( ...
     lin.state,testCase.TestData.data,testCase.TestData.index, ...
     testCase.TestData.config);
 verifyEqual(testCase,again.identity,lin.identity);

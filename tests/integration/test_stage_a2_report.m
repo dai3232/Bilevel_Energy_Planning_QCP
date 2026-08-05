@@ -7,9 +7,9 @@ function setupOnce(testCase)
 root=string(fileparts(fileparts(fileparts(mfilename('fullpath')))));
 originalPath=path; addpath(genpath(fullfile(root,"src")));
 testCase.addTeardown(@()path(originalPath));
-config=load_stage_a2_configuration(root); data=load_project_data(root);
-index=build_stage_a2_index(data,"RunId","A2_REPORT_TEST");
-verification=run_stage_a2_direction_verification(data,index,config);
+config=rkkt.model.load_stage_a2_configuration(root); data=rkkt.data.load_project_data(root);
+index=rkkt.indexing.build_stage_a2_index(data,"RunId","A2_REPORT_TEST");
+verification=rkkt.diagnostics.run_stage_a2_direction_verification(data,index,config);
 project=string(tempname(tempdir)); mkdir(project);
 testCase.addTeardown(@()remove_tree(project));
 metadata=struct("time_scope_type",char(config.time_scope_type), ...
@@ -18,7 +18,7 @@ metadata=struct("time_scope_type",char(config.time_scope_type), ...
     "newton_direction_count",1,"optimization_executed",false, ...
     "full_ipm_executed",false,"parallel_executed",false, ...
     "a2_solver_executed",true,"physical_dispatch_interpretation",false);
-context=create_run_context(project,"stage_A2","RunId","A2_REPORT_RUN", ...
+context=rkkt.artifacts.create_run_context(project,"stage_A2","RunId","A2_REPORT_RUN", ...
     "ManifestMetadata",metadata);
 context.project_root=char(root);
 environment=table("ENV",true,"PASS", ...
@@ -28,13 +28,13 @@ hashes=table(["基础参数.xlsx";"输入数据.xlsx"], ...
     repmat("abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",2,1), ...
     repmat("PASS",2,1),'VariableNames', ...
     {'file_name','expectedSHA256','actualSHA256','status'});
-write_table_csv_17g(context.environment_csv_path,environment);
-write_table_csv_17g(context.input_hashes_csv_path,hashes);
-export_stage_a2_artifacts(context,data,index,config,verification.linearization, ...
+rkkt.artifacts.write_table_csv_17g(context.environment_csv_path,environment);
+rkkt.artifacts.write_table_csv_17g(context.input_hashes_csv_path,hashes);
+rkkt.artifacts.export_stage_a2_artifacts(context,data,index,config,verification.linearization, ...
     verification.direct,verification.recursive,verification.audit);
-acceptance=evaluate_stage_a2_acceptance_facts(root,data,index,verification);
-write_table_csv_17g(context.acceptance_results_path,acceptance);
-write_table_csv_17g(context.issue_log_path,new_stage_a2_issue_log());
+acceptance=rkkt.diagnostics.evaluate_stage_a2_acceptance_facts(root,data,index,verification);
+rkkt.artifacts.write_table_csv_17g(context.acceptance_results_path,acceptance);
+rkkt.artifacts.write_table_csv_17g(context.issue_log_path,rkkt.diagnostics.new_stage_a2_issue_log());
 write_test_evidence(context.tests_dir,"A2",5);
 a1Directory=fullfile(context.tests_dir,"a1_regression"); mkdir(a1Directory);
 write_test_evidence(a1Directory,"A1",37);
@@ -44,17 +44,17 @@ end
 
 function testGeneratesThreeValidatedArtifactBackedReports(testCase)
 output=fullfile(testCase.TestData.project,"reports_success");
-paths=generate_stage_a2_reports(testCase.TestData.context, ...
+paths=rkkt.reporting.generate_stage_a2_reports(testCase.TestData.context, ...
     'OutputDirectory',output,'FinalStatusCandidate','PASS');
 names=fieldnames(paths); verifyEqual(testCase,numel(names),3);
 for k=1:numel(names)
     verifyTrue(testCase,isfile(paths.(names{k})));
-    [valid,details]=validate_docx_package(paths.(names{k}));
+    [valid,details]=rkkt.reporting.validate_docx_package(paths.(names{k}));
     verifyTrue(testCase,valid,strjoin(details.errors,"; "));
     verifyTrue(testCase,contains(details.document_text,"A2"));
     verifyTrue(testCase,contains(details.document_text,"A2_REPORT_RUN"));
 end
-model=paths.model_report; [~,details]=validate_docx_package(model);
+model=paths.model_report; [~,details]=rkkt.reporting.validate_docx_package(model);
 verifyTrue(testCase,contains(details.document_text,"2749"));
 verifyTrue(testCase,contains(details.document_text,"589"));
 verifyTrue(testCase,contains(details.document_text,"fixed_zero_map"));
@@ -67,10 +67,10 @@ backup=pathValue+".test_backup";
 [moved,message]=movefile(pathValue,backup); assert(moved,message);
 guard=onCleanup(@()restore_file(pathValue,backup));
 bad=testCase.TestData.acceptance;
-bad=set_stage_a2_acceptance_result(bad,"SA2-EQ-001","FAIL", ...
+bad=rkkt.diagnostics.set_stage_a2_acceptance_result(bad,"SA2-EQ-001","FAIL", ...
     "1","forced test failure","iterations/direction_comparison.csv");
-write_table_csv_17g(pathValue,bad);
-verifyError(testCase,@()generate_stage_a2_reports(testCase.TestData.context, ...
+rkkt.artifacts.write_table_csv_17g(pathValue,bad);
+verifyError(testCase,@()rkkt.reporting.generate_stage_a2_reports(testCase.TestData.context, ...
     'OutputDirectory',fullfile(testCase.TestData.project,"false_pass"), ...
     'FinalStatusCandidate','PASS'),"stageA2:report:AcceptanceMismatch");
 clear guard;
@@ -80,8 +80,8 @@ manifestBackup=manifestPath+".test_backup";
 manifest=jsondecode(fileread(manifestPath));
 [moved,message]=movefile(manifestPath,manifestBackup); assert(moved,message);
 manifestGuard=onCleanup(@()restore_file(manifestPath,manifestBackup));
-manifest.status='FAIL_RETRYABLE'; write_json_file(manifestPath,manifest);
-verifyError(testCase,@()generate_stage_a2_reports(testCase.TestData.context, ...
+manifest.status='FAIL_RETRYABLE'; rkkt.artifacts.write_json_file(manifestPath,manifest);
+verifyError(testCase,@()rkkt.reporting.generate_stage_a2_reports(testCase.TestData.context, ...
     'OutputDirectory',fullfile(testCase.TestData.project,"finalized"), ...
     'FinalStatusCandidate','PASS'),"stageA2:report:ManifestIdentity");
 clear manifestGuard;
@@ -89,26 +89,26 @@ end
 
 function testExistingReportsAreNeverOverwritten(testCase)
 output=fullfile(testCase.TestData.project,"reports_collision");
-generate_stage_a2_reports(testCase.TestData.context, ...
+rkkt.reporting.generate_stage_a2_reports(testCase.TestData.context, ...
     'OutputDirectory',output,'FinalStatusCandidate','PASS');
-verifyError(testCase,@()generate_stage_a2_reports(testCase.TestData.context, ...
+verifyError(testCase,@()rkkt.reporting.generate_stage_a2_reports(testCase.TestData.context, ...
     'OutputDirectory',output,'FinalStatusCandidate','PASS'), ...
     "stageA2:report:ArtifactExists");
 end
 
 function testMinimalFailureReportRequiresNoNumericalArtifacts(testCase)
 context=create_synthetic_context(testCase,"A2_FAILURE_REPORT_RUN");
-acceptance=initialize_stage_a2_acceptance(testCase.TestData.root);
+acceptance=rkkt.diagnostics.initialize_stage_a2_acceptance(testCase.TestData.root);
 for row=1:height(acceptance)
-    acceptance=set_stage_a2_acceptance_result(acceptance, ...
+    acceptance=rkkt.diagnostics.set_stage_a2_acceptance_result(acceptance, ...
         acceptance.test_id(row),"BLOCKED","not run","dependency blocked", ...
         "run_manifest.json");
 end
 exception=MException("stageA2:test:Failure","synthetic catch-path failure");
-pathValue=generate_stage_a2_failure_report(context,exception, ...
-    new_stage_a2_issue_log(),acceptance);
+pathValue=rkkt.reporting.generate_stage_a2_failure_report(context,exception, ...
+    rkkt.diagnostics.new_stage_a2_issue_log(),acceptance);
 verifyTrue(testCase,isfile(pathValue));
-[valid,details]=validate_docx_package(pathValue);
+[valid,details]=rkkt.reporting.validate_docx_package(pathValue);
 verifyTrue(testCase,valid,strjoin(details.errors,"; "));
 verifyTrue(testCase,contains(details.document_text,"synthetic catch-path failure"));
 verifyTrue(testCase,contains(details.document_text,"不宣告 Stage A2 通过"));
@@ -118,7 +118,7 @@ function context = create_synthetic_context(testCase,runId)
 metadata=struct("newton_direction_count",1,"optimization_executed",false, ...
     "full_ipm_executed",false,"parallel_executed",false, ...
     "a2_solver_executed",false);
-context=create_run_context(testCase.TestData.project,"stage_A2", ...
+context=rkkt.artifacts.create_run_context(testCase.TestData.project,"stage_A2", ...
     "RunId",runId,"ManifestMetadata",metadata);
 context.project_root=char(testCase.TestData.root);
 end
@@ -131,9 +131,9 @@ results=table(names,true(count,1),false(count,1),false(count,1), ...
     zeros(count,1),repmat("",count,1), ...
     'VariableNames',{'test_name','passed','failed','incomplete', ...
     'duration_seconds','details'});
-write_table_csv_17g(fullfile(directory,"test_inventory.csv"),inventory);
-write_table_csv_17g(fullfile(directory,"test_results.csv"),results);
-write_json_file(fullfile(directory,"test_summary.json"),struct( ...
+rkkt.artifacts.write_table_csv_17g(fullfile(directory,"test_inventory.csv"),inventory);
+rkkt.artifacts.write_table_csv_17g(fullfile(directory,"test_results.csv"),results);
+rkkt.artifacts.write_json_file(fullfile(directory,"test_summary.json"),struct( ...
     "test_total",count,"test_passed",count,"test_failed",0, ...
     "test_incomplete",0,"duration_seconds",0));
 end

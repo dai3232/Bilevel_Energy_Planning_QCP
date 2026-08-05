@@ -6,12 +6,12 @@ end
 function setupOnce(testCase)
 root = string(fileparts(fileparts(fileparts(mfilename("fullpath")))));
 addpath(genpath(fullfile(root,"src")));
-c = load_stage_b2a_configuration(root);
-d = load_project_data(root);
-idx = build_stage_b_index(d,c,"RunId","B2A_KKT_TEST");
-s = initialize_stage_b2a_state(d,idx,c);
-lin = build_stage_b_multiday_linearization(s,d,idx,c);
-kkt = assemble_stage_b_multiday_full_kkt(lin,c);
+c = rkkt.model.load_stage_b2a_configuration(root);
+d = rkkt.data.load_project_data(root);
+idx = rkkt.indexing.build_stage_b_index(d,c,"RunId","B2A_KKT_TEST");
+s = rkkt.model.initialize_stage_b2a_state(d,idx,c);
+lin = rkkt.model.build_stage_b_multiday_linearization(s,d,idx,c);
+kkt = rkkt.solver.assemble_stage_b_multiday_full_kkt(lin,c);
 testCase.TestData.config = c;
 testCase.TestData.data = d;
 testCase.TestData.index = idx;

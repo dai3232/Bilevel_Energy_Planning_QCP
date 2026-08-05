@@ -1,41 +1,58 @@
 # 包接口重构辅助阶段状态
 
-- `pkg_stage_id`: `PKG-9`
-- `status`: `READY_FOR_USER_REVIEW`
-- `updated_at`: `2026-08-04`
+## 当前包内算法硬迁移
+
+- `pkg_stage_id`: `PACKAGE-HARD-CUT`
+- `status`: `IMPLEMENTED_PENDING_FORMAL_A4_VALIDATION`
+- `updated_at`: `2026-08-05`
 - `branch`: `refactor/pkg-interface`
 - `worktree`: `H:\Reproduction\Hourly_Recursive_KKT_pkg`
+- `implementation_base_commit`: `f826df055e155962139a0ff77dc261ca296aa9fa`
+- `formal_project_stage`: `stage_B / READY`
+- `current_stage_modified`: `false`
+- `package_version`: `1.0.0`
+- `single_click_entry`: `RUN_PROJECT.m`
+- `single_click_formal_evidence`: `true`
+- `immutable_run_history`: `true`
+- `compact_run_index`: `runs/运行索引.csv`
+- `latest_pass_pointer`: `runs/LATEST_PASS.json`
+- `repeat_signature_basis`: `rkkt package source + stage + effective config + controlled inputs`
+- `production_callers_migrated`: `true`
+- `production_algorithm_migrated`: `true`
+- `legacy_source_directories_present`: `false`
+- `compatibility_dispatch_present`: `false`
+- `dynamic_function_location_present`: `false`
+- `fallback_dispatch_present`: `false`
+- `class_count`: `0`
+- `explicit_pipeline`: `RUN_PROJECT -> rkkt.run -> stageA4(package_closure) -> data -> config -> index(data,config) -> checkpointed full IPM -> fixed tests -> reports -> terminal manifest -> run index`
+- `index_configuration_path_inference`: `false`
+- `package_hard_cut_tests`: `10/10 passed；failed=0；incomplete=0`
+- `supporting_package_contract_tests`: `18/18 passed；failed=0；incomplete=0`
+- `stage_b_interface_equivalence_tests`: `9/9 passed；failed=0；incomplete=0`
+- `bounded_one_iteration_validation`: `passed`
+- `bounded_direction_relative_error`: `<= 1e-10`
+- `bounded_recursive_kkt_relative_residual`: `<= 1e-10`
+- `bounded_full_kkt_relative_residual`: `<= 1e-10`
+- `entry_scope_code_analyzer`: `0 findings in 6 architecture entry/test files`
+- `full_package_code_analyzer`: `377 files；0 parse messages；120 non-parse findings in 12 migrated historical files`
+- `full_ipm_executed`: `false`
+- `formal_run_created`: `false`
+- `formal_convergence_evaluated`: `false`
+- `convergence_claimed`: `false`
+- `next_action`: `COMMIT_CODE_THEN_EXECUTE_RUN_PROJECT_FORMAL_A4_VALIDATION`
+
+## PKG-9 历史执行基线
+
+以下只保留 PKG-9 提交时已经成立的历史证据，不代表当前仍采用“门面 + 旧后端”架构：
+
 - `pkg_9_base_commit`: `e96f548393ad67012835bfdc9aa37791c96eda2c`
 - `merge_base`: `2a70dab184ad38ad4c1b5f5ec50983c357e48397`
-- `ldl_walkthrough_protection_commit`: `02609b33e0b5dcf0d285b51db5046cb05477535a`
 - `stable_merge_commit`: `6bea7051d13dfae8afd83cd134823fdd8ce787c3`
-- `stable_merge_second_parent`: `90bf33cca0611154231588ac5d7ee09fd0e9c089`
 - `stable_upstream_commit`: `90bf33cca0611154231588ac5d7ee09fd0e9c089`
-- `formal_project_stage`: `stage_B / READY`
-- `stable_backend_integrated`: `true`
-- `b2c_integrated`: `false`
-- `production_algorithm_migrated`: `false`
-- `full_ipm_executed`: `false`
-- `optimization_executed`: `false`
-- `parallel_executed`: `false`
-- `workflow_executed`: `false`
-- `formal_run_created`: `false`
-- `stage_c1_entered`: `false`
-- `stage_b_overall_pass_claimed`: `false`
-- `delta_inventory`: `260/260 COVERED (100%)`
 - `pkg_9_delta_tests`: `31/31 passed；failed=0；incomplete=0`
-- `code_analyzer`: `0 findings in 135 added or modified MATLAB files`
-- `facade_isequaln`: `8/8 pure delegate object comparisons true`
 - `b2b_direction_relative_error`: `1.5000076826131547e-15`
 - `b2b_recursive_kkt_relative_residual`: `4.8537829603427401e-12`
 - `b2b_full_kkt_relative_residual`: `1.20685804249556e-14`
 - `fixed_zero`: `422 values and directions exactly zero`
-- `no_full_direction_fallback`: `true`
-- `full_direction_consumed`: `false`
-- `validation_artifacts`: `src/+rkkt/+data/+validation；src/+rkkt/+indexing/+validation；src/+rkkt/+model/+validation；src/+rkkt/+solver/+validation`
-- `reused_baseline_evidence`: `12/12 REUSED_NOT_RERUN；PKG-1～8、A4-3、B-1、B-2A、B-2B histories not rerun`
-- `controlled_input_sha256_before_after`: `输入数据.xlsx 10baac1dc5d0b07dbbb9d2fe8f9aac82f071e43d4fb9901ff7ba0b467d05c186；基础参数.xlsx aebb35fa80e6ba2fb8d4534b09a141feaedcb2b9d027e9924e7a0091943c4277；both unchanged`
-- `original_worktree_head_before_after`: `2560043a0bc085acc770a874264be3e3545933bc；unchanged`
-- `runs_recursive_items`: `259 before and after`
+- `reused_baseline_evidence`: `12/12 REUSED_NOT_RERUN`
 - `untracked_pkg1_runs`: `4 original directories only`
-- `next_action`: `USER_REVIEW_PKG9`

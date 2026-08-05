@@ -9,7 +9,7 @@ testCase.TestData.repoRoot = repoRoot;
 end
 
 function testControlledHashesMatchManifest(testCase)
-[hashes,allMatch] = verify_input_hashes(testCase.TestData.repoRoot);
+[hashes,allMatch] = rkkt.data.verify_input_hashes(testCase.TestData.repoRoot);
 verifyTrue(testCase,allMatch);
 verifyEqual(testCase,string(hashes.status),repmat("PASS",2,1));
 verifyEqual(testCase,string(hashes.actualSHA256),[
@@ -18,7 +18,7 @@ verifyEqual(testCase,string(hashes.actualSHA256),[
 end
 
 function testLabelDrivenReaderNormalizesRealInputs(testCase)
-data = load_project_data(testCase.TestData.repoRoot);
+data = rkkt.data.load_project_data(testCase.TestData.repoRoot);
 verifyEqual(testCase,[data.meta.nThermal,data.meta.nHydro,data.meta.nWind, ...
     data.meta.nSolar,data.meta.nStorage],[4,4,5,5,2]);
 verifyEqual(testCase,[data.meta.nDays,data.meta.nHours,data.meta.stepMinutes, ...
@@ -41,7 +41,7 @@ end
 function testLocatorRequiresUniqueLabelAndCompleteHeader(testCase)
 baseFile = fullfile(testCase.TestData.repoRoot,'inputs','raw','基础参数.xlsx');
 raw = readcell(baseFile,'Sheet','基础参数');
-location = locate_labeled_table(raw,"基础参数","基本参数", ...
+location = rkkt.data.locate_labeled_table(raw,"基础参数","基本参数", ...
     ["火电数量","水电数量","风电数量","光伏数量","储能数量"], ...
     "within-section");
 verifyEqual(testCase,location.locator, ...
@@ -49,6 +49,6 @@ verifyEqual(testCase,location.locator, ...
 verifyEqual(testCase,location.headerRow,3); % audit-only regression, not locator input
 
 duplicate = {"区段","字段";"区段","字段"};
-verifyError(testCase,@() locate_labeled_table(duplicate,"Sheet1","区段", ...
+verifyError(testCase,@() rkkt.data.locate_labeled_table(duplicate,"Sheet1","区段", ...
     "字段","same-row"),"stage0:DuplicateSectionLabel");
 end

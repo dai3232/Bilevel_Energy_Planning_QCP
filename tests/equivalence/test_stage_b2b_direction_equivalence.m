@@ -6,16 +6,16 @@ end
 function setupOnce(testCase)
 root = string(fileparts(fileparts(fileparts(mfilename("fullpath")))));
 addpath(genpath(fullfile(root,"src")));
-config = load_stage_b2b_configuration(root);
-data = load_project_data(root);
-index = build_stage_b2b_index(data,config,"RunId","B2B_EQUIVALENCE_TEST");
-state = initialize_stage_b2b_state(data,index,config);
-lin = build_stage_b2b_multiday_linearization(state,data,index,config);
-reduced = eliminate_stage_b2b_inequality_directions(lin);
-recursive = solve_stage_b2b_recursive_direction(lin, ...
+config = rkkt.model.load_stage_b2b_configuration(root);
+data = rkkt.data.load_project_data(root);
+index = rkkt.indexing.build_stage_b2b_index(data,config,"RunId","B2B_EQUIVALENCE_TEST");
+state = rkkt.model.initialize_stage_b2b_state(data,index,config);
+lin = rkkt.model.build_stage_b2b_multiday_linearization(state,data,index,config);
+reduced = rkkt.solver.eliminate_stage_b2b_inequality_directions(lin);
+recursive = rkkt.solver.solve_stage_b2b_recursive_direction(lin, ...
     SymmetryTolerance=1e-12);
-fullAudit = solve_stage_b2b_full_kkt_direction(lin);
-audit = verify_stage_b2b_direction_equivalence( ...
+fullAudit = rkkt.solver.solve_stage_b2b_full_kkt_direction(lin);
+audit = rkkt.solver.verify_stage_b2b_direction_equivalence( ...
     fullAudit,recursive,lin, ...
     DirectionRelative=1e-10,RecursiveResidual=1e-10, ...
     FullResidual=1e-10);
@@ -151,9 +151,9 @@ direction(hydro) = sin((1:nnz(hydro)).')/max(1,sqrt(nnz(hydro)));
 step = 1e-4;
 plus = state; plus.xi = state.xi+step*direction;
 minus = state; minus.xi = state.xi-step*direction;
-linPlus = build_stage_b2b_multiday_linearization(plus, ...
+linPlus = rkkt.model.build_stage_b2b_multiday_linearization(plus, ...
     testCase.TestData.data,testCase.TestData.index,testCase.TestData.config);
-linMinus = build_stage_b2b_multiday_linearization(minus, ...
+linMinus = rkkt.model.build_stage_b2b_multiday_linearization(minus, ...
     testCase.TestData.data,testCase.TestData.index,testCase.TestData.config);
 finiteDifference = (linPlus.r_dual-linMinus.r_dual)/(2*step);
 analytic = lin.H*direction;
@@ -169,13 +169,13 @@ record = lin.constraints.water.constraint_hessians(1);
 changed = state;
 increment = max(0.125,0.25*state.z(row));
 changed.z(row) = changed.z(row)+increment;
-rebuilt = build_stage_b2b_multiday_linearization(changed, ...
+rebuilt = rkkt.model.build_stage_b2b_multiday_linearization(changed, ...
     testCase.TestData.data,testCase.TestData.index,testCase.TestData.config);
 verifyEqual(testCase,rebuilt.H-lin.H, ...
     increment*record.global_hessian,"AbsTol",0);
 changedSlack = state;
 changedSlack.l(row) = 1.5*changedSlack.l(row);
-rebuiltSlack = build_stage_b2b_multiday_linearization(changedSlack, ...
+rebuiltSlack = rkkt.model.build_stage_b2b_multiday_linearization(changedSlack, ...
     testCase.TestData.data,testCase.TestData.index,testCase.TestData.config);
 verifyEqual(testCase,rebuiltSlack.H,lin.H,"AbsTol",0);
 end

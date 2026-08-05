@@ -11,7 +11,7 @@ end
 
 function testPassHistoricalDirectoryAccepted(testCase)
 fixture=create_fixture(testCase,"PASS");
-audit=verify_stage_a3_historical_run(fixture.root,fixture.run_id);
+audit=rkkt.artifacts.verify_stage_a3_historical_run(fixture.root,fixture.run_id);
 verifyEqual(testCase,audit.status,"PASS");
 verifyEqual(testCase,audit.evidence_file_count,1);
 verifyFalse(testCase,audit.zip_present);
@@ -19,7 +19,7 @@ end
 
 function testFailRetryableHistoricalDirectoryAccepted(testCase)
 fixture=create_fixture(testCase,"FAIL_RETRYABLE");
-audit=verify_stage_a3_historical_run(fixture.root,fixture.run_id);
+audit=rkkt.artifacts.verify_stage_a3_historical_run(fixture.root,fixture.run_id);
 verifyEqual(testCase,audit.status,"FAIL_RETRYABLE");
 verifyEqual(testCase,audit.evidence_file_count,1);
 verifyFalse(testCase,isfolder(fullfile(fixture.run_root,"matrices")), ...
@@ -30,7 +30,7 @@ function testOtherDefinedNonPassStatesAccepted(testCase)
 states=["BLOCKED_EXTERNAL","NEEDS_MODEL_DECISION"];
 for k=1:numel(states)
     fixture=create_fixture(testCase,states(k));
-    audit=verify_stage_a3_historical_run(fixture.root,fixture.run_id);
+    audit=rkkt.artifacts.verify_stage_a3_historical_run(fixture.root,fixture.run_id);
     verifyEqual(testCase,audit.status,states(k));
 end
 end
@@ -38,7 +38,7 @@ end
 function testFailureAddendumInventoryAccepted(testCase)
 fixture=create_fixture(testCase,"FAIL_RETRYABLE");
 promote_to_failure_addendum(fixture);
-audit=verify_stage_a3_historical_run(fixture.root,fixture.run_id);
+audit=rkkt.artifacts.verify_stage_a3_historical_run(fixture.root,fixture.run_id);
 verifyEqual(testCase,audit.status,"FAIL_RETRYABLE");
 verifyEqual(testCase,audit.evidence_inventory, ...
     "acceptance/evidence_hashes_failure_addendum.csv");
@@ -48,7 +48,7 @@ end
 function testMatchingHistoricalDirectoryAndZipAccepted(testCase)
 fixture=create_fixture(testCase,"PASS");
 create_matching_zip(fixture);
-audit=verify_stage_a3_historical_run(fixture.root,fixture.run_id);
+audit=rkkt.artifacts.verify_stage_a3_historical_run(fixture.root,fixture.run_id);
 verifyTrue(testCase,audit.zip_present);
 verifyEqual(testCase,audit.zip_file_count,3);
 verifyEqual(testCase,strlength(audit.zip_sha256),64);
@@ -61,7 +61,7 @@ for suffix=["002","1000"]
     create_matching_zip(fixture);
     lines=["?? runs/"+fixture.run_id+"/"; ...
         "?? runs/"+fixture.run_id+".zip"];
-    audits=verify_stage_a3_historical_preflight(fixture.root,lines);
+    audits=rkkt.artifacts.verify_stage_a3_historical_preflight(fixture.root,lines);
     verifyEqual(testCase,numel(audits),1);
     verifyEqual(testCase,audits.run_id,fixture.run_id);
     verifyTrue(testCase,audits.zip_present);
@@ -72,9 +72,9 @@ end
 function testInvalidCollisionSuffixRejected(testCase)
 fixture=create_fixture(testCase,"PASS");
 invalid=fixture.run_id+"_001";
-verifyError(testCase,@()verify_stage_a3_historical_run( ...
+verifyError(testCase,@()rkkt.artifacts.verify_stage_a3_historical_run( ...
     fixture.root,invalid),"stageA3:gate:PriorA3RunId");
-verifyError(testCase,@()verify_stage_a3_historical_preflight( ...
+verifyError(testCase,@()rkkt.artifacts.verify_stage_a3_historical_preflight( ...
     fixture.root,"?? runs/"+invalid+"/"), ...
     "stageA3:gate:UnknownUntracked");
 end
@@ -82,7 +82,7 @@ end
 function testResidualInitializingMarkerRejected(testCase)
 fixture=create_fixture(testCase,"FAIL_RETRYABLE");
 write_bytes(fullfile(fixture.run_root,".initializing"),uint8([]));
-verifyError(testCase,@()verify_stage_a3_historical_run( ...
+verifyError(testCase,@()rkkt.artifacts.verify_stage_a3_historical_run( ...
     fixture.root,fixture.run_id), ...
     "stageA3:gate:PriorA3InitializationIncomplete");
 end
@@ -90,7 +90,7 @@ end
 function testCorruptZipRejected(testCase)
 fixture=create_fixture(testCase,"PASS");
 write_bytes(fixture.zip_path,uint8('not a zip archive'));
-verifyError(testCase,@()verify_stage_a3_historical_run( ...
+verifyError(testCase,@()rkkt.artifacts.verify_stage_a3_historical_run( ...
     fixture.root,fixture.run_id),"stageA3:gate:PriorA3ZipUnreadable");
 end
 
@@ -102,7 +102,7 @@ copyfile(fixture.run_root,fullfile(staging,fixture.run_id));
 write_bytes(fullfile(staging,fixture.run_id,"issues","record.txt"), ...
     uint8('different bytes'));
 zip(fixture.zip_path,char(fixture.run_id),char(staging));
-verifyError(testCase,@()verify_stage_a3_historical_run( ...
+verifyError(testCase,@()rkkt.artifacts.verify_stage_a3_historical_run( ...
     fixture.root,fixture.run_id),"stageA3:gate:PriorA3ZipContentMismatch");
 end
 
@@ -113,7 +113,7 @@ testCase.addTeardown(@()remove_tree(staging));
 wrong="wrong_stage_A3_top_level";
 copyfile(fixture.run_root,fullfile(staging,wrong));
 zip(fixture.zip_path,char(wrong),char(staging));
-verifyError(testCase,@()verify_stage_a3_historical_run( ...
+verifyError(testCase,@()rkkt.artifacts.verify_stage_a3_historical_run( ...
     fixture.root,fixture.run_id),"stageA3:gate:PriorA3ZipTopLevel");
 end
 
@@ -121,7 +121,7 @@ function testZipExtraEmptyDirectoryRejected(testCase)
 fixture=create_fixture(testCase,"PASS");
 extra=fixture.run_id+"/extra_empty/";
 create_zip_with_extra_entries(fixture,extra,true);
-verifyError(testCase,@()verify_stage_a3_historical_run( ...
+verifyError(testCase,@()rkkt.artifacts.verify_stage_a3_historical_run( ...
     fixture.root,fixture.run_id), ...
     "stageA3:gate:PriorA3ZipDirectorySetMismatch");
 end
@@ -141,7 +141,7 @@ for k=1:size(cases,1)
     relative=string(cases{k,1});
     names=fixture.run_id+"/"+relative;
     create_zip_with_extra_entries(fixture,names,logical(cases{k,2}));
-    verifyError(testCase,@()verify_stage_a3_historical_run( ...
+    verifyError(testCase,@()rkkt.artifacts.verify_stage_a3_historical_run( ...
         fixture.root,fixture.run_id),string(cases{k,3}), ...
         "Unsafe ZIP case did not fail: "+strjoin(relative,", "));
 end
@@ -150,8 +150,8 @@ end
 function testIllegalTerminalStatusRejected(testCase)
 fixture=create_fixture(testCase,"PASS");
 manifest=jsondecode(fileread(fixture.manifest_path));
-manifest.status='RUNNING'; write_json_file(fixture.manifest_path,manifest);
-verifyError(testCase,@()verify_stage_a3_historical_run( ...
+manifest.status='RUNNING'; rkkt.artifacts.write_json_file(fixture.manifest_path,manifest);
+verifyError(testCase,@()rkkt.artifacts.verify_stage_a3_historical_run( ...
     fixture.root,fixture.run_id),"stageA3:gate:PriorA3Identity");
 end
 
@@ -160,7 +160,7 @@ fixture=create_fixture(testCase,"PASS"); create_matching_zip(fixture);
 known="?? runs/known_stage_0_history/";
 lines=["?? runs/"+fixture.run_id+"/"; ...
     "?? runs/"+fixture.run_id+".zip";known];
-audits=verify_stage_a3_historical_preflight(fixture.root,lines, ...
+audits=rkkt.artifacts.verify_stage_a3_historical_preflight(fixture.root,lines, ...
     AllowedUntracked=known);
 verifyEqual(testCase,numel(audits),1);
 verifyEqual(testCase,audits.run_id,fixture.run_id);
@@ -170,7 +170,7 @@ end
 function testUntrackedClassifierRejectsUnknownEntry(testCase)
 fixture=create_fixture(testCase,"PASS");
 lines=["?? runs/"+fixture.run_id+"/";"?? unexpected.txt"];
-verifyError(testCase,@()verify_stage_a3_historical_preflight( ...
+verifyError(testCase,@()rkkt.artifacts.verify_stage_a3_historical_preflight( ...
     fixture.root,lines),"stageA3:gate:UnknownUntracked");
 end
 
@@ -178,7 +178,7 @@ function testPassInventoryMustCoverEveryPersistedFile(testCase)
 fixture=create_fixture(testCase,"PASS");
 extra=fullfile(fixture.run_root,"diagnostics","unlisted.txt");
 mkdir(fileparts(extra)); write_bytes(extra,uint8('unlisted'));
-verifyError(testCase,@()verify_stage_a3_historical_run( ...
+verifyError(testCase,@()rkkt.artifacts.verify_stage_a3_historical_run( ...
     fixture.root,fixture.run_id), ...
     "stageA3:gate:HistoricalEvidenceSetMismatch");
 end
@@ -202,18 +202,18 @@ recordPath=fullfile(issuesDirectory,"record.txt");
 write_bytes(recordPath,uint8(char("status="+status)));
 info=dir(recordPath);
 inventory=table("issues/record.txt","issues",double(info.bytes), ...
-    lower(string(compute_sha256_file(recordPath))),"PASS", ...
+    lower(string(rkkt.data.compute_sha256_file(recordPath))),"PASS", ...
     "2026-07-21T12:00:00+08:00",'VariableNames', ...
     {'relative_path','scope','bytes','sha256','status','checked_at'});
 acceptanceDirectory=fullfile(runRoot,"acceptance"); mkdir(acceptanceDirectory);
 inventoryPath=fullfile(acceptanceDirectory,"evidence_hashes.csv");
-write_table_csv_17g(inventoryPath,inventory);
+rkkt.artifacts.write_table_csv_17g(inventoryPath,inventory);
 manifest=struct("run_id",char(runId),"stage_id","stage_A3", ...
     "status",char(status),"git_commit",char(commit), ...
     "evidence_hashes","acceptance/evidence_hashes.csv", ...
-    "evidence_hashes_sha256",char(compute_sha256_file(inventoryPath)));
+    "evidence_hashes_sha256",char(rkkt.data.compute_sha256_file(inventoryPath)));
 manifestPath=fullfile(runRoot,"run_manifest.json");
-write_json_file(manifestPath,manifest);
+rkkt.artifacts.write_json_file(manifestPath,manifest);
 fixture=struct("root",root,"runs_root",string(runsRoot), ...
     "run_id",runId,"run_root",string(runRoot), ...
     "manifest_path",string(manifestPath), ...
@@ -231,7 +231,7 @@ newRoot=fullfile(fixture.runs_root,newId);
 [moved,message]=movefile(fixture.run_root,newRoot); assert(moved,message);
 newManifest=fullfile(newRoot,"run_manifest.json");
 manifest=jsondecode(fileread(newManifest)); manifest.run_id=char(newId);
-write_json_file(newManifest,manifest);
+rkkt.artifacts.write_json_file(newManifest,manifest);
 fixture.run_id=newId;
 fixture.run_root=string(newRoot);
 fixture.manifest_path=string(newManifest);
@@ -311,18 +311,18 @@ bytes=zeros(2,1); hashes=strings(2,1);
 for k=1:2
     pathValue=fullfile(fixture.run_root,strrep(relative(k),'/',filesep));
     info=dir(pathValue); bytes(k)=info.bytes;
-    hashes(k)=lower(string(compute_sha256_file(pathValue)));
+    hashes(k)=lower(string(rkkt.data.compute_sha256_file(pathValue)));
 end
 inventory=table(relative,scope,bytes,hashes,repmat("PASS",2,1), ...
     repmat("2026-07-21T12:00:00+08:00",2,1),'VariableNames', ...
     {'relative_path','scope','bytes','sha256','status','checked_at'});
 pathValue=fullfile(fixture.run_root,"acceptance", ...
     "evidence_hashes_failure_addendum.csv");
-write_table_csv_17g(pathValue,inventory);
+rkkt.artifacts.write_table_csv_17g(pathValue,inventory);
 manifest=jsondecode(fileread(fixture.manifest_path));
 manifest.evidence_hashes='acceptance/evidence_hashes_failure_addendum.csv';
-manifest.evidence_hashes_sha256=char(compute_sha256_file(pathValue));
-write_json_file(fixture.manifest_path,manifest);
+manifest.evidence_hashes_sha256=char(rkkt.data.compute_sha256_file(pathValue));
+rkkt.artifacts.write_json_file(fixture.manifest_path,manifest);
 end
 
 function [status,output]=run_git(root,arguments)

@@ -6,7 +6,7 @@ end
 function setupOnce(testCase)
     integrationDirectory = fileparts(mfilename('fullpath'));
     repositoryRoot = fileparts(fileparts(integrationDirectory));
-    artifactSource = fullfile(repositoryRoot, 'src', 'artifacts');
+    artifactSource = fullfile(repositoryRoot, 'src', '+rkkt', '+artifacts');
     addpath(artifactSource);
     testCase.addTeardown(@() rmpath(artifactSource));
 end
@@ -15,7 +15,7 @@ function testCreatesCompleteNonOverwritingRun(testCase)
     projectRoot = create_temporary_project(testCase);
     runId = '20260718_120000_stage_0_test0001';
 
-    context = create_run_context(projectRoot, 'stage_0', 'RunId', runId);
+    context = rkkt.artifacts.create_run_context(projectRoot, 'stage_0', 'RunId', runId);
 
     testCase.verifyEqual(context.run_id, runId);
     testCase.verifyEqual(context.stage_id, 'stage_0');
@@ -54,12 +54,12 @@ function testCreatesCompleteNonOverwritingRun(testCase)
     sentinelPath = fullfile(context.root, 'sentinel.txt');
     local_write_bytes(sentinelPath, uint8('preserve-me'));
     testCase.verifyError( ...
-        @() create_run_context(projectRoot, 'stage_0', 'RunId', runId), ...
+        @() rkkt.artifacts.create_run_context(projectRoot, 'stage_0', 'RunId', runId), ...
         'stage0:artifacts:RunExists');
     testCase.verifyEqual(char(local_read_bytes(sentinelPath)), 'preserve-me');
 
-    autoContext1 = create_run_context(projectRoot, 'stage_0');
-    autoContext2 = create_run_context(projectRoot, 'stage_0');
+    autoContext1 = rkkt.artifacts.create_run_context(projectRoot, 'stage_0');
+    autoContext2 = rkkt.artifacts.create_run_context(projectRoot, 'stage_0');
     testCase.verifyNotEqual(autoContext1.run_id, autoContext2.run_id);
     testCase.verifyTrue(isfolder(autoContext1.root));
     testCase.verifyTrue(isfolder(autoContext2.root));
@@ -67,21 +67,21 @@ end
 
 function testManifestTerminalTransition(testCase)
     projectRoot = create_temporary_project(testCase);
-    context = create_run_context(projectRoot, 'stage_0', ...
+    context = rkkt.artifacts.create_run_context(projectRoot, 'stage_0', ...
         'RunId', '20260718_120001_stage_0_test0002');
     updates = struct('input_hashes', struct('input_xlsx', 'abc123'), ...
         'acceptance_summary', struct('blocking_passed', true));
 
-    manifest = finalize_run_manifest(context, 'PASS', updates);
+    manifest = rkkt.artifacts.finalize_run_manifest(context, 'PASS', updates);
 
     testCase.verifyEqual(manifest.status, 'PASS');
     testCase.verifyNotEmpty(manifest.ended_at);
     persisted = jsondecode(fileread(context.run_manifest_path));
     testCase.verifyEqual(persisted.status, 'PASS');
     testCase.verifyEqual(persisted.input_hashes.input_xlsx, 'abc123');
-    testCase.verifyError(@() finalize_run_manifest(context, 'PASS'), ...
+    testCase.verifyError(@() rkkt.artifacts.finalize_run_manifest(context, 'PASS'), ...
         'stage0:artifacts:ManifestAlreadyFinal');
-    testCase.verifyError(@() finalize_run_manifest(context, 'RUNNING'), ...
+    testCase.verifyError(@() rkkt.artifacts.finalize_run_manifest(context, 'RUNNING'), ...
         'stage0:artifacts:InvalidFinalStatus');
 end
 
@@ -92,7 +92,7 @@ function testCsvWriterUsesStableRfc4180And17Digits(testCase)
     notes = ["comma,value"; "quote""value"];
     data = table(values, notes, 'VariableNames', {'double_value', 'note'});
 
-    write_table_csv_17g(csvPath, data);
+    rkkt.artifacts.write_table_csv_17g(csvPath, data);
 
     bytes = local_read_bytes(csvPath);
     csvText = native2unicode(bytes, 'UTF-8');
@@ -107,18 +107,18 @@ end
 
 function testJsonMatAndEmptyManifests(testCase)
     projectRoot = create_temporary_project(testCase);
-    context = create_run_context(projectRoot, 'stage_0', ...
+    context = rkkt.artifacts.create_run_context(projectRoot, 'stage_0', ...
         'RunId', '20260718_120002_stage_0_test0003');
 
     jsonPath = fullfile(context.root, 'sample.json');
-    write_json_file(jsonPath, struct('description', '真实值', 'number', pi));
+    rkkt.artifacts.write_json_file(jsonPath, struct('description', '真实值', 'number', pi));
     decoded = jsondecode(fileread(jsonPath));
     testCase.verifyEqual(decoded.description, '真实值');
     testCase.verifyEqual(decoded.number, pi, 'AbsTol', eps(pi));
 
     matrix = sparse([1, 3], [2, 1], [pi, -2], 3, 3);
     matPath = fullfile(context.matrices_dir, 'sample.mat');
-    save_mat_artifact(matPath, 'matrix', matrix, 'description', 'sparse test');
+    rkkt.artifacts.save_mat_artifact(matPath, 'matrix', matrix, 'description', 'sparse test');
     loaded = load(matPath);
     testCase.verifyTrue(issparse(loaded.matrix));
     testCase.verifyEqual(loaded.matrix, matrix);
@@ -126,7 +126,7 @@ function testJsonMatAndEmptyManifests(testCase)
 
     issuePath = context.issue_log_path;
     local_write_bytes(issuePath, uint8('sentinel'));
-    write_empty_stage0_manifests(context);
+    rkkt.artifacts.write_empty_stage0_manifests(context);
     testCase.verifyEqual(char(local_read_bytes(issuePath)), 'sentinel');
 end
 

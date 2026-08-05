@@ -11,9 +11,9 @@ runsBefore = recursive_run_inventory(projectRoot);
 currentStagePath = fullfile(projectRoot,"CURRENT_STAGE.md");
 solverPath = fullfile(projectRoot,"config","solver.yaml");
 stageConfigPath = fullfile(projectRoot,"config","stage_A4.yaml");
-currentStageHashBefore = string(compute_sha256_file(currentStagePath));
-solverHashBefore = string(compute_sha256_file(solverPath));
-stageConfigHashBefore = string(compute_sha256_file(stageConfigPath));
+currentStageHashBefore = string(rkkt.data.compute_sha256_file(currentStagePath));
+solverHashBefore = string(rkkt.data.compute_sha256_file(solverPath));
+stageConfigHashBefore = string(rkkt.data.compute_sha256_file(stageConfigPath));
 result = main_stage_A4_2B();
 fixturePath = fullfile(projectRoot,"tests","fixtures", ...
     "stage_A4_2A_five_round_baseline.csv");
@@ -27,13 +27,13 @@ testCase.TestData.runs_before = runsBefore;
 testCase.TestData.runs_after = recursive_run_inventory(projectRoot);
 testCase.TestData.current_stage_hash_before = currentStageHashBefore;
 testCase.TestData.current_stage_hash_after = ...
-    string(compute_sha256_file(currentStagePath));
+    string(rkkt.data.compute_sha256_file(currentStagePath));
 testCase.TestData.solver_hash_before = solverHashBefore;
 testCase.TestData.solver_hash_after = ...
-    string(compute_sha256_file(solverPath));
+    string(rkkt.data.compute_sha256_file(solverPath));
 testCase.TestData.stage_config_hash_before = stageConfigHashBefore;
 testCase.TestData.stage_config_hash_after = ...
-    string(compute_sha256_file(stageConfigPath));
+    string(rkkt.data.compute_sha256_file(stageConfigPath));
 end
 
 function testReproducesFrozenA42AFiveRoundBaseline(testCase)
@@ -327,7 +327,7 @@ end
 
 function testA42BProductionClosurePassesForbiddenCallScan(testCase)
 result = testCase.TestData.result;
-scan = scan_stage_a4_forbidden_code( ...
+scan = rkkt.diagnostics.scan_stage_a4_forbidden_code( ...
     testCase.TestData.project_root,result.config);
 verifyEqual(testCase,string(scan.status),repmat("PASS",height(scan),1), ...
     evalc('disp(scan(scan.status~="PASS",:))'));

@@ -10,7 +10,7 @@ end
 
 function testExactControlledInventoryAccepted(testCase)
 [root,actual] = fixture(testCase);
-audit = validate_stage_a3_test_inventory_contract(actual,root);
+audit = rkkt.diagnostics.validate_stage_a3_test_inventory_contract(actual,root);
 verifyTrue(testCase,audit.matches_expected);
 verifyEqual(testCase,audit.actual_count,2);
 verifyEqual(testCase,audit.expected_count,2);
@@ -21,28 +21,28 @@ function testMissingControlledTestRejected(testCase)
 [root,actual] = fixture(testCase);
 actual = actual(1,:);
 actual.test_order = 1;
-verifyError(testCase,@()validate_stage_a3_test_inventory_contract( ...
+verifyError(testCase,@()rkkt.diagnostics.validate_stage_a3_test_inventory_contract( ...
     actual,root),"stageA3:tests:ExpectedInventoryMismatch");
 end
 
 function testDuplicateDiscoveredTestNameRejected(testCase)
 [root,actual] = fixture(testCase);
 actual.test_name(2) = actual.test_name(1);
-verifyError(testCase,@()validate_stage_a3_test_inventory_contract( ...
+verifyError(testCase,@()rkkt.diagnostics.validate_stage_a3_test_inventory_contract( ...
     actual,root),"stageA3:tests:ActualInventoryInvalid");
 end
 
 function testUnregisteredTestRejected(testCase)
 [root,actual] = fixture(testCase);
 actual.test_name(2) = "test_stage_a3_beta/testUnexpected";
-verifyError(testCase,@()validate_stage_a3_test_inventory_contract( ...
+verifyError(testCase,@()rkkt.diagnostics.validate_stage_a3_test_inventory_contract( ...
     actual,root),"stageA3:tests:ExpectedInventoryMismatch");
 end
 
 function testRegisteredSourceFileMismatchRejected(testCase)
 [root,actual] = fixture(testCase);
 actual.source_file(2) = "tests/unit/test_stage_a3_wrong_source.m";
-verifyError(testCase,@()validate_stage_a3_test_inventory_contract( ...
+verifyError(testCase,@()rkkt.diagnostics.validate_stage_a3_test_inventory_contract( ...
     actual,root),"stageA3:tests:ExpectedInventoryMismatch");
 end
 
@@ -56,7 +56,7 @@ actual = table((1:2).',[ ...
     "tests/unit/test_stage_a3_alpha.m"; ...
     "tests/unit/test_stage_a3_beta.m"], ...
     'VariableNames',{'test_order','test_name','source_file'});
-write_table_csv_17g(fullfile(root,"tests", ...
+rkkt.artifacts.write_table_csv_17g(fullfile(root,"tests", ...
     "stage_A3_expected_test_inventory.csv"),actual);
 end
 

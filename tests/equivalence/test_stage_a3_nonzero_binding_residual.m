@@ -6,11 +6,11 @@ end
 function setupOnce(testCase)
 projectRoot = string(fileparts(fileparts(fileparts(mfilename('fullpath')))));
 addpath(genpath(fullfile(projectRoot,"src")));
-config = load_stage_a3_configuration(projectRoot);
-data = load_project_data(projectRoot);
-index = build_stage_a3_index(data,"RunId","A3_NONZERO_BINDING_TEST");
-state = initialize_stage_a3_state(data,index,config);
-linearization = build_stage_a3_linearization(state,data,index,config);
+config = rkkt.model.load_stage_a3_configuration(projectRoot);
+data = rkkt.data.load_project_data(projectRoot);
+index = rkkt.indexing.build_stage_a3_index(data,"RunId","A3_NONZERO_BINDING_TEST");
+state = rkkt.model.initialize_stage_a3_state(data,index,config);
+linearization = rkkt.model.build_stage_a3_linearization(state,data,index,config);
 
 % Add a small deterministic residual only to q_d-q binding rows.  This is a
 % test fixture for the general elimination formula, not a model change.
@@ -24,11 +24,11 @@ end
 linearization.identity = linearization.identity+ ...
     "|deterministic-nonzero-binding-residual-v1";
 
-direct = solve_stage_a3_full_kkt_direction(linearization);
-recursive = solve_stage_a3_recursive_direction(linearization, ...
+direct = rkkt.solver.solve_stage_a3_full_kkt_direction(linearization);
+recursive = rkkt.solver.solve_stage_a3_recursive_direction(linearization, ...
     AssemblyTolerance=1e-12, ...
     SymmetryTolerance=config.tolerances.symmetry_relative);
-audit = verify_stage_a3_direction_equivalence( ...
+audit = rkkt.solver.verify_stage_a3_direction_equivalence( ...
     direct,recursive,linearization, ...
     DirectionRelative=config.tolerances.direction_relative_2norm, ...
     RecursiveResidual=config.tolerances.recursive_full_kkt_relative_residual, ...

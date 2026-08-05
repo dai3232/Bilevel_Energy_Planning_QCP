@@ -11,9 +11,9 @@ runsBefore = recursive_run_inventory(projectRoot);
 protectedBefore = protected_hashes(projectRoot);
 result = main_stage_A4_RNS_1();
 authority = load_authority_fixture(projectRoot);
-diagnostic = solve_stage_a_multiday_diagnostic_rhs_responses( ...
+diagnostic = rkkt.solver.solve_stage_a_multiday_diagnostic_rhs_responses( ...
     authority.linearizationRound19,result.first);
-defaultZero = solve_stage_a_multiday_recursive_direction( ...
+defaultZero = rkkt.solver.solve_stage_a_multiday_recursive_direction( ...
     authority.linearizationRound19, ...
     AssemblyTolerance=1e-12,SymmetryTolerance=1e-10);
 testCase.TestData.project_root = projectRoot;
@@ -269,9 +269,9 @@ end
 function testSharedPolicyHasNoDayRoundOrObjectiveSpecialCase(testCase)
 root = testCase.TestData.project_root;
 paths = [ ...
-    fullfile(root,"src","solver","private", ...
+    fullfile(root,"src","+rkkt","+solver", ...
         "refine_block_thomas_solution.m")
-    fullfile(root,"src","solver","private", ...
+    fullfile(root,"src","+rkkt","+solver", ...
         "refine_with_retained_ldl_factor.m")];
 for pathValue = paths.'
     text = string(fileread(pathValue));
@@ -288,8 +288,8 @@ end
 
 function testForbiddenCodeAnalyzerAndStageGovernance(testCase)
 root = testCase.TestData.project_root;
-config = load_stage_a4_configuration(root);
-scan = scan_stage_a4_forbidden_code(root,config);
+config = rkkt.model.load_stage_a4_configuration(root);
+scan = rkkt.diagnostics.scan_stage_a4_forbidden_code(root,config);
 verifyTrue(testCase,all(scan.status=="PASS"));
 requiredScanIds = [ ...
     "NO-RNS-DIRECT-RAW-OPERATOR-BACKSLASH"
@@ -344,8 +344,8 @@ relative = [ ...
     "stages/stage_A4/阶段A4_验收矩阵.csv"
     "stages/stage_A4/阶段A4_状态与决策日志.md"
     "main_stage_A4_2D_2A.m"
-    "src/diagnostics/run_stage_a4_objective_unitization_diagnostic.m"
-    "src/diagnostics/run_stage_a4_scaled_objective_chain.m"
+    "src/+rkkt/+diagnostics/run_stage_a4_objective_unitization_diagnostic.m"
+    "src/+rkkt/+diagnostics/run_stage_a4_scaled_objective_chain.m"
     "tests/integration/test_stage_a4_objective_unitization_diagnostic.m"
     "tests/run_stage_A4_2D_2A_tests.m"
     "tests/stage_A4_2D_2A_expected_test_inventory.csv"
@@ -363,7 +363,7 @@ relative = [ ...
         "stage_A4_RNS_1_authority_artifact_sha256.csv"];
 hashes = strings(numel(relative),1);
 for k = 1:numel(relative)
-    hashes(k) = compute_sha256_file( ...
+    hashes(k) = rkkt.data.compute_sha256_file( ...
         fullfile(root,strrep(relative(k),"/",filesep)));
 end
 end
@@ -397,29 +397,29 @@ end
 function paths = rns_matlab_files(root)
 relative = [ ...
     "main_stage_A4_RNS_1.m"
-    "src/diagnostics/compute_stage_a4_rns1_fingerprint.m"
-    "src/diagnostics/execute_stage_a4_iteration.m"
-    "src/diagnostics/generate_stage_a4_rns1_stress_fixture.m"
-    "src/diagnostics/run_stage_a4_rns1_stability_audit.m"
-    "src/diagnostics/run_stage_a4_scaled_objective_chain.m"
-    "src/diagnostics/scan_stage_a4_forbidden_code.m"
-    "src/diagnostics/validate_stage_a4_rns1_test_inventory_contract.m"
-    "src/solver/private/apply_retained_block_thomas_once.m"
-    "src/solver/private/apply_retained_block_thomas_refinement_passes.m"
-    "src/solver/private/apply_retained_ldl_refinement_passes.m"
-    "src/solver/private/compute_retained_residual_metrics.m"
-    "src/solver/private/factor_symmetric_ldl.m"
-    "src/solver/private/refine_block_thomas_solution.m"
-    "src/solver/private/refine_with_retained_ldl_factor.m"
-    "src/solver/private/solve_with_ldl_factor.m"
-    "src/solver/solve_block_thomas_ldl.m"
-    "src/solver/solve_core16_ldl.m"
-    "src/solver/solve_recursive_direction.m"
-    "src/solver/solve_stage_a3_core16_ldl.m"
-    "src/solver/solve_stage_a3_recursive_direction.m"
-    "src/solver/solve_stage_a_multiday_core16_ldl.m"
-    "src/solver/solve_stage_a_multiday_diagnostic_rhs_responses.m"
-    "src/solver/solve_stage_a_multiday_recursive_direction.m"
+    "src/+rkkt/+diagnostics/compute_stage_a4_rns1_fingerprint.m"
+    "src/+rkkt/+ipm/execute_stage_a4_iteration.m"
+    "src/+rkkt/+diagnostics/generate_stage_a4_rns1_stress_fixture.m"
+    "src/+rkkt/+diagnostics/run_stage_a4_rns1_stability_audit.m"
+    "src/+rkkt/+diagnostics/run_stage_a4_scaled_objective_chain.m"
+    "src/+rkkt/+diagnostics/scan_stage_a4_forbidden_code.m"
+    "src/+rkkt/+diagnostics/validate_stage_a4_rns1_test_inventory_contract.m"
+    "src/+rkkt/+solver/apply_retained_block_thomas_once.m"
+    "src/+rkkt/+solver/apply_retained_block_thomas_refinement_passes.m"
+    "src/+rkkt/+solver/apply_retained_ldl_refinement_passes.m"
+    "src/+rkkt/+solver/compute_retained_residual_metrics.m"
+    "src/+rkkt/+solver/factor_symmetric_ldl.m"
+    "src/+rkkt/+solver/refine_block_thomas_solution.m"
+    "src/+rkkt/+solver/refine_with_retained_ldl_factor.m"
+    "src/+rkkt/+solver/solve_with_ldl_factor.m"
+    "src/+rkkt/+solver/solve_block_thomas_ldl.m"
+    "src/+rkkt/+solver/solve_core16_ldl.m"
+    "src/+rkkt/+solver/solve_recursive_direction.m"
+    "src/+rkkt/+solver/solve_stage_a3_core16_ldl.m"
+    "src/+rkkt/+solver/solve_stage_a3_recursive_direction.m"
+    "src/+rkkt/+solver/solve_stage_a_multiday_core16_ldl.m"
+    "src/+rkkt/+solver/solve_stage_a_multiday_diagnostic_rhs_responses.m"
+    "src/+rkkt/+solver/solve_stage_a_multiday_recursive_direction.m"
     "tests/integration/test_stage_a4_rns1_numerical_stability.m"
     "tests/run_stage_A4_RNS_1_tests.m"];
 paths = strings(numel(relative),1);
@@ -435,8 +435,8 @@ function exact = verify_tooling_git_objects(projectRoot)
 commit = "8722eb86cbc10190b1d60afc60868de9ef35cde4";
 paths = [ ...
     "scripts/generate_stage_A4_RNS_1_fixture.ps1"
-    "src/diagnostics/generate_stage_a4_rns1_stress_fixture.m"
-    "src/diagnostics/compute_stage_a4_rns1_fingerprint.m"];
+    "src/+rkkt/+diagnostics/generate_stage_a4_rns1_stress_fixture.m"
+    "src/+rkkt/+diagnostics/compute_stage_a4_rns1_fingerprint.m"];
 expectedBlobs = [ ...
     "3fb92ebd3b005ad8dfe133bb92afaf0fc7091eee"
     "c44de265a4b94a0f6a9e4c9bdcb669b4b2868964"

@@ -6,12 +6,12 @@ end
 function setupOnce(testCase)
 projectRoot = string(fileparts(fileparts(fileparts(mfilename('fullpath')))));
 addpath(genpath(fullfile(projectRoot,"src")));
-config = load_stage_a3_configuration(projectRoot);
-data = load_project_data(projectRoot);
-index = build_stage_a3_index(data,"RunId","A3_SOLVER_COMPONENT_TEST");
-state = initialize_stage_a3_state(data,index,config);
-linearization = build_stage_a3_linearization(state,data,index,config);
-recursive = solve_stage_a3_recursive_direction(linearization, ...
+config = rkkt.model.load_stage_a3_configuration(projectRoot);
+data = rkkt.data.load_project_data(projectRoot);
+index = rkkt.indexing.build_stage_a3_index(data,"RunId","A3_SOLVER_COMPONENT_TEST");
+state = rkkt.model.initialize_stage_a3_state(data,index,config);
+linearization = rkkt.model.build_stage_a3_linearization(state,data,index,config);
+recursive = rkkt.solver.solve_stage_a3_recursive_direction(linearization, ...
     AssemblyTolerance=1e-12, ...
     SymmetryTolerance=config.tolerances.symmetry_relative);
 testCase.TestData.project_root = projectRoot;
@@ -175,7 +175,7 @@ end
 end
 
 function testDayResponseFunctionHasNoGlobalSideEffects(testCase)
-path = fullfile(testCase.TestData.project_root,"src","solver", ...
+path = fullfile(testCase.TestData.project_root,"src","+rkkt","+solver", ...
     "form_stage_a3_day_response.m");
 source = string(fileread(path));
 for forbidden = ["global ","persistent ","assignin(","evalin(", ...
@@ -185,8 +185,8 @@ for forbidden = ["global ","persistent ","assignin(","evalin(", ...
 end
 day = testCase.TestData.recursive.daily_partitions(1);
 thomas = testCase.TestData.recursive.daily_thomas(1);
-first = form_stage_a3_day_response(day,thomas);
-second = form_stage_a3_day_response(day,thomas);
+first = rkkt.solver.form_stage_a3_day_response(day,thomas);
+second = rkkt.solver.form_stage_a3_day_response(day,thomas);
 verifyEqual(testCase,first.S,second.S);
 verifyEqual(testCase,first.gamma,second.gamma);
 end
@@ -194,7 +194,7 @@ end
 function testShuffledResponsesAreSortedBeforeExactAggregation(testCase)
 responses = testCase.TestData.recursive.daily_responses;
 shuffled = responses([7,3,1,6,2,5,4]);
-aggregation = aggregate_stage_a3_day_responses(shuffled,14:20);
+aggregation = rkkt.solver.aggregate_stage_a3_day_responses(shuffled,14:20);
 reference = testCase.TestData.recursive.aggregation;
 verifyEqual(testCase,aggregation.day_ids_sorted,14:20);
 verifyNotEqual(testCase,aggregation.input_order,14:20);

@@ -6,7 +6,7 @@ end
 function setupOnce(testCase)
 testFile = mfilename('fullpath');
 projectRoot = fileparts(fileparts(fileparts(testFile)));
-addpath(fullfile(projectRoot, 'src', 'reporting'));
+addpath(fullfile(projectRoot, 'src', '+rkkt', '+reporting'));
 testCase.TestData.ProjectRoot = projectRoot;
 end
 
@@ -14,7 +14,7 @@ function testGeneratesThreeArtifactBackedDocxPackages(testCase)
 fixture = create_fixture(testCase.TestData.ProjectRoot);
 cleanup = onCleanup(@() remove_fixture(fixture.container)); %#ok<NASGU>
 
-paths = generate_stage0_reports(struct( ...
+paths = rkkt.reporting.generate_stage0_reports(struct( ...
     'root', fixture.runRoot, 'project_root', fixture.projectRoot));
 
 verifyTrue(testCase, isfile(paths.acceptance_report));
@@ -23,7 +23,7 @@ verifyTrue(testCase, isfile(paths.run_summary));
 
 pathValues = struct2cell(paths);
 for index = 1:numel(pathValues)
-    [isValid, details] = validate_docx_package(pathValues{index});
+    [isValid, details] = rkkt.reporting.validate_docx_package(pathValues{index});
     verifyTrue(testCase, isValid, strjoin(details.errors, '; '));
     verifyNotEmpty(testCase, details.document_text);
     verifySubstring(testCase, details.document_xml, ...
@@ -33,7 +33,7 @@ for index = 1:numel(pathValues)
     verifyEmpty(testCase, details.errors);
 end
 
-[~, acceptanceDetails] = validate_docx_package(paths.acceptance_report);
+[~, acceptanceDetails] = rkkt.reporting.validate_docx_package(paths.acceptance_report);
 verifySubstring(testCase, acceptanceDetails.document_text, ...
     '阶段0_环境数据与基础设施验收报告');
 verifySubstring(testCase, acceptanceDetails.document_text, 'INFRA_DATA');
@@ -42,7 +42,7 @@ verifySubstring(testCase, acceptanceDetails.document_text, '未运行/不适用'
 verifySubstring(testCase, acceptanceDetails.document_text, ...
     'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
 
-[~, issueDetails] = validate_docx_package(paths.issue_report);
+[~, issueDetails] = rkkt.reporting.validate_docx_package(paths.issue_report);
 verifySubstring(testCase, issueDetails.document_text, '症状');
 verifySubstring(testCase, issueDetails.document_text, '根因');
 verifySubstring(testCase, issueDetails.document_text, '无效尝试');
@@ -50,7 +50,7 @@ verifySubstring(testCase, issueDetails.document_text, '最终修复');
 verifySubstring(testCase, issueDetails.document_text, '回归测试');
 verifySubstring(testCase, issueDetails.document_text, '未解决项');
 
-[~, summaryDetails] = validate_docx_package(paths.run_summary);
+[~, summaryDetails] = rkkt.reporting.validate_docx_package(paths.run_summary);
 verifySubstring(testCase, summaryDetails.document_text, ...
     '阶段0_单次运行结果摘要');
 end
@@ -61,8 +61,8 @@ cleanup = onCleanup(@() remove_fixture(fixture.container)); %#ok<NASGU>
 context = struct('root', fixture.runRoot, ...
     'project_root', fixture.projectRoot);
 
-generate_stage0_reports(context);
-verifyError(testCase, @() generate_stage0_reports(context), ...
+rkkt.reporting.generate_stage0_reports(context);
+verifyError(testCase, @() rkkt.reporting.generate_stage0_reports(context), ...
     'stage0:report:ArtifactExists');
 end
 
@@ -73,9 +73,9 @@ write_text(fullfile(fixture.runRoot, 'issues', 'issue_log.csv'), strjoin([ ...
     "issue_id,test_id,severity,symptom,root_cause,invalid_attempts,final_fix,regression_test,status,unresolved_item" ...
     "S0-RPT-FIXTURE-001,S0-RPT-001,medium,DOCX包缺少页脚关系,生成器未声明footer关系,仅校验ZIP存在,补充关系并添加结构验证,test_stage0_report,RESOLVED,"], newline));
 
-paths = generate_stage0_reports(struct( ...
+paths = rkkt.reporting.generate_stage0_reports(struct( ...
     'root', fixture.runRoot, 'project_root', fixture.projectRoot));
-[isValid, details] = validate_docx_package(paths.issue_report);
+[isValid, details] = rkkt.reporting.validate_docx_package(paths.issue_report);
 verifyTrue(testCase, isValid, strjoin(details.errors, '; '));
 verifySubstring(testCase, details.document_text, 'S0-RPT-FIXTURE-001');
 verifySubstring(testCase, details.document_text, 'DOCX包缺少页脚关系');
@@ -92,7 +92,7 @@ cleanup = onCleanup(@() remove_fixture(container)); %#ok<NASGU>
 badPath = fullfile(container, 'not_a_docx.docx');
 write_text(badPath, 'plain text is not a ZIP package');
 
-[isValid, details] = validate_docx_package(badPath);
+[isValid, details] = rkkt.reporting.validate_docx_package(badPath);
 verifyFalse(testCase, isValid);
 verifyNotEmpty(testCase, details.errors);
 end

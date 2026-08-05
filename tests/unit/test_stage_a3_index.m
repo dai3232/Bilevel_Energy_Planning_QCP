@@ -6,11 +6,11 @@ end
 function setupOnce(testCase)
 projectRoot = string(fileparts(fileparts(fileparts(mfilename('fullpath')))));
 addpath(genpath(fullfile(projectRoot,"src")));
-config = load_stage_a3_configuration(projectRoot);
-data = load_project_data(projectRoot);
-index = build_stage_a3_index(data,"RunId","A3_INDEX_MODEL_TEST");
-state = initialize_stage_a3_state(data,index,config);
-linearization = build_stage_a3_linearization(state,data,index,config);
+config = rkkt.model.load_stage_a3_configuration(projectRoot);
+data = rkkt.data.load_project_data(projectRoot);
+index = rkkt.indexing.build_stage_a3_index(data,"RunId","A3_INDEX_MODEL_TEST");
+state = rkkt.model.initialize_stage_a3_state(data,index,config);
+linearization = rkkt.model.build_stage_a3_linearization(state,data,index,config);
 testCase.TestData.projectRoot = projectRoot;
 testCase.TestData.config = config;
 testCase.TestData.data = data;
@@ -165,7 +165,7 @@ for rowNumber = 1:height(fixed)
     verifyFalse(testCase,any(active));
     verifyFalse(testCase,any(bounds));
 end
-physical = recover_stage_a_physical_arrays( ...
+physical = rkkt.model.recover_stage_a_physical_arrays( ...
     lin.state.xi,zeros(lin.counts.primal,1),lin.index,data);
 verifyEqual(testCase,physical.fixed_zero_audit.count,422);
 verifyEqual(testCase,physical.fixed_zero_audit.maximum_absolute_value,0, ...
@@ -193,7 +193,7 @@ verifyTrue(testCase,contains(lin.identity,"day14-20|hours1-24"));
 for hash = lower(string(data.hashes.actualSHA256)).'
     verifyTrue(testCase,contains(lin.identity,hash));
 end
-again = build_stage_a3_linearization(lin.state,data,index,config);
+again = rkkt.model.build_stage_a3_linearization(lin.state,data,index,config);
 verifyEqual(testCase,again.identity,lin.identity);
 verifyEqual(testCase,again.A,lin.A,"AbsTol",0);
 verifyEqual(testCase,again.G,lin.G,"AbsTol",0);
@@ -203,7 +203,7 @@ end
 function testOnlyExactZeroAvailabilityIsRemoved(testCase)
 data = testCase.TestData.data;
 data.timeseries.solarAvailability(14,1,1) = eps;
-index = build_canonical_index_framework( ...
+index = rkkt.indexing.build_canonical_index_framework( ...
     data,14:20,1:24,[],"A3_EXACT_ZERO_TEST");
 active = index.variable_index.day == 14 & ...
     index.variable_index.hour == 1 & ...

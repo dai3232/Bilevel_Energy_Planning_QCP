@@ -38,10 +38,12 @@ if string(dataResult.meta.interface_name) ~= "rkkt.data.load" || ...
         "Input must be the PKG-2 rkkt.data.load moduleResult.");
 end
 data = dataResult.output.projectData;
+projectRoot = string(data.projectRoot);
 
-legacyIndex = call_legacy_index(data);
-index = rkkt.indexing.build(data);
-legacyFacadeExact = isequaln(legacyIndex, index);
+directIndex = call_direct_index(data);
+config = rkkt.model.load_stage_a4_configuration(projectRoot);
+index = rkkt.indexing.build(data,config);
+legacyFacadeExact = isequaln(directIndex, index);
 
 dateHourCheck = build_date_hour_check(index);
 dailyCounts = build_daily_counts(index);
@@ -67,7 +69,7 @@ metadata = struct( ...
     "interface_name", "rkkt.indexing.build", ...
     "production_function", "build_stage_a4_index", ...
     "input_artifact", inputArtifact, ...
-    "input_sha256", compute_input_sha256(inputArtifact, data.projectRoot), ...
+    "input_sha256", compute_input_sha256(inputArtifact), ...
     "git_commit", git_commit(string(data.projectRoot)), ...
     "stage_id", "stage_A4", ...
     "day", 14:20, ...
@@ -142,23 +144,10 @@ else
 end
 end
 
-function index = call_legacy_index(data)
-projectRoot = string(data.projectRoot);
-indexDirectory = fullfile(projectRoot, "src", "indexing");
-modelDirectory = fullfile(projectRoot, "src", "model");
-originalPath = path;
-pathGuard = onCleanup(@() path(originalPath));
-addpath(modelDirectory, "-begin");
-addpath(indexDirectory, "-begin");
-resolved = string(which("build_stage_a4_index"));
-expected = fullfile(indexDirectory, "build_stage_a4_index.m");
-if ~same_path(resolved, expected)
-    error("rkkt:indexing:validation:ProductionFunctionShadowed", ...
-        "Expected build_stage_a4_index at '%s'; MATLAB resolved '%s'.", ...
-        expected, resolved);
-end
-index = build_stage_a4_index(data);
-clear pathGuard
+function index = call_direct_index(data)
+config = rkkt.model.load_stage_a4_configuration( ...
+    string(data.projectRoot));
+index = rkkt.indexing.build_stage_a4_index(data,config);
 end
 
 function facts = inspect_index_facts(index, data, legacyFacadeExact)
@@ -392,7 +381,7 @@ end
 
 function write_tables(files, values)
 for k = 1:numel(files)
-    write_table_csv_17g_atomic(values{k}, files(k));
+    rkkt.artifacts.write_table_csv_17g_atomic(values{k}, files(k));
 end
 end
 
@@ -469,82 +458,6 @@ if ~interactive && isgraphics(fig)
 end
 end
 
-function write_table_csv_17g_atomic(value, destination)
-if ~istable(value)
-    error("rkkt:indexing:validation:ExpectedTable", ...
-        "CSV output requires a table; actual class=%s.", class(value));
-end
-nRows = height(value);
-nColumns = width(value);
-cells = strings(nRows, nColumns);
-for columnIndex = 1:nColumns
-    column = value.(value.Properties.VariableNames{columnIndex});
-    if size(column, 2) ~= 1
-        error("rkkt:indexing:validation:WideTableVariable", ...
-            "CSV variable '%s' must be a single column.", ...
-            value.Properties.VariableNames{columnIndex});
-    end
-    cells(:, columnIndex) = column_to_csv(column);
-end
-header = csv_escape(string(value.Properties.VariableNames));
-lines = [strjoin(header, ","); join(cells, ",", 2)];
-write_text_atomic(destination, strjoin(lines, newline) + newline);
-end
-
-function value = column_to_csv(column)
-if isnumeric(column)
-    value = compose("%.17g", double(column));
-elseif islogical(column)
-    value = lower(string(column));
-elseif isstring(column)
-    if any(ismissing(column))
-        error("rkkt:indexing:validation:MissingCsvText", ...
-            "String CSV columns must not contain missing values.");
-    end
-    value = csv_escape(column);
-elseif iscell(column) || iscategorical(column)
-    text = string(column);
-    if any(ismissing(text))
-        error("rkkt:indexing:validation:MissingCsvText", ...
-            "Text CSV columns must not contain missing values.");
-    end
-    value = csv_escape(text);
-else
-    error("rkkt:indexing:validation:UnsupportedCsvType", ...
-        "Unsupported CSV column class: %s.", class(column));
-end
-value = reshape(value, [], 1);
-end
-
-function value = csv_escape(value)
-value = replace(string(value), """", """""");
-value = """" + value + """";
-end
-
-function write_text_atomic(destination, textValue)
-temporary = string(tempname(fileparts(destination))) + ".tmp";
-cleanup = onCleanup(@() delete_files(temporary));
-[fileId, message] = fopen(temporary, "wb", "n", "UTF-8");
-if fileId < 0
-    error("rkkt:indexing:validation:TextOpen", "%s", message);
-end
-fileGuard = onCleanup(@() close_file(fileId));
-bytes = unicode2native(char(textValue), "UTF-8");
-count = fwrite(fileId, bytes, "uint8");
-if count ~= numel(bytes)
-    error("rkkt:indexing:validation:TextWrite", ...
-        "Incomplete UTF-8 write for %s.", destination);
-end
-status = fclose(fileId);
-clear fileGuard
-if status ~= 0
-    error("rkkt:indexing:validation:TextClose", ...
-        "Could not close temporary output for %s.", destination);
-end
-movefile(temporary, destination, "f");
-clear cleanup
-end
-
 function save_module_result(outputFile, moduleResult)
 temporary = string(tempname(fileparts(outputFile))) + ".mat";
 cleanup = onCleanup(@() delete_files(temporary));
@@ -553,13 +466,8 @@ movefile(temporary, outputFile, "f");
 clear cleanup
 end
 
-function value = compute_input_sha256(inputArtifact, projectRoot)
-dataDirectory = fullfile(string(projectRoot), "src", "data");
-originalPath = path;
-pathGuard = onCleanup(@() path(originalPath));
-addpath(dataDirectory, "-begin");
-value = compute_sha256_file(inputArtifact);
-clear pathGuard
+function value = compute_input_sha256(inputArtifact)
+value = rkkt.data.compute_sha256_file(inputArtifact);
 end
 
 function commit = git_commit(projectRoot)
@@ -588,29 +496,11 @@ function directory = default_output_directory()
 directory = string(fileparts(mfilename("fullpath")));
 end
 
-function equal = same_path(left, right)
-left = replace(string(left), "/", "\");
-right = replace(string(right), "/", "\");
-if ispc
-    equal = strcmpi(left, right);
-else
-    equal = strcmp(left, right);
-end
-end
 
 function delete_files(paths)
 for k = 1:numel(paths)
     if isfile(paths(k))
         delete(paths(k));
     end
-end
-end
-
-function close_file(fileId)
-try
-    if ischar(fopen(fileId))
-        fclose(fileId);
-    end
-catch
 end
 end

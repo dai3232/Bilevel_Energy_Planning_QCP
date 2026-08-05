@@ -12,10 +12,10 @@ end
 
 inputArtifact = string(options.InputArtifact);
 outputDirectory = string(options.OutputDirectory);
-rkkt.model.validation.ValidationSupport.requireOutputDirectory( ...
+rkkt.validation.requireOutputDirectory( ...
     outputDirectory,options.WriteArtifacts);
 
-upstream = rkkt.model.validation.ValidationSupport.loadResult( ...
+upstream = rkkt.validation.loadResult( ...
     inputArtifact,"runState");
 if string(upstream.meta.interface_name) ~= "rkkt.indexing.build"
     error("rkkt:model:validation:StateUpstreamInterface", ...
@@ -29,7 +29,7 @@ data = upstream.input.projectData;
 index = upstream.output.index;
 config = call_configuration(data);
 
-legacyState = call_legacy_initializer(data,index,config);
+legacyState = call_direct_initializer(data,index,config);
 state = rkkt.model.initialize(data,index,config);
 legacyFacadeExact = isequaln(legacyState,state);
 facts = inspect_state_facts(state,data,index,config,legacyFacadeExact);
@@ -41,9 +41,9 @@ end
 summary = state_summary(state);
 [outputFile,tableFiles,figureFiles,figureIndex] = output_paths( ...
     outputDirectory,options.WriteArtifacts);
-metadata = rkkt.model.validation.ValidationSupport.metadata( ...
+metadata = rkkt.validation.metadata( ...
     "rkkt.model.initialize","initialize_stage_a4_state", ...
-    inputArtifact,string(data.projectRoot),outputFile, ...
+    inputArtifact,outputFile, ...
     "状态初始化模块",state.iteration_index,state.state_revision, ...
     options.Interactive,options.WriteArtifacts);
 moduleResult = rkkt.contracts.moduleResultTemplate(metadata);
@@ -75,15 +75,15 @@ moduleResult.figureFiles = figureFiles;
 rkkt.contracts.validateModuleResult(moduleResult);
 
 if options.WriteArtifacts
-    rkkt.model.validation.ValidationSupport.writeTable17( ...
+    rkkt.validation.writeTable17( ...
         summary,tableFiles(1));
     fig = state_figure(summary,options.Interactive);
-    rkkt.model.validation.ValidationSupport.saveFigurePair( ...
+    rkkt.validation.saveFigurePair( ...
         fig,figureIndex.figPath,figureIndex.pngPath);
     if ~options.Interactive
         close(fig);
     end
-    rkkt.model.validation.ValidationSupport.saveResult( ...
+    rkkt.validation.saveResult( ...
         outputFile,moduleResult);
 end
 
@@ -99,35 +99,11 @@ end
 end
 
 function config = call_configuration(data)
-modelDirectory = fullfile(string(data.projectRoot),"src","model");
-productionFile = fullfile(modelDirectory,"load_stage_a4_configuration.m");
-originalPath = path;
-pathGuard = onCleanup(@() path(originalPath));
-addpath(modelDirectory,"-begin");
-resolved = string(which("load_stage_a4_configuration"));
-if ~same_path(resolved,productionFile)
-    error("rkkt:model:validation:ConfigurationFunctionShadowed", ...
-        "Expected load_stage_a4_configuration at '%s'; resolved '%s'.", ...
-        productionFile,resolved);
-end
-config = load_stage_a4_configuration(string(data.projectRoot));
-clear pathGuard
+config = rkkt.model.load_stage_a4_configuration(string(data.projectRoot));
 end
 
-function state = call_legacy_initializer(data,index,config)
-modelDirectory = fullfile(string(data.projectRoot),"src","model");
-productionFile = fullfile(modelDirectory,"initialize_stage_a4_state.m");
-originalPath = path;
-pathGuard = onCleanup(@() path(originalPath));
-addpath(modelDirectory,"-begin");
-resolved = string(which("initialize_stage_a4_state"));
-if ~same_path(resolved,productionFile)
-    error("rkkt:model:validation:StateFunctionShadowed", ...
-        "Expected initialize_stage_a4_state at '%s'; resolved '%s'.", ...
-        productionFile,resolved);
-end
-state = initialize_stage_a4_state(data,index,config);
-clear pathGuard
+function state = call_direct_initializer(data,index,config)
+state = rkkt.model.initialize_stage_a4_state(data,index,config);
 end
 
 function facts = inspect_state_facts( ...
@@ -295,14 +271,4 @@ end
 
 function value = default_output_directory()
 value = string(fileparts(mfilename("fullpath")));
-end
-
-function value = same_path(left,right)
-left = replace(string(left),"/","\");
-right = replace(string(right),"/","\");
-if ispc
-    value = strcmpi(left,right);
-else
-    value = strcmp(left,right);
-end
 end

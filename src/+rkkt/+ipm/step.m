@@ -1,5 +1,5 @@
 function result = step(stateBefore,data,index,config,options)
-%STEP Delegate one explicit-state A4 primal-dual transition.
+%STEP Execute one explicit-state A4 primal-dual transition.
 
 arguments
     stateBefore (1,1) struct
@@ -16,20 +16,12 @@ arguments
     options.DualResidualReferenceScale (1,1) double = NaN
     options.RecursiveRefinementMaxPasses (1,1) double ...
         {mustBeInteger,mustBeNonnegative} = 0
+    options.UseCongruenceScaling (1,1) logical = false
+    options.EquilibrationPasses (1,1) double ...
+        {mustBeInteger,mustBeNonnegative} = 8
 end
 
-[productionDirectory,productionFile] = production_location( ...
-    "diagnostics","execute_stage_a4_iteration.m");
-originalPath = path;
-pathGuard = onCleanup(@() path(originalPath));
-addpath(productionDirectory,"-begin");
-resolved = string(which("execute_stage_a4_iteration"));
-if ~same_path(resolved,productionFile)
-    error("rkkt:ipm:ProductionFunctionShadowed", ...
-        ["Expected execute_stage_a4_iteration at '%s'; " ...
-        "MATLAB resolved '%s'."],productionFile,resolved);
-end
-result = execute_stage_a4_iteration( ...
+result = rkkt.ipm.execute_stage_a4_iteration( ...
     stateBefore,data,index,config, ...
     StepStrategy=options.StepStrategy, ...
     ObjectiveScaleMode=options.ObjectiveScaleMode, ...
@@ -38,27 +30,7 @@ result = execute_stage_a4_iteration( ...
         options.EqualityResidualReferenceScale, ...
     DualResidualReferenceScale=options.DualResidualReferenceScale, ...
     RecursiveRefinementMaxPasses= ...
-        options.RecursiveRefinementMaxPasses);
-clear pathGuard
-end
-
-function [directory,file] = production_location(folder,fileName)
-packageDirectory = string(fileparts(mfilename("fullpath")));
-sourceDirectory = string(fileparts(fileparts(packageDirectory)));
-directory = fullfile(sourceDirectory,string(folder));
-file = fullfile(directory,string(fileName));
-if ~isfile(file)
-    error("rkkt:ipm:ProductionFileMissing", ...
-        "Production IPM file is missing: %s",file);
-end
-end
-
-function value = same_path(left,right)
-left = replace(string(left),"/","\");
-right = replace(string(right),"/","\");
-if ispc
-    value = strcmpi(left,right);
-else
-    value = strcmp(left,right);
-end
+        options.RecursiveRefinementMaxPasses, ...
+    UseCongruenceScaling=options.UseCongruenceScaling, ...
+    EquilibrationPasses=options.EquilibrationPasses);
 end

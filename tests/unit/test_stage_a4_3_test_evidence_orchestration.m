@@ -12,7 +12,7 @@ testCase.TestData.root = root;
 end
 
 function testConvergedPlanIsExactly257WithFixedLabels(testCase)
-plan = plan_stage_a4_3_test_campaign("CONVERGED");
+plan = rkkt.testing.plan_stage_a4_3_test_campaign("CONVERGED");
 verifyEqual(testCase,plan.suites.suite_label,[ ...
     "stage_A4_3";"stage_A4_RNS_1"; ...
     "stage_A4_2D_2A_R1";"stage_A4_regression_195"]);
@@ -24,7 +24,7 @@ end
 
 function testNonconvergedPlanCannotExecute195OrPassStage(testCase)
 for terminal = ["MAX_ITERATIONS","NUMERICAL_FAILURE"]
-    plan = plan_stage_a4_3_test_campaign(terminal);
+    plan = rkkt.testing.plan_stage_a4_3_test_campaign(terminal);
     verifyFalse(testCase,plan.stage_pass_eligible);
     verifyFalse(testCase,plan.existing_195_authorized);
     verifyFalse(testCase,any( ...
@@ -38,7 +38,7 @@ end
 
 function testFrozenExistingRegressionInventoryIs195Once(testCase)
 [files,inventory,components] = ...
-    build_stage_a4_3_regression_195_inventory( ...
+    rkkt.testing.build_stage_a4_3_regression_195_inventory( ...
     testCase.TestData.root);
 verifyEqual(testCase,components.expected_count,[8;8;8;11;24;67;32;37]);
 verifyEqual(testCase,height(inventory),195);
@@ -48,9 +48,9 @@ end
 
 function testConvergedAggregateHasFourExactGroupsAnd257(testCase)
 [project,runId,cleanup] = synthetic_run(testCase); %#ok<ASGLU>
-plan = plan_stage_a4_3_test_campaign("CONVERGED");
+plan = rkkt.testing.plan_stage_a4_3_test_campaign("CONVERGED");
 write_synthetic_suites(project,runId,plan);
-observed = aggregate_stage_a4_3_test_evidence( ...
+observed = rkkt.testing.aggregate_stage_a4_3_test_evidence( ...
     project,runId,"CONVERGED");
 verifyTrue(testCase,observed.all_pass);
 verifyEqual(testCase,height(observed.results),257);
@@ -65,9 +65,9 @@ end
 
 function testNonconvergedAggregateCannotBecomeStagePass(testCase)
 [project,runId,cleanup] = synthetic_run(testCase); %#ok<ASGLU>
-plan = plan_stage_a4_3_test_campaign("MAX_ITERATIONS");
+plan = rkkt.testing.plan_stage_a4_3_test_campaign("MAX_ITERATIONS");
 write_synthetic_suites(project,runId,plan);
-observed = aggregate_stage_a4_3_test_evidence( ...
+observed = rkkt.testing.aggregate_stage_a4_3_test_evidence( ...
     project,runId,"MAX_ITERATIONS");
 verifyTrue(testCase,observed.all_pass);
 verifyEqual(testCase,height(observed.results),32);
@@ -104,9 +104,9 @@ for suiteIndex = 1:height(plan.suites)
     details = repmat("",n,1);
     results = table(test_name,passed,failed,incomplete, ...
         duration_seconds,details);
-    write_table_csv_17g(fullfile(directory,"test_inventory.csv"), ...
+    rkkt.artifacts.write_table_csv_17g(fullfile(directory,"test_inventory.csv"), ...
         inventory);
-    write_table_csv_17g(fullfile(directory,"test_results.csv"),results);
+    rkkt.artifacts.write_table_csv_17g(fullfile(directory,"test_results.csv"),results);
     write_synthetic_junit(fullfile(directory,"test_results.xml"), ...
         row.suite_label,test_name);
     write_text(fullfile(directory,"matlab_test_console.log"), ...
@@ -116,10 +116,10 @@ for suiteIndex = 1:height(plan.suites)
     summary = struct("execution_status","COMPLETE", ...
         "suite_label",char(row.suite_label),"test_total",n, ...
         "test_passed",n,"test_failed",0,"test_incomplete",0);
-    write_json_file(fullfile(directory,"test_summary.json"),summary);
+    rkkt.artifacts.write_json_file(fullfile(directory,"test_summary.json"),summary);
     write_synthetic_hashes(directory);
     if row.suite_label=="stage_A4_3"
-        write_json_file(fullfile(directory,"suite_identity.json"), ...
+        rkkt.artifacts.write_json_file(fullfile(directory,"suite_identity.json"), ...
             struct("run_id",char(runId),"suite_label","stage_A4_3", ...
             "test_total",27));
     end
@@ -133,12 +133,12 @@ sha256 = strings(6,1);
 bytes = zeros(6,1);
 for k = 1:6
     target = fullfile(directory,names(k));
-    sha256(k) = compute_sha256_file(target);
+    sha256(k) = rkkt.data.compute_sha256_file(target);
     info = dir(target);
     bytes(k) = info.bytes;
 end
 status = repmat("PASS",6,1);
-write_table_csv_17g(fullfile(directory,"test_evidence_sha256.csv"), ...
+rkkt.artifacts.write_table_csv_17g(fullfile(directory,"test_evidence_sha256.csv"), ...
     table(names,sha256,bytes,status));
 end
 

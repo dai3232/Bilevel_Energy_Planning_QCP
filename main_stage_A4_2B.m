@@ -7,10 +7,11 @@ function result = main_stage_A4_2B()
 
 projectRoot = string(fileparts(mfilename("fullpath")));
 addpath(genpath(fullfile(projectRoot,"src")));
-config = load_stage_a4_configuration(projectRoot);
-data = load_project_data(projectRoot);
-index = build_stage_a4_index(data,"RunId","A4_2B_GAP_CAUSE_AUDIT");
-result = run_stage_a4_complementarity_gap_diagnostic(data,index,config);
+config = rkkt.model.load_stage_a4_configuration(projectRoot);
+data = rkkt.data.load_project_data(projectRoot);
+index = rkkt.indexing.build_stage_a4_index( ...
+    data,config,"RunId","A4_2B_GAP_CAUSE_AUDIT");
+result = rkkt.diagnostics.run_stage_a4_complementarity_gap_diagnostic(data,index,config);
 assert(result.all_pass && result.milestone_status=="PASS" && ...
     result.stage_status=="READY" && result.iteration_count==5 && ...
     result.execution.complementarity_audit_count==5 && ...

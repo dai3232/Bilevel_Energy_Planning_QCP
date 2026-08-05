@@ -7,10 +7,11 @@ function result = main_stage_A4_1()
 
 projectRoot = string(fileparts(mfilename("fullpath")));
 addpath(genpath(fullfile(projectRoot,"src")));
-config = load_stage_a4_configuration(projectRoot);
-data = load_project_data(projectRoot);
-index = build_stage_a4_index(data,"RunId","A4_1_SINGLE_ITERATION");
-result = run_stage_a4_single_iteration(data,index,config);
+config = rkkt.model.load_stage_a4_configuration(projectRoot);
+data = rkkt.data.load_project_data(projectRoot);
+index = rkkt.indexing.build_stage_a4_index( ...
+    data,config,"RunId","A4_1_SINGLE_ITERATION");
+result = rkkt.diagnostics.run_stage_a4_single_iteration(data,index,config);
 assert(result.all_pass && result.milestone_status=="PASS" && ...
     result.stage_status=="READY" && ...
     ~result.execution.full_ipm_executed && ...

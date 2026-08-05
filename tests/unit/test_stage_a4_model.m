@@ -6,11 +6,12 @@ end
 function setupOnce(testCase)
 projectRoot = string(fileparts(fileparts(fileparts(mfilename('fullpath')))));
 addpath(genpath(fullfile(projectRoot,"src")));
-config = load_stage_a4_configuration(projectRoot);
-data = load_project_data(projectRoot);
-index = build_stage_a4_index(data,"RunId","A4_MODEL_TEST");
-state = initialize_stage_a4_state(data,index,config);
-linearization = build_stage_a4_linearization(state,data,index,config);
+config = rkkt.model.load_stage_a4_configuration(projectRoot);
+data = rkkt.data.load_project_data(projectRoot);
+index = rkkt.indexing.build_stage_a4_index( ...
+    data,config,"RunId","A4_MODEL_TEST");
+state = rkkt.model.initialize_stage_a4_state(data,index,config);
+linearization = rkkt.model.build_stage_a4_linearization(state,data,index,config);
 testCase.TestData.config = config;
 testCase.TestData.data = data;
 testCase.TestData.index = index;
@@ -123,7 +124,7 @@ verifyEqual(testCase,state.fixed_zero_directions,zeros(422,1),"AbsTol",0);
 verifyEqual(testCase,string(state.initialization_version), ...
     "stageA4-deterministic-interior-v1.0");
 verifyEqual(testCase, ...
-    compute_stage_a4_checkpoint_state_fingerprint(state), ...
+    rkkt.artifacts.compute_stage_a4_checkpoint_state_fingerprint(state), ...
     "7277a250e33e3a1cfa310b4581faa7232a2c3cb99ff6d7cc6b4602e40970c3aa");
 end
 
@@ -153,7 +154,7 @@ function testExplicitSlackIsConsumedWithoutBeingOverwritten(testCase)
 state = testCase.TestData.state;
 state.l = state.l + 0.125;
 state.state_revision = 1;
-lin = build_stage_a4_linearization(state,testCase.TestData.data, ...
+lin = rkkt.model.build_stage_a4_linearization(state,testCase.TestData.data, ...
     testCase.TestData.index,testCase.TestData.config);
 verifyEqual(testCase,lin.l,state.l,"AbsTol",0);
 verifyEqual(testCase,lin.state.l,state.l,"AbsTol",0);
@@ -229,12 +230,12 @@ end
 function testA4RejectsMissingOrNonpositiveExplicitSlack(testCase)
 state = testCase.TestData.state;
 state.l = state.l(1:end-1);
-verifyError(testCase,@() build_stage_a4_linearization(state, ...
+verifyError(testCase,@() rkkt.model.build_stage_a4_linearization(state, ...
     testCase.TestData.data,testCase.TestData.index, ...
     testCase.TestData.config),"stageA4:linearization:ExplicitSlack");
 state = testCase.TestData.state;
 state.l(10) = 0;
-verifyError(testCase,@() build_stage_a4_linearization(state, ...
+verifyError(testCase,@() rkkt.model.build_stage_a4_linearization(state, ...
     testCase.TestData.data,testCase.TestData.index, ...
     testCase.TestData.config),"stageA4:linearization:ExplicitSlack");
 end

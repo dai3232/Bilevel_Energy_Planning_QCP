@@ -1,5 +1,7 @@
 # PKG-9 稳定 B-2B 同步与 Stage-B 包接口说明 v1.0
 
+> 历史说明：本文正文记录 PKG-9 提交时的架构与验收事实。其“门面委托旧入口”和 `production_algorithm_migrated=false` 只描述当时状态。后续包内算法硬迁移已将生产实现移入 `src/+rkkt`，删除旧生产目录和动态定位逻辑；当前架构以 `README_从这里开始.md`、`PKG_REFACTOR_STAGE.md` 与 `docs/PKG-01_现有模块到包接口映射_v1.0.csv` 为准。PKG-9 的历史数值证据不因此改写。
+
 ## 1. 受控边界
 
 - PKG-9 起点：`e96f548393ad67012835bfdc9aa37791c96eda2c`。

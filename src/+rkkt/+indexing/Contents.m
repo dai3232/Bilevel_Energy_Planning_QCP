@@ -1,5 +1,4 @@
 % RKKT.INDEXING Stable canonical-index interface namespace.
-%   build - Delegate to build_stage_a4_index, preserving ConfigPath and
-%           RunId, then apply the read-only canonical-index contract.
-%   buildStageB2A - Delegate explicit B-2A water-index construction.
-%   buildStageB2B - Delegate explicit B-2B water-index construction.
+%   build - Build the canonical Stage-A4 index from explicit data/config.
+%   buildStageB2A - Build the explicit B-2A water index.
+%   buildStageB2B - Build the explicit B-2B bordered index.

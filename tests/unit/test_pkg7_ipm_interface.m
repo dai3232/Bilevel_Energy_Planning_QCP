@@ -77,8 +77,8 @@ verifyNotEmpty(testCase,regexp(source, ...
     'RecursiveRefinementMaxPasses[\s\S]*?=\s*0',"once"));
 
 info = rkkt.info();
-verifyEqual(testCase,string(info.package_version),"0.8.0");
-verifyEqual(testCase,string(info.pkg_stage),"PKG-8");
+verifyEqual(testCase,string(info.package_version),"1.0.0");
+verifyEqual(testCase,string(info.pkg_stage),"PACKAGE-HARD-CUT");
 verifyTrue(testCase,ismember("rkkt.ipm.step", ...
     string(info.implemented_public_interfaces)));
 end

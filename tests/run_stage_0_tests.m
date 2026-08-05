@@ -111,13 +111,13 @@ function results = run_with_evidence(suite, inventory, evidenceDirectory, testCo
 paths = evidence_paths(evidenceDirectory);
 prepare_evidence_directory(evidenceDirectory, paths);
 
-write_table_csv_17g(paths.inventory, inventory);
+rkkt.artifacts.write_table_csv_17g(paths.inventory, inventory);
 write_utf8_text(paths.command, [testCommand, newline]);
 
 initialResults = incomplete_result_table(inventory, ...
     "Test execution has not completed.");
-write_table_csv_17g(paths.resultsCsv, initialResults);
-write_json_file(paths.summary, make_summary(initialResults, 0, ...
+rkkt.artifacts.write_table_csv_17g(paths.resultsCsv, initialResults);
+rkkt.artifacts.write_json_file(paths.summary, make_summary(initialResults, 0, ...
     "RUNNING", "", ""));
 
 results = matlab.unittest.TestResult.empty;
@@ -139,8 +139,8 @@ try
 
     resultTable = result_table_from_results(results);
     assert_result_identity(resultTable, inventory);
-    write_table_csv_17g(paths.resultsCsv, resultTable);
-    write_json_file(paths.summary, make_summary(resultTable, ...
+    rkkt.artifacts.write_table_csv_17g(paths.resultsCsv, resultTable);
+    rkkt.artifacts.write_json_file(paths.summary, make_summary(resultTable, ...
         wallClockSeconds, "COMPLETE", "", ""));
     fprintf(['Stage-0 test summary: total=%d, passed=%d, failed=%d, ' ...
         'incomplete=%d, total_duration_seconds=%.17g, ' ...
@@ -284,8 +284,8 @@ try
                 string(exception.message));
         end
     end
-    write_table_csv_17g(paths.resultsCsv, resultTable);
-    write_json_file(paths.summary, make_summary(resultTable, ...
+    rkkt.artifacts.write_table_csv_17g(paths.resultsCsv, resultTable);
+    rkkt.artifacts.write_json_file(paths.summary, make_summary(resultTable, ...
         wallClockSeconds, "ERROR", string(exception.identifier), ...
         string(exception.message)));
 catch persistenceException
@@ -296,7 +296,7 @@ end
 try
     if ~is_complete_junit(paths.resultsXml, height(inventory))
         preserve_invalid_plugin_junit(paths.resultsXml);
-        write_stage0_exception_junit(paths.resultsXml, inventory, ...
+        rkkt.testing.write_stage0_exception_junit(paths.resultsXml, inventory, ...
             wallClockSeconds, exception);
     end
 catch persistenceException

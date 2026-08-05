@@ -14,7 +14,7 @@ assert(strlength(commandText)>0,'stageA3:tests:EmptyCommandText', ...
     'CommandText must be nonempty.');
 [suite,inventory]=fixed_stage_a3_suite(repoRoot);
 assert_fixed_inventory(inventory);
-inventoryAudit=validate_stage_a3_test_inventory_contract(inventory,repoRoot);
+inventoryAudit=rkkt.diagnostics.validate_stage_a3_test_inventory_contract(inventory,repoRoot);
 if strlength(evidenceDirectory)==0
     runner=create_text_runner(); rawResults=runner.run(suite);
     resultTable=result_table_from_results(rawResults);
@@ -88,12 +88,12 @@ function [resultTable,summary,paths]=run_with_evidence( ...
         suite,inventory,inventoryAudit,evidenceDirectory,commandText)
 paths=evidence_paths(evidenceDirectory);
 prepare_evidence_directory(evidenceDirectory,paths);
-write_table_csv_17g(paths.inventory,inventory);
+rkkt.artifacts.write_table_csv_17g(paths.inventory,inventory);
 write_utf8_text(paths.command,[commandText,newline]);
 initial=incomplete_result_table(inventory,"Test execution has not completed.");
-write_table_csv_17g(paths.results_csv,initial);
+rkkt.artifacts.write_table_csv_17g(paths.results_csv,initial);
 initialSummary=make_summary(initial,0,"RUNNING","","");
-write_json_file(paths.summary,attach_inventory_audit( ...
+rkkt.artifacts.write_json_file(paths.summary,attach_inventory_audit( ...
     initialSummary,inventoryAudit));
 write_utf8_text(paths.console_log,sprintf( ...
     'Stage A3 test console evidence initialized at %s.\n',char(now_text())));
@@ -112,8 +112,8 @@ try
     assert_result_identity(resultTable,inventory);
     summary=make_summary(resultTable,wall,"COMPLETE","","");
     summary=attach_inventory_audit(summary,inventoryAudit);
-    write_table_csv_17g(paths.results_csv,resultTable);
-    write_json_file(paths.summary,summary);
+    rkkt.artifacts.write_table_csv_17g(paths.results_csv,resultTable);
+    rkkt.artifacts.write_json_file(paths.summary,summary);
     assert(is_complete_junit(paths.results_xml,height(inventory)), ...
         'stageA3:tests:IncompleteJUnit', ...
         'JUnit evidence does not contain the complete A3 inventory.');
@@ -214,8 +214,8 @@ end
 summary=make_summary(result,wall,"ERROR",exception.identifier,exception.message);
 summary=attach_inventory_audit(summary,inventoryAudit);
 try
-    write_table_csv_17g(paths.results_csv,result);
-    write_json_file(paths.summary,summary);
+    rkkt.artifacts.write_table_csv_17g(paths.results_csv,result);
+    rkkt.artifacts.write_json_file(paths.summary,summary);
 catch persistenceException
     fprintf(2,'Could not update A3 CSV/JSON evidence: %s\n', ...
         persistenceException.message);

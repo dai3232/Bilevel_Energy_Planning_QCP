@@ -187,7 +187,7 @@ verifyEqual(testCase,result.execution_sequence, ...
 verifyTrue(testCase,result.first_five_reproduction_audit.all_pass);
 tampered = result.scaled_five;
 tampered.iterations(1).no_full_direction_fallback = false;
-gate = evaluate_stage_a4_scaled_five_round_gate(tampered);
+gate = rkkt.diagnostics.evaluate_stage_a4_scaled_five_round_gate(tampered);
 verifyFalse(testCase,gate.passed);
 verifyFalse(testCase,gate.permission_to_start_twenty_round_chain);
 end
@@ -313,8 +313,8 @@ verifyFalse(testCase,result.execution.stage_b_entered);
 verifyFalse(testCase,result.execution.hundred_round_run_executed);
 verifyEqual(testCase,result.evidence_tail_issue.status,"OPEN_NONBLOCKING");
 verifyFalse(testCase,result.evidence_tail_issue.resolved);
-config = load_stage_a4_configuration(testCase.TestData.project_root);
-scan = scan_stage_a4_forbidden_code( ...
+config = rkkt.model.load_stage_a4_configuration(testCase.TestData.project_root);
+scan = rkkt.diagnostics.scan_stage_a4_forbidden_code( ...
     testCase.TestData.project_root,config);
 verifyEqual(testCase,height(scan),26);
 verifyTrue(testCase,all(scan.status=="PASS"), ...
@@ -326,16 +326,16 @@ relative = [ ...
     "CURRENT_STAGE.md"
     "config/solver.yaml"
     "config/stage_A4.yaml"
-    "src/model/initialize_stage_a4_state.m"
-    "src/model/initialize_stage_a_multiday_state.m"
-    "src/model/build_stage_a4_linearization.m"
-    "src/model/build_stage_a_multiday_linearization.m"
+    "src/+rkkt/+model/initialize_stage_a4_state.m"
+    "src/+rkkt/+model/initialize_stage_a_multiday_state.m"
+    "src/+rkkt/+model/build_stage_a4_linearization.m"
+    "src/+rkkt/+model/build_stage_a_multiday_linearization.m"
     "inputs/raw/基础参数.xlsx"
     "inputs/raw/输入数据.xlsx"
     "stages/stage_A4/阶段A4_验收矩阵.csv"];
 sha256 = strings(numel(relative),1);
 for k = 1:numel(relative)
-    sha256(k) = lower(string(compute_sha256_file( ...
+    sha256(k) = lower(string(rkkt.data.compute_sha256_file( ...
         fullfile(projectRoot,strrep(relative(k),"/",filesep)))));
 end
 hashes = table(relative,sha256, ...

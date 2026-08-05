@@ -136,25 +136,7 @@ facts = struct( ...
 end
 
 function config = call_configuration(projectRoot)
-modelDirectory = fullfile(projectRoot,"src","model");
-productionFile = fullfile(modelDirectory, ...
-    "load_stage_b2a_configuration.m");
-if ~isfile(productionFile)
-    error("rkkt:indexing:validation:StageB2AConfigMissing", ...
-        "The controlled configuration loader is missing: %s", ...
-        productionFile);
-end
-originalPath = path;
-pathGuard = onCleanup(@() path(originalPath));
-addpath(modelDirectory,"-begin");
-resolved = string(which("load_stage_b2a_configuration"));
-if ~same_path(resolved,productionFile)
-    error("rkkt:indexing:validation:StageB2AConfigShadowed", ...
-        "Expected '%s'; MATLAB resolved '%s'.", ...
-        productionFile,resolved);
-end
-config = load_stage_b2a_configuration(projectRoot);
-clear pathGuard
+config = rkkt.model.load_stage_b2a_configuration(projectRoot);
 end
 
 function fig = index_figure(summary,interactive)
@@ -289,21 +271,8 @@ value = string(datetime("now","TimeZone","Asia/Shanghai", ...
     "Format","yyyy-MM-dd'T'HH:mm:ssXXX"));
 end
 
-function value = same_path(left,right)
-left = replace(string(left),"/","\");
-right = replace(string(right),"/","\");
-if ispc
-    value = strcmpi(left,right);
-else
-    value = strcmp(left,right);
-end
-end
-
 function value = default_project_root()
-value = string(fileparts(mfilename("fullpath")));
-for k = 1:4
-    value = string(fileparts(value));
-end
+value = rkkt.projectRoot();
 end
 
 function value = default_output_directory()

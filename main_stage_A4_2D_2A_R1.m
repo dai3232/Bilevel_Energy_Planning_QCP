@@ -7,11 +7,11 @@ function result = main_stage_A4_2D_2A_R1()
 
 projectRoot = string(fileparts(mfilename("fullpath")));
 addpath(genpath(fullfile(projectRoot,"src")));
-config = load_stage_a4_configuration(projectRoot);
-data = load_project_data(projectRoot);
-index = build_stage_a4_index( ...
-    data,"RunId","A4_2D_2A_R1_STABLE_V2_DIAGNOSTIC");
-result = run_stage_a4_objective_unitization_r1_diagnostic( ...
+config = rkkt.model.load_stage_a4_configuration(projectRoot);
+data = rkkt.data.load_project_data(projectRoot);
+index = rkkt.indexing.build_stage_a4_index( ...
+    data,config,"RunId","A4_2D_2A_R1_STABLE_V2_DIAGNOSTIC");
+result = rkkt.diagnostics.run_stage_a4_objective_unitization_r1_diagnostic( ...
     data,index,config,projectRoot);
 
 assert(result.milestone_status=="PASS" && result.all_blocking_pass && ...

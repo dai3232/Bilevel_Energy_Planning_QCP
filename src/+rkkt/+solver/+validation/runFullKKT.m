@@ -11,9 +11,9 @@ end
 
 inputArtifact = string(options.InputArtifact);
 outputDirectory = string(options.OutputDirectory);
-rkkt.model.validation.ValidationSupport.requireOutputDirectory( ...
+rkkt.validation.requireOutputDirectory( ...
     outputDirectory,options.WriteArtifacts);
-upstream = rkkt.model.validation.ValidationSupport.loadResult( ...
+upstream = rkkt.validation.loadResult( ...
     inputArtifact,"runFullKKT");
 if string(upstream.meta.interface_name) ~= "rkkt.model.linearize"
     error("rkkt:solver:validation:FullKktUpstreamInterface", ...
@@ -25,7 +25,6 @@ rkkt.contracts.requireFields(upstream.output,"linearization", ...
     "runFullKKT upstream.output");
 linearization = upstream.output.linearization;
 config = upstream.input.config;
-projectRoot = string(upstream.input.projectData.projectRoot);
 
 legacyAssembly = call_legacy_assembly(linearization);
 assembly = rkkt.solver.assembleFullKKT(linearization);
@@ -46,10 +45,10 @@ residualSummary = residual_summary(fullResult,config);
 blockSummary = block_summary(fullResult.kkt.slices);
 [outputFile,tableFiles,figureFiles,figureIndex] = output_paths( ...
     outputDirectory,options.WriteArtifacts);
-metadata = rkkt.model.validation.ValidationSupport.metadata( ...
+metadata = rkkt.validation.metadata( ...
     "rkkt.solver.solveFullKKT", ...
     "solve_stage_a_multiday_full_kkt_direction", ...
-    inputArtifact,projectRoot,outputFile,"完整KKT模块", ...
+    inputArtifact,outputFile,"完整KKT模块", ...
     linearization.state.iteration_index, ...
     linearization.state.state_revision, ...
     options.Interactive,options.WriteArtifacts);
@@ -95,19 +94,19 @@ moduleResult.figureFiles = figureFiles;
 rkkt.contracts.validateModuleResult(moduleResult);
 
 if options.WriteArtifacts
-    rkkt.model.validation.ValidationSupport.writeTable17( ...
+    rkkt.validation.writeTable17( ...
         dimensionSummary,tableFiles(1));
-    rkkt.model.validation.ValidationSupport.writeTable17( ...
+    rkkt.validation.writeTable17( ...
         residualSummary,tableFiles(2));
-    rkkt.model.validation.ValidationSupport.writeTable17( ...
+    rkkt.validation.writeTable17( ...
         blockSummary,tableFiles(3));
     fig = full_kkt_figure(fullResult,options.Interactive);
-    rkkt.model.validation.ValidationSupport.saveFigurePair( ...
+    rkkt.validation.saveFigurePair( ...
         fig,figureIndex.figPath,figureIndex.pngPath);
     if ~options.Interactive
         close(fig);
     end
-    rkkt.model.validation.ValidationSupport.saveResult( ...
+    rkkt.validation.saveResult( ...
         outputFile,moduleResult);
 end
 
@@ -124,36 +123,11 @@ end
 end
 
 function value = call_legacy_assembly(linearization)
-[solverDirectory,productionFile] = production_location( ...
-    "assemble_stage_a_multiday_full_kkt.m");
-originalPath = path;
-pathGuard = onCleanup(@() path(originalPath));
-addpath(solverDirectory,"-begin");
-resolved = string(which("assemble_stage_a_multiday_full_kkt"));
-if ~same_path(resolved,productionFile)
-    error("rkkt:solver:validation:AssemblyFunctionShadowed", ...
-        "Expected assembly function at '%s'; resolved '%s'.", ...
-        productionFile,resolved);
-end
-value = assemble_stage_a_multiday_full_kkt(linearization);
-clear pathGuard
+value = rkkt.solver.assemble_stage_a_multiday_full_kkt(linearization);
 end
 
 function value = call_legacy_solve(linearization)
-[solverDirectory,productionFile] = production_location( ...
-    "solve_stage_a_multiday_full_kkt_direction.m");
-originalPath = path;
-pathGuard = onCleanup(@() path(originalPath));
-addpath(solverDirectory,"-begin");
-resolved = string(which( ...
-    "solve_stage_a_multiday_full_kkt_direction"));
-if ~same_path(resolved,productionFile)
-    error("rkkt:solver:validation:SolveFunctionShadowed", ...
-        "Expected solve function at '%s'; resolved '%s'.", ...
-        productionFile,resolved);
-end
-value = solve_stage_a_multiday_full_kkt_direction(linearization);
-clear pathGuard
+value = rkkt.solver.solve_stage_a_multiday_full_kkt_direction(linearization);
 end
 
 function facts = inspect_full_kkt(assembly,fullResult, ...
@@ -305,15 +279,6 @@ figureFiles = reshape(string(figureFiles),[],1);
 index = struct("figPath",string(figPath),"pngPath",string(pngPath));
 end
 
-function [directory,file] = production_location(fileName)
-validationDirectory = string(fileparts(mfilename("fullpath")));
-packageDirectory = string(fileparts(validationDirectory));
-rkktDirectory = string(fileparts(packageDirectory));
-sourceDirectory = string(fileparts(rkktDirectory));
-directory = fullfile(sourceDirectory,"solver");
-file = fullfile(directory,fileName);
-end
-
 function value = default_input_artifact()
 validationDirectory = string(fileparts(mfilename("fullpath")));
 solverDirectory = string(fileparts(validationDirectory));
@@ -324,14 +289,4 @@ end
 
 function value = default_output_directory()
 value = string(fileparts(mfilename("fullpath")));
-end
-
-function value = same_path(left,right)
-left = replace(string(left),"/","\");
-right = replace(string(right),"/","\");
-if ispc
-    value = strcmpi(left,right);
-else
-    value = strcmp(left,right);
-end
 end

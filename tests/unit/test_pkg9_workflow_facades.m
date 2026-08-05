@@ -1,5 +1,5 @@
 function tests = test_pkg9_workflow_facades
-%TEST_PKG9_WORKFLOW_FACADES Static-only workflow delegation contracts.
+%TEST_PKG9_WORKFLOW_FACADES Static package-owned workflow contracts.
 tests = functiontests(localfunctions);
 end
 
@@ -10,20 +10,17 @@ testCase.TestData.workflowDirectory = fullfile( ...
     root,"src","+rkkt","+workflows");
 end
 
-function testThreeWorkflowFacadesTargetExactStableEntrypoints(testCase)
-names = ["stageB1","main_stage_B_1"; ...
-    "stageB2A","main_stage_B_2A"; ...
-    "stageB2B","main_stage_B_2B"];
+function testThreeWorkflowImplementationsArePackageOwned(testCase)
+names = ["stageB1","build_stage_b1_water_input_audit"; ...
+    "stageB2A","assemble_stage_b_multiday_full_kkt"; ...
+    "stageB2B","solve_stage_b2b_recursive_direction"];
 for k = 1:size(names,1)
     source = noncomment_source(fileread(fullfile( ...
         testCase.TestData.workflowDirectory,names(k,1)+".m")));
     verifyTrue(testCase,contains(source,names(k,2)));
-    verifyTrue(testCase,contains(source,"which("));
-    verifyTrue(testCase,contains(source,"ProductionFunctionShadowed"));
-    verifyTrue(testCase,contains(source,"same_path("));
-    for other = setdiff(names(:,2),names(k,2)).'
-        verifyFalse(testCase,contains(source,other));
-    end
+    verifyFalse(testCase,contains(source,"which("));
+    verifyFalse(testCase,contains(source,"ProductionFunctionShadowed"));
+    verifyFalse(testCase,contains(source,"main_stage_B_"));
 end
 end
 
@@ -39,19 +36,12 @@ for name = ["stageB1","stageB2A","stageB2B"]
 end
 end
 
-function testWorkflowFacadesRemainThinSingleDelegates(testCase)
-targets = ["stageB1","main_stage_B_1"; ...
-    "stageB2A","main_stage_B_2A"; ...
-    "stageB2B","main_stage_B_2B"];
-for k = 1:size(targets,1)
-    pathValue = fullfile(testCase.TestData.workflowDirectory, ...
-        targets(k,1)+".m");
-    lines = splitlines(string(fileread(pathValue)));
-    verifyLessThanOrEqual(testCase,numel(lines),90);
-    source = noncomment_source(strjoin(lines,newline));
-    callPattern = "(^|[^A-Za-z0-9_])"+targets(k,2)+"\s*\(";
-    verifyEqual(testCase,numel(regexp(source,callPattern)),1, ...
-        "Workflow must delegate exactly once: "+targets(k,1));
+function testWorkflowFilesContainRealImplementations(testCase)
+for name = ["stageB1","stageB2A","stageB2B"]
+    pathValue = fullfile(testCase.TestData.workflowDirectory,name+".m");
+    source = noncomment_source(fileread(pathValue));
+    verifyGreaterThan(testCase,numel(splitlines(source)),100);
+    verifyTrue(testCase,contains(source,"rkkt.artifacts.create_run_context"));
     verifyEmpty(testCase,regexp(source, ...
         '(^|[^A-Za-z0-9_])(inv|pinv|full)\s*\(',"once"));
 end

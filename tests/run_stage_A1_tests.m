@@ -128,12 +128,12 @@ paths = evidence_paths(evidenceDirectory);
 prepare_evidence_directory(evidenceDirectory,paths);
 
 % These artifacts are deliberately written before the first test executes.
-write_table_csv_17g(paths.inventory,inventory);
+rkkt.artifacts.write_table_csv_17g(paths.inventory,inventory);
 write_utf8_text(paths.command,[commandText,newline]);
 initialResults = incomplete_result_table(inventory, ...
     "Test execution has not completed.");
-write_table_csv_17g(paths.results_csv,initialResults);
-write_json_file(paths.summary,make_summary(initialResults,0, ...
+rkkt.artifacts.write_table_csv_17g(paths.results_csv,initialResults);
+rkkt.artifacts.write_json_file(paths.summary,make_summary(initialResults,0, ...
     "RUNNING","",""));
 write_utf8_text(paths.console_log, ...
     sprintf('Stage A1 test console evidence initialized at %s.\n', ...
@@ -160,8 +160,8 @@ try
     assert_result_identity(resultTable,inventory);
     summary = make_summary(resultTable,wallClockSeconds, ...
         "COMPLETE","","");
-    write_table_csv_17g(paths.results_csv,resultTable);
-    write_json_file(paths.summary,summary);
+    rkkt.artifacts.write_table_csv_17g(paths.results_csv,resultTable);
+    rkkt.artifacts.write_json_file(paths.summary,summary);
     if ~is_complete_junit(paths.results_xml,height(inventory))
         error('stageA1:tests:IncompleteJUnit', ...
             'JUnit evidence does not contain the complete test inventory.');
@@ -322,8 +322,8 @@ end
 summary = make_summary(resultTable,wallClockSeconds,"ERROR", ...
     string(exception.identifier),string(exception.message));
 try
-    write_table_csv_17g(paths.results_csv,resultTable);
-    write_json_file(paths.summary,summary);
+    rkkt.artifacts.write_table_csv_17g(paths.results_csv,resultTable);
+    rkkt.artifacts.write_json_file(paths.summary,summary);
 catch persistenceException
     fprintf(2,'Could not update exception CSV/JSON evidence: %s\n', ...
         persistenceException.message);

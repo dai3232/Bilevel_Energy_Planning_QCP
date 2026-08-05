@@ -8,7 +8,7 @@ addpath(genpath(fullfile(repoRoot,'src')));
 end
 
 function testMatlabSparseAndParallelAreAvailable(testCase)
-environment = inspect_stage0_environment();
+environment = rkkt.diagnostics.inspect_stage0_environment();
 status = string(environment.status);
 verifyEqual(testCase,status,repmat("PASS",height(environment),1), ...
     strjoin(string(environment.details(status~="PASS")),"; "));

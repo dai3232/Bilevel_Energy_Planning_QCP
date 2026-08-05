@@ -286,10 +286,7 @@ value = string(datetime("now","TimeZone","Asia/Shanghai", ...
 end
 
 function value = default_project_root()
-value = string(fileparts(mfilename("fullpath")));
-for k = 1:4
-    value = string(fileparts(value));
-end
+value = rkkt.projectRoot();
 end
 
 function value = default_output_directory()
