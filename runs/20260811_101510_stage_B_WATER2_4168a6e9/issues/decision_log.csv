@@ -1,0 +1,2 @@
+run_id,milestone,terminal_state,conclusion,next_action,accepted_iterations,source_equivalent_revision,formal_solver_modified,model_modified,production_fallback_added
+20260811_101510_stage_B_WATER2_4168a6e9,B-2C-WATER-SECOND-ORDER-EXPERIMENT,CONVERGED,隔离续算在第17日数值零主元出现前满足原冻结停止判据。,由用户决定是否将同一校正集成到正式入口并从第0次状态重跑。,3,30,false,false,false

@@ -1,5 +1,7 @@
 # 包接口重构辅助阶段状态
 
+> 当前项目状态更新（2026-08-12）：本文件主体是 2026-08-05 包硬迁移收口时的历史快照。之后 Stage B 已由 `20260811_121452_stage_B_2C_4168a6e9` 正式验收为 `PASS`，项目已按用户决定路由到 `stage_D1 / READY（仅方案讨论）`；当前状态以 `CURRENT_STAGE.md` 和 `src/+rkkt/info.m` 为准。
+
 ## 当前包内算法硬迁移
 
 - `pkg_stage_id`: `PACKAGE-HARD-CUT`

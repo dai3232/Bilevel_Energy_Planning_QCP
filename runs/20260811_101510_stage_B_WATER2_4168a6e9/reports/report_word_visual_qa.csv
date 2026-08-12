@@ -1,0 +1,2 @@
+run_id,check_id,engine,opened_read_only,page_count,all_pages_reviewed,clipped_text,overlapping_objects,broken_tables,unexpected_font_substitution,header_footer_consistent,status,pdf_relative_path,png_pattern,pdf_sha256,details
+20260811_101510_stage_B_WATER2_4168a6e9,DOCX_WORD_EXPORT_VISUAL_REVIEW,Microsoft Word read-only ExportAsFixedFormat,true,5,true,false,false,false,false,true,PASS,reports/word_rendered_pages/阶段B-2C_水量二阶松弛校正实验报告.pdf,reports/word_rendered_pages/page-*.png,8a5285b2bf6150e21806ec21156c518cdc8db6bbdbcd3a91714614bd65bd874e,Codex all-page visual inspection

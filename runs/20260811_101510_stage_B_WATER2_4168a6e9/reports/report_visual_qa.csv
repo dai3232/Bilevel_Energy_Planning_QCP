@@ -1,0 +1,25 @@
+check_id,renderer_wrapper_available,render_engine_available,exit_code,page_png_count,pdf_exists,output_directory,details,status
+DOCX_PAGE_RENDER,true,false,1,0,false,H:\Reproduction\Hourly_Recursive_KKT_pkg\runs\20260811_101510_stage_B_WATER2_4168a6e9\reports\rendered_pages,"Traceback (most recent call last):
+  File ""C:\Users\50130\.codex\plugins\cache\openai-primary-runtime\documents\26.802.11031\skills\documents\render_docx.py"", line 449, in <module>
+    main()
+  File ""C:\Users\50130\.codex\plugins\cache\openai-primary-runtime\documents\26.802.11031\skills\documents\render_docx.py"", line 444, in main
+    rasterize(input_path, out_dir, dpi, verbose=args.verbose, emit_pdf=args.emit_pdf)
+  File ""C:\Users\50130\.codex\plugins\cache\openai-primary-runtime\documents\26.802.11031\skills\documents\render_docx.py"", line 327, in rasterize
+    pdf_path, debug = convert_to_pdf(
+                      ^^^^^^^^^^^^^^^
+  File ""C:\Users\50130\.codex\plugins\cache\openai-primary-runtime\documents\26.802.11031\skills\documents\render_docx.py"", line 215, in convert_to_pdf
+    proc = _run_cmd(cmd_pdf, env=env, verbose=verbose)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Users\50130\.codex\plugins\cache\openai-primary-runtime\documents\26.802.11031\skills\documents\render_docx.py"", line 148, in _run_cmd
+    proc = subprocess.run(
+           ^^^^^^^^^^^^^^^
+  File ""C:\Users\50130\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\subprocess.py"", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Users\50130\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\subprocess.py"", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File ""C:\Users\50130\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\subprocess.py"", line 1538, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [WinError 2] 系统找不到指定的文件。
+",NOT_RUN_LIBREOFFICE_UNAVAILABLE

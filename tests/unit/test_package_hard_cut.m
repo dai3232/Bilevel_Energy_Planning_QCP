@@ -132,8 +132,12 @@ verifyFalse(testCase,value.compatibility_dispatch_present);
 verifyFalse(testCase,value.fallback_dispatch_present);
 verifyEqual(testCase,value.class_count,0);
 verifyEqual(testCase,value.single_click_entry,"RUN_PROJECT.m");
-verifyTrue(testCase,value.single_click_executes_full_ipm);
-verifyTrue(testCase,value.single_click_creates_formal_run);
+verifyFalse(testCase,value.single_click_executes_full_ipm);
+verifyFalse(testCase,value.single_click_creates_formal_run);
+verifyEqual(testCase,value.single_click_stage,"stage_B");
+verifyFalse(testCase,value.single_click_is_current_stage_entry);
+verifyEqual(testCase,value.single_click_block_reason, ...
+    "current_stage_is_stage_D1");
 verifyTrue(testCase,value.immutable_run_history);
 verifyEqual(testCase,value.compact_run_index,"runs/运行索引.csv");
 end

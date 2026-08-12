@@ -1,0 +1,7 @@
+{
+  "test_total": 0,
+  "test_passed": 0,
+  "test_failed": 0,
+  "status": "NOT_RUN_INSIDE_NUMERICAL_EXPERIMENT",
+  "reason": "The caller runs the targeted unit test separately."
+}

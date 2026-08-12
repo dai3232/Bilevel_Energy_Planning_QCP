@@ -1,0 +1,2 @@
+run_id,test_file,test_name,execution_count,all_executions_passed,failed,incomplete,first_duration_seconds,details,scope
+20260811_101510_stage_B_WATER2_4168a6e9,tests/unit/test_stage_b2c_water_slack_second_order_correction.m,testCheckpoint27WaterRemainderIsRemovedExactly,2,true,false,false,40.607799999999997,first execution: 1 passed; accidental evidence-capture repeat: test completed and passed before wrapper string-conversion error,no source changes after either execution

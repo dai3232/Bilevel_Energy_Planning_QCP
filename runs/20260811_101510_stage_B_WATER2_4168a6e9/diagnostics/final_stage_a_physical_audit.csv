@@ -1,0 +1,9 @@
+audit_id,requirement,actual_value,threshold,status
+B2C-PHY-EQUALITY,all formal equality residuals,3.637978807091713e-12,1e-08,PASS
+B2C-PHY-POWER-BALANCE,hourly power-balance residuals,3.637978807091713e-12,1e-08,PASS
+B2C-PHY-SOC-CHAIN,daily SOC-chain residuals,1.1368683772161603e-12,1e-08,PASS
+B2C-PHY-SOC-TERMINAL,fourteen terminal SOC equalities,0,1e-08,PASS
+B2C-PHY-BASE-INEQUALITY,Stage-A physical inequality feasibility,0,1e-08,PASS
+B2C-PHY-FIXED-ZERO-VALUE,422 fixed-zero physical values,0,0,PASS
+B2C-PHY-FIXED-ZERO-DIRECTION,422 fixed-zero directions,0,0,PASS
+B2C-PHY-NO-INTERDAY-SOC,daily SOC chains have no cross-day predecessor,0,0,PASS

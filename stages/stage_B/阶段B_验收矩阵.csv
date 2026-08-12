@@ -1,5 +1,5 @@
 ﻿test_id,category,requirement,command_or_method,threshold,blocking,expected_evidence,status,actual_value
-SB-DATA-001,数据,4座水电7日上下限读取正确,audit,28 day-plant rows,true,water_input_audit.csv,NOT_RUN,
-SB-DER-001,导数,水量梯度/Hessian有限差分检查,relative error,<=1e-7,true,derivative_check.csv,NOT_RUN,
-SB-EQ-001,等价,扩展模型方向相对误差,2-norm,<=1e-10,true,acceptance_results.csv,NOT_RUN,
-SB-PHY-001,物理,每日水量上下限,max violation,<=1e-8,true,water_constraint_audit.csv,NOT_RUN,
+SB-DATA-001,数据,4座水电7日上下限读取正确,audit,28 day-plant rows,true,water_input_audit.csv,PASS,28/28 input rows PASS; run 20260811_121452_stage_B_2C_4168a6e9
+SB-DER-001,导数,水量梯度/Hessian有限差分检查,relative error,<=1e-7,true,runs/20260811_121452_stage_B_2C_4168a6e9/tests/b1_regression/test_results.csv | runs/20260811_121452_stage_B_2C_4168a6e9/tests/test_results.csv,PASS,B-1 finite-difference gradient/Hessian tests PASS; B-2C current-state stationarity finite-difference test PASS; historical maxima gradient=2.3632709629129663e-12 and Hessian=8.7557365212280878e-09
+SB-EQ-001,等价,扩展模型方向相对误差,2-norm,<=1e-10,true,acceptance_results.csv,PASS,worst direction=1.3596442370269145e-11; worst recursive residual=5.0435480551951611e-12
+SB-PHY-001,物理,每日水量上下限,max violation,<=1e-8,true,water_constraint_audit.csv,PASS,28/28 rows PASS; maximum violation=0

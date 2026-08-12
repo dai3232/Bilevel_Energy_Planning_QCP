@@ -1,0 +1,8 @@
+run_id,check_id,requirement,actual_value,threshold,blocking,status,evidence_path
+20260811_101510_stage_B_WATER2_4168a6e9,WATER2-INPUT-001,controlled input hashes,true,true,true,PASS,input_hashes.csv
+20260811_101510_stage_B_WATER2_4168a6e9,WATER2-SOURCE-001,source checkpoint continues at the next source-equivalent revision,first_source_equivalent=28,28,true,PASS,diagnostics/source_checkpoint.csv
+20260811_101510_stage_B_WATER2_4168a6e9,WATER2-SCOPE-001,only 56 water slacks change after the formal update,all_scope_assertions=true,true,true,PASS,diagnostics/iteration_history.csv
+20260811_101510_stage_B_WATER2_4168a6e9,WATER2-CORRECTION-001,exact closure and strict positive corrected water slacks,"max_closure=3.7948700857943726e-13, min_l=13.566810758062321",abs(closure)<=row tolerance and l>0,true,PASS,diagnostics/water_correction_row_history.csv
+20260811_101510_stage_B_WATER2_4168a6e9,WATER2-DIRECTION-001,all directions pass independent full-KKT audit,max_direction=1.0061014111836155e-13,<= 1e-10,true,PASS,diagnostics/direction_audit_history.csv
+20260811_101510_stage_B_WATER2_4168a6e9,WATER2-CONVERGENCE-001,all four frozen stopping metrics pass,"CONVERGED, final_ineq=2.3661073100811336e-12",four metrics <= 1e-6,true,PASS,diagnostics/iteration_history.csv
+20260811_101510_stage_B_WATER2_4168a6e9,WATER2-PHYSICAL-001,final Stage-A and water physical audit passes,"passed=true, max_water=0",physical thresholds,true,PASS,diagnostics/final_water_physical_audit.csv

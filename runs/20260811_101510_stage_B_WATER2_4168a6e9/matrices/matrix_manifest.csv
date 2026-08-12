@@ -1,0 +1,2 @@
+run_id,matrix_name,day,dimension,nnz,structural_rank,is_sparse,relative_path,sha256
+20260811_101510_stage_B_WATER2_4168a6e9,initial_day17_joint_block,17,618,4742,618,true,matrices/initial_day17_joint_block.mat,022929a4cb60aa5f6fb046802047548515af05ba2c5617866f664c8352038398

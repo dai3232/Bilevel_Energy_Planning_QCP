@@ -1,11 +1,35 @@
 # 阶段B：四座水电每日用水上下限：状态与决策日志
 
-- 当前状态：`READY`（B-2B 为 `READY_FOR_REVIEW`；不表示 Stage B 整体通过）
-- 最近里程碑：`B-2B`
-- 最近权威 run_id：`20260804_022443_stage_B_2B_4bcd7504`
-- 最近运行 Git commit：`4bcd7504cf737c45e2ef6c8662d83b40507b95f5`
-- 阻断问题：`无记录`
-- 下一动作：在另行授权后执行 `SB-PHY-001` 物理验收；当前保持 `stage_B / READY`，不得将 B-2B 解释为 Stage B 整体通过，也不得进入 Stage C1。
+- 当前状态：`PASS`
+- 最终里程碑：`B-2C`
+- 权威七日 run_id：`20260811_121452_stage_B_2C_4168a6e9`
+- 运行记录 Git commit：`4168a6e9fd8b7f6984f40001b1cf004fcee950e6`
+- Stage B 实现与七日/30日结果归档 commit：`f77f87aeb376631891c550b10493f89a4b796e3d`
+- 阻断问题：`无`
+- 收口日期：`2026-08-12`
+- 下一动作：按用户决定暂不执行 C1/C2；项目路由到 `stage_D1 / READY`，仅讨论方案，D1 实现和运行仍等待 `DECISION-D1-01`。
+
+## Stage B 正式收口结论（2026-08-12）
+
+- 权威七日运行 manifest 为 `PASS`，求解终态为 `CONVERGED`，接受迭代 `30` 次；`stage_b_complete=true`。
+- 四项阻断验收全部通过：`SB-DATA-001` 为 28/28 水量输入行通过；`SB-DER-001` 由 B-1 梯度/Hessian 有限差分测试和 B-2C 当前状态驻点 Hessian 有限差分测试共同给出正式证据，非零水量 Hessian 与二阶校正门禁作为补充数值证据（`nnz=672`、最小校正比例 `0.14372960534441986`、最终校正比例 `1`、最大闭合误差 `3.879563337250147e-12`）；`SB-EQ-001` 的最坏方向相对误差 `1.3596442370269145e-11`、最坏递推 KKT 残差 `5.0435480551951611e-12`；`SB-PHY-001` 为 28/28 水量物理审计通过且最大违反量为 `0`。
+- 最终四项停止指标分别为：等式残差 `4.547473508864641e-12`、不等式残差 `4.547473508864641e-13`、统一尺度对偶残差 `8.822001967612324e-11`、统一尺度平均互补间隙 `1.1255616063014672e-7`，均低于既定 `1e-6` 阈值。
+- 汇总测试为 `90/90 PASS`，失败 `0`、不完整 `0`；其中 B-2C 固定测试为 `18/18 PASS`。Code Analyzer 阻断项为 `0`，禁止项审计为 `PASS`。
+- `SB-DER-001` 的正式文件指针为权威运行下的 `tests/b1_regression/test_results.csv` 与 `tests/test_results.csv`。该不可变历史运行的 `acceptance/acceptance_results.csv` 使用同一编号记录了 B-2C 非零 Hessian/二阶校正子门禁；该行作为补充证据保留，不再将其误作有限差分检查的唯一证据。后续新运行由工作流输出复合口径。
+- 递推方向是正式 Newton 方向；完整稀疏 KKT 仅用于逐轮独立审计，没有完整方向回退。固定零映射 `422` 项的物理值和方向保持精确零。
+- 两份中文 Word 阶段报告均由真实运行工件生成：七日模型结果与物理验收报告位于 `runs/20260811_121452_stage_B_2C_4168a6e9/reports/阶段B-2C_七日递推IPM收敛与水量物理验收报告.docx`；问题修复验收报告位于 `runs/20260811_101510_stage_B_WATER2_4168a6e9/reports/阶段B-2C_水量二阶松弛校正实验报告.docx`。
+- 七日报告 OOXML 结构验证为 `PASS`。正式 manifest 保留了当时 LibreOffice 不可用的 `NOT_RUN_LIBREOFFICE_UNAVAILABLE` 原始记录；随后使用 Microsoft Word `ExportAsFixedFormat` 与 Poppler 对 7 页逐页补充复核，`report_word_visual_qa.csv` 为 7/7 `PASS`。水量校正报告同样完成 5 页 Word/PDF/PNG 视觉复核并为 `PASS`。
+- 30 日补充实验 `20260811_155000_stage_B_2C_30day_full_final` 为 `PASS`：接受迭代 `31` 次、8/8 实验验收通过、纯 IPM 优化计算时间 `473.2153738 s`、最终水量违反量 `0`。该时间为 `diagnostics/timing_history.csv` 逐轮 `total_seconds` 之和，不含工作流装配、报告和外围审计；manifest 中历史字段 `recursive_ipm_seconds=542.5847488` 是迭代循环墙钟口径，不作为纯优化时间。该实验只作为规模扩展证据，不构成 D1 并行、365 日或火电第二次结论。
+- 权威七日运行是在 commit `4168a6e9...` 所记录的工作树代码上执行；对应实现以及七日/30日结果随后归档于 commit `f77f87ae...`。两者用途不同，均如实保留。
+- 问题日志没有未解释的阻断项；输入 Excel、冻结水量模型口径和验收阈值没有为了通过验收而修改。
+
+## 阶段路由决定
+
+- 用户于 2026-08-12 明确决定暂不执行 `stage_C1` 和 `stage_C2`，并授权在 Stage B 收口后将 `CURRENT_STAGE.md` 指向 `stage_D1 / READY`。
+- C1/C2 的状态是 `NOT_STARTED / USER_DEFERRED`，不是 `PASS`；没有生成 `thermal_mask.csv`，也没有执行固定停机和原始 `Pmin` 的第二次求解。
+- 现行 `docs/03_阶段模型启用矩阵.csv` 规定 D1 使用 C2 的第二次火电口径，因此 D1 当前只开放方案讨论。必须先关闭 `DECISION-D1-01`，再修改合同或实现 D1。
+
+> 以下 B-2B、B-2A、B-1 内容是当时里程碑的历史快照；其中“Stage B 仍为 READY”等表述只在相应日期有效，不覆盖上述 2026-08-12 正式收口结论。
 
 ## B-2B 验收结论（2026-08-04）
 
