@@ -1,0 +1,2 @@
+run_id,milestone,status,conclusion,next_action,full_kkt_audit_executed,formal_stage_changed,stage_c1_entered
+20260811_155000_stage_B_2C_30day_full_final,B-2C-30-DAY-EXPERIMENT,PASS,The 30-day recursive IPM experiment completed; convergence=true.,Review capacities and daily dispatch; formal Stage-B acceptance remains unchanged.,false,false,false

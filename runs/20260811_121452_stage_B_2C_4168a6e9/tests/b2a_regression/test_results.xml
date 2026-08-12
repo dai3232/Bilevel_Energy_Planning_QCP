@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<testsuites>
+  <testsuite errors="0" failures="0" name="test_stage_b2a_index" skipped="0" tests="6" time="18.3945">
+    <testcase classname="test_stage_b2a_index" name="testStageBConfigurationIsAssembleOnly" time="12.3446"/>
+    <testcase classname="test_stage_b2a_index" name="testExactlyFiftySixWaterRowsAndDerivedDimension" time="0.005226"/>
+    <testcase classname="test_stage_b2a_index" name="testStableDayHydroUpperLowerOrdering" time="0.040146"/>
+    <testcase classname="test_stage_b2a_index" name="testEachWaterRowTouchesOnlyTwentyFourLocalHydroHours" time="0.39416"/>
+    <testcase classname="test_stage_b2a_index" name="testStageAPrefixFixedZeroAndSocMapsAreUnchanged" time="5.5802"/>
+    <testcase classname="test_stage_b2a_index" name="testExtendedInequalityPermutationIsBijection" time="0.030205"/>
+  </testsuite>
+  <testsuite errors="0" failures="0" name="test_stage_b2a_linearization" skipped="0" tests="7" time="75.3058">
+    <testcase classname="test_stage_b2a_linearization" name="testUnifiedDimensionsAndIdentity" time="35.2526"/>
+    <testcase classname="test_stage_b2a_linearization" name="testWaterGOffsetReproducesNonlinearValues" time="0.0045497"/>
+    <testcase classname="test_stage_b2a_linearization" name="testUpperLowerJacobianSignsAreOpposite" time="0.1246"/>
+    <testcase classname="test_stage_b2a_linearization" name="testEveryConstraintHessianHasCorrectSignedLocalDiagonal" time="0.31724"/>
+    <testcase classname="test_stage_b2a_linearization" name="testLagrangianHessianUsesNonlinearCurvature" time="0.014001"/>
+    <testcase classname="test_stage_b2a_linearization" name="testB1FiniteDifferenceDerivativeEvidenceRemainsAtThreshold" time="0.32796"/>
+    <testcase classname="test_stage_b2a_linearization" name="testRepeatedLinearizationIsBitwiseDeterministic" time="39.2649"/>
+  </testsuite>
+  <testsuite errors="0" failures="0" name="test_stage_b2a_full_kkt_structure" skipped="0" tests="6" time="35.3835">
+    <testcase classname="test_stage_b2a_full_kkt_structure" name="testFullKktDimensionAndSparseNnz" time="35.3306"/>
+    <testcase classname="test_stage_b2a_full_kkt_structure" name="testBlockOffsetsAndNnzAreExact" time="0.028481"/>
+    <testcase classname="test_stage_b2a_full_kkt_structure" name="testTransposeAndComplementarityBlocksFollowContract" time="0.013094"/>
+    <testcase classname="test_stage_b2a_full_kkt_structure" name="testWaterSlackAndDualRowsAreAddedWithoutSolving" time="0.0061757"/>
+    <testcase classname="test_stage_b2a_full_kkt_structure" name="testNoDirectionOrSolverFieldsAreProduced" time="0.0026399"/>
+    <testcase classname="test_stage_b2a_full_kkt_structure" name="testAcceptanceBoundariesRemainNotRun" time="0.0025102"/>
+  </testsuite>
+</testsuites>

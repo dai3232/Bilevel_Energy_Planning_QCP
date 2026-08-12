@@ -1,0 +1,69 @@
+Test evidence initialized at 2026-08-11T20:27:05+08:00.
+Fixed stage_B_2C inventory (18 tests):
+    test_order                                          test_name                                                             source_file                  
+    __________    ______________________________________________________________________________________    _______________________________________________
+
+         1        "test_stage_b2c_formal_ipm/testConfigurationFreezesFormalSevenDayScope"                   "tests/integration/test_stage_b2c_formal_ipm.m"
+         2        "test_stage_b2c_formal_ipm/testNonzeroWaterHessianGatePasses"                             "tests/integration/test_stage_b2c_formal_ipm.m"
+         3        "test_stage_b2c_formal_ipm/testWaterHessianSupportAndSignsAreTraceable"                   "tests/integration/test_stage_b2c_formal_ipm.m"
+         4        "test_stage_b2c_formal_ipm/testNonzeroHessianDirectionsAreEquivalent"                     "tests/integration/test_stage_b2c_formal_ipm.m"
+         5        "test_stage_b2c_formal_ipm/testSingleStepUsesIndependentPrimalAndDualUpdates"             "tests/integration/test_stage_b2c_formal_ipm.m"
+         6        "test_stage_b2c_formal_ipm/testWaterHessianIsRebuiltFromCurrentMultiplier"                "tests/integration/test_stage_b2c_formal_ipm.m"
+         7        "test_stage_b2c_formal_ipm/testEachRecursivePassUsesOnePivotedDayFactor"                  "tests/integration/test_stage_b2c_formal_ipm.m"
+         8        "test_stage_b2c_formal_ipm/testNoFactorOrLinearizationReuseAcrossIterations"              "tests/integration/test_stage_b2c_formal_ipm.m"
+         9        "test_stage_b2c_formal_ipm/testStrictSlackAndMultiplierPositivity"                        "tests/integration/test_stage_b2c_formal_ipm.m"
+        10        "test_stage_b2c_formal_ipm/testExactlyFourStoppingCriteria"                               "tests/integration/test_stage_b2c_formal_ipm.m"
+        11        "test_stage_b2c_formal_ipm/testMaximumIterationLimitIsFrozen"                             "tests/integration/test_stage_b2c_formal_ipm.m"
+        12        "test_stage_b2c_formal_ipm/testCheckpointChainAndReplayAreDeterministic"                  "tests/integration/test_stage_b2c_formal_ipm.m"
+        13        "test_stage_b2c_formal_ipm/testFinalPhysicalAuditHasTwentyEightIndependentRows"           "tests/integration/test_stage_b2c_formal_ipm.m"
+        14        "test_stage_b2c_formal_ipm/testFullDirectionIsAuditOnlyAndNeverConsumed"                  "tests/integration/test_stage_b2c_formal_ipm.m"
+        15        "test_stage_b2c_formal_ipm/testForbiddenAlgorithmFactorsRemainDisabled"                   "tests/integration/test_stage_b2c_formal_ipm.m"
+        16        "test_stage_b2c_formal_ipm/testStageAndExecutionBoundariesRemainFrozen"                   "tests/integration/test_stage_b2c_formal_ipm.m"
+        17        "test_stage_b2c_formal_ipm/testWaterStationarityFiniteDifferenceMatchesCurrentHessian"    "tests/integration/test_stage_b2c_formal_ipm.m"
+        18        "test_stage_b2c_formal_ipm/testPivotedDayFactorSolvesAllColumnsJointly"                   "tests/integration/test_stage_b2c_formal_ipm.m"
+
+Actual test command: run_stage_B_2C_tests() [formal B-2C evidence]
+ 正在运行 test_stage_b2c_formal_ipm
+  正在设置 test_stage_b2c_formal_ipm
+  设置 test_stage_b2c_formal_ipm 在 83.1295 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testConfigurationFreezesFormalSevenDayScope
+   test_stage_b2c_formal_ipm/testConfigurationFreezesFormalSevenDayScope 在 0.52512 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testNonzeroWaterHessianGatePasses
+   test_stage_b2c_formal_ipm/testNonzeroWaterHessianGatePasses 在 0.028053 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testWaterHessianSupportAndSignsAreTraceable
+   test_stage_b2c_formal_ipm/testWaterHessianSupportAndSignsAreTraceable 在 0.0046786 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testNonzeroHessianDirectionsAreEquivalent
+   test_stage_b2c_formal_ipm/testNonzeroHessianDirectionsAreEquivalent 在 0.015006 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testSingleStepUsesIndependentPrimalAndDualUpdates
+   test_stage_b2c_formal_ipm/testSingleStepUsesIndependentPrimalAndDualUpdates 在 0.18467 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testWaterHessianIsRebuiltFromCurrentMultiplier
+   test_stage_b2c_formal_ipm/testWaterHessianIsRebuiltFromCurrentMultiplier 在 22.3986 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testEachRecursivePassUsesOnePivotedDayFactor
+   test_stage_b2c_formal_ipm/testEachRecursivePassUsesOnePivotedDayFactor 在 0.067565 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testNoFactorOrLinearizationReuseAcrossIterations
+   test_stage_b2c_formal_ipm/testNoFactorOrLinearizationReuseAcrossIterations 在 0.04047 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testStrictSlackAndMultiplierPositivity
+   test_stage_b2c_formal_ipm/testStrictSlackAndMultiplierPositivity 在 0.0058964 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testExactlyFourStoppingCriteria
+   test_stage_b2c_formal_ipm/testExactlyFourStoppingCriteria 在 0.0038053 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testMaximumIterationLimitIsFrozen
+   test_stage_b2c_formal_ipm/testMaximumIterationLimitIsFrozen 在 0.005848 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testCheckpointChainAndReplayAreDeterministic
+   test_stage_b2c_formal_ipm/testCheckpointChainAndReplayAreDeterministic 在 23.5053 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testFinalPhysicalAuditHasTwentyEightIndependentRows
+   test_stage_b2c_formal_ipm/testFinalPhysicalAuditHasTwentyEightIndependentRows 在 0.67629 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testFullDirectionIsAuditOnlyAndNeverConsumed
+   test_stage_b2c_formal_ipm/testFullDirectionIsAuditOnlyAndNeverConsumed 在 0.0033911 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testForbiddenAlgorithmFactorsRemainDisabled
+   test_stage_b2c_formal_ipm/testForbiddenAlgorithmFactorsRemainDisabled 在 0.0017938 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testStageAndExecutionBoundariesRemainFrozen
+   test_stage_b2c_formal_ipm/testStageAndExecutionBoundariesRemainFrozen 在 0.0029012 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testWaterStationarityFiniteDifferenceMatchesCurrentHessian
+   test_stage_b2c_formal_ipm/testWaterStationarityFiniteDifferenceMatchesCurrentHessian 在 20.5348 秒内完成
+   正在运行 test_stage_b2c_formal_ipm/testPivotedDayFactorSolvesAllColumnsJointly
+   test_stage_b2c_formal_ipm/testPivotedDayFactorSolvesAllColumnsJointly 在 0.047551 秒内完成
+  正在拆解 test_stage_b2c_formal_ipm
+  拆解 test_stage_b2c_formal_ipm 在 0.039196 秒内完成
+ test_stage_b2c_formal_ipm 在 151.2204 秒内完成
+__________
+

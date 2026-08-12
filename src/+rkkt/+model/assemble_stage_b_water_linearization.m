@@ -1,6 +1,6 @@
 function water = assemble_stage_b_water_linearization( ...
         xi,data,index,config)
-%ASSEMBLE_STAGE_B_WATER_LINEARIZATION Build 56 nonlinear water rows.
+%ASSEMBLE_STAGE_B_WATER_LINEARIZATION Build configured nonlinear water rows.
 %
 % Values, Jacobian rows, offsets, and individual constraint Hessians are
 % produced together from the current primal point.  This function performs
@@ -17,9 +17,11 @@ variables = index.variable_index;
 waterIndex = index.water_constraint_index;
 nPrimal = height(variables);
 nWater = height(waterIndex);
-assert(numel(xi)==nPrimal && nWater==56, ...
+assert(numel(xi)==nPrimal && ...
+    nWater==config.expected_water_inequality_count && ...
+    nWater==2*numel(config.days)*numel(config.hydro_ids), ...
     "stageB2A:waterLinearization:Dimensions", ...
-    "B-2A requires 3722 primal entries and 56 water rows.");
+    "B-2A primal entries or configured water rows are inconsistent.");
 
 G = spalloc(nWater,nPrimal,24*nWater);
 offset = zeros(nWater,1);

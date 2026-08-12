@@ -1,0 +1,51 @@
+Test evidence initialized at 2026-08-11T20:29:39+08:00.
+Fixed stage_B_2B inventory (12 tests):
+    test_order                                               test_name                                                                      source_file                        
+    __________    _______________________________________________________________________________________________    __________________________________________________________
+
+         1        "test_stage_b2b_direction_equivalence/testEliminationFormulaMatchesResidualContract"               "tests/equivalence/test_stage_b2b_direction_equivalence.m"
+         2        "test_stage_b2b_direction_equivalence/testReducedSaddleIsSymmetricWithoutModification"             "tests/equivalence/test_stage_b2b_direction_equivalence.m"
+         3        "test_stage_b2b_direction_equivalence/testBackSubstitutionClosesAllFourRawKktRows"                 "tests/equivalence/test_stage_b2b_direction_equivalence.m"
+         4        "test_stage_b2b_direction_equivalence/testDailyWaterBordersHaveEightTraceableRows"                 "tests/equivalence/test_stage_b2b_direction_equivalence.m"
+         5        "test_stage_b2b_direction_equivalence/testWaterCurvatureStaysOutsidePureHourlyThomasBlocks"        "tests/equivalence/test_stage_b2b_direction_equivalence.m"
+         6        "test_stage_b2b_direction_equivalence/testDayResponsesAndGlobalCoreHaveContractDimensions"         "tests/equivalence/test_stage_b2b_direction_equivalence.m"
+         7        "test_stage_b2b_direction_equivalence/testStationarityFiniteDifferenceMatchesLagrangianHessian"    "tests/equivalence/test_stage_b2b_direction_equivalence.m"
+         8        "test_stage_b2b_direction_equivalence/testWaterHessianRebuildConsumesCurrentStateMultipliers"      "tests/equivalence/test_stage_b2b_direction_equivalence.m"
+         9        "test_stage_b2b_direction_equivalence/testFullAndRecursiveDirectionsAreStrictlyEquivalent"         "tests/equivalence/test_stage_b2b_direction_equivalence.m"
+        10        "test_stage_b2b_direction_equivalence/testRecursiveDirectionReinsertsIntoIndependentFullKkt"       "tests/equivalence/test_stage_b2b_direction_equivalence.m"
+        11        "test_stage_b2b_direction_equivalence/testFixedZeroValuesAndDirectionsRemainExact"                 "tests/equivalence/test_stage_b2b_direction_equivalence.m"
+        12        "test_stage_b2b_direction_equivalence/testExecutionFlagsProveAuditOnlyAndNoFallback"               "tests/equivalence/test_stage_b2b_direction_equivalence.m"
+
+Actual test command: run_stage_B_2B_tests() [B-2C regression]
+ 正在运行 test_stage_b2b_direction_equivalence
+  正在设置 test_stage_b2b_direction_equivalence
+  设置 test_stage_b2b_direction_equivalence 在 42.0486 秒内完成
+   正在运行 test_stage_b2b_direction_equivalence/testEliminationFormulaMatchesResidualContract
+   test_stage_b2b_direction_equivalence/testEliminationFormulaMatchesResidualContract 在 0.017995 秒内完成
+   正在运行 test_stage_b2b_direction_equivalence/testReducedSaddleIsSymmetricWithoutModification
+   test_stage_b2b_direction_equivalence/testReducedSaddleIsSymmetricWithoutModification 在 0.0033943 秒内完成
+   正在运行 test_stage_b2b_direction_equivalence/testBackSubstitutionClosesAllFourRawKktRows
+   test_stage_b2b_direction_equivalence/testBackSubstitutionClosesAllFourRawKktRows 在 0.0069049 秒内完成
+   正在运行 test_stage_b2b_direction_equivalence/testDailyWaterBordersHaveEightTraceableRows
+   test_stage_b2b_direction_equivalence/testDailyWaterBordersHaveEightTraceableRows 在 0.39146 秒内完成
+   正在运行 test_stage_b2b_direction_equivalence/testWaterCurvatureStaysOutsidePureHourlyThomasBlocks
+   test_stage_b2b_direction_equivalence/testWaterCurvatureStaysOutsidePureHourlyThomasBlocks 在 0.15282 秒内完成
+   正在运行 test_stage_b2b_direction_equivalence/testDayResponsesAndGlobalCoreHaveContractDimensions
+   test_stage_b2b_direction_equivalence/testDayResponsesAndGlobalCoreHaveContractDimensions 在 0.029721 秒内完成
+   正在运行 test_stage_b2b_direction_equivalence/testStationarityFiniteDifferenceMatchesLagrangianHessian
+   test_stage_b2b_direction_equivalence/testStationarityFiniteDifferenceMatchesLagrangianHessian 在 22.1479 秒内完成
+   正在运行 test_stage_b2b_direction_equivalence/testWaterHessianRebuildConsumesCurrentStateMultipliers
+   test_stage_b2b_direction_equivalence/testWaterHessianRebuildConsumesCurrentStateMultipliers 在 22.0565 秒内完成
+   正在运行 test_stage_b2b_direction_equivalence/testFullAndRecursiveDirectionsAreStrictlyEquivalent
+   test_stage_b2b_direction_equivalence/testFullAndRecursiveDirectionsAreStrictlyEquivalent 在 0.0037612 秒内完成
+   正在运行 test_stage_b2b_direction_equivalence/testRecursiveDirectionReinsertsIntoIndependentFullKkt
+   test_stage_b2b_direction_equivalence/testRecursiveDirectionReinsertsIntoIndependentFullKkt 在 0.002045 秒内完成
+   正在运行 test_stage_b2b_direction_equivalence/testFixedZeroValuesAndDirectionsRemainExact
+   test_stage_b2b_direction_equivalence/testFixedZeroValuesAndDirectionsRemainExact 在 0.0037664 秒内完成
+   正在运行 test_stage_b2b_direction_equivalence/testExecutionFlagsProveAuditOnlyAndNoFallback
+   test_stage_b2b_direction_equivalence/testExecutionFlagsProveAuditOnlyAndNoFallback 在 0.0070012 秒内完成
+  正在拆解 test_stage_b2b_direction_equivalence
+  拆解 test_stage_b2b_direction_equivalence 在 0.0002882 秒内完成
+ test_stage_b2b_direction_equivalence 在 86.8721 秒内完成
+__________
+

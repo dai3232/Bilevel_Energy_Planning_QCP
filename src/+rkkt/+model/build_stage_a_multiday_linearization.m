@@ -180,6 +180,11 @@ maps.y_binding_by_day = cell(1,nDays);
 maps.x_by_day_hour = cell(nDays,nHours);
 maps.y_by_day_hour = cell(nDays,nHours);
 maps.ineq_by_day_hour = cell(nDays,nHours);
+storageRows = string(variables.asset_type)=="storage";
+nStorage = max(variables.asset_id(storageRows));
+maps.storage_pch = zeros(nDays,nHours,nStorage);
+maps.storage_pdis = zeros(nDays,nHours,nStorage);
+maps.storage_soc = zeros(nDays,nHours,nStorage);
 if numel(maps.q_global) ~= 14
     error("stageA:multiday:GlobalCapacityMap", ...
         "The global q map must have exactly 14 entries.");
@@ -199,9 +204,27 @@ for dayPosition = 1:nDays
     maps.y_binding_by_day{dayPosition} = binding;
     for hourPosition = 1:nHours
         hour = config.hours(hourPosition);
-        maps.x_by_day_hour{dayPosition,hourPosition} = ...
-            variables.global_index_start(variables.day == day & ...
+        xIndices = variables.global_index_start(variables.day == day & ...
             variables.hour == hour);
+        maps.x_by_day_hour{dayPosition,hourPosition} = xIndices;
+        hourVariables = variables(xIndices,:);
+        for storage = 1:nStorage
+            storageMask = string(hourVariables.asset_type)=="storage" & ...
+                hourVariables.asset_id==storage;
+            storageVariables = hourVariables(storageMask,:);
+            names = string(storageVariables.variable_name);
+            assert(height(storageVariables)==3 && ...
+                nnz(names=="Pch")==1 && nnz(names=="Pdis")==1 && ...
+                nnz(names=="SOC")==1, ...
+                "stageA:multiday:StorageVariableMap", ...
+                "Each modeled day/hour requires Pch, Pdis, and SOC.");
+            maps.storage_pch(dayPosition,hourPosition,storage) = ...
+                storageVariables.global_index_start(names=="Pch");
+            maps.storage_pdis(dayPosition,hourPosition,storage) = ...
+                storageVariables.global_index_start(names=="Pdis");
+            maps.storage_soc(dayPosition,hourPosition,storage) = ...
+                storageVariables.global_index_start(names=="SOC");
+        end
         maps.y_by_day_hour{dayPosition,hourPosition} = ...
             find(equalities.day == day & equalities.hour == hour);
         maps.ineq_by_day_hour{dayPosition,hourPosition} = ...
@@ -245,7 +268,10 @@ for rowNumber = 1:nEquality
         A(rowNumber,maps.q_day(capacityIndex,dayPosition)) = 1;
         A(rowNumber,maps.q_global(capacityIndex)) = -1;
     elseif name == "hourly_power_balance"
-        hourRows = variables(variables.day == day & variables.hour == hour,:);
+        dayPosition = locate_day_position(config.days,day);
+        hourPosition = locate_day_position(config.hours,hour);
+        hourRows = variables( ...
+            maps.x_by_day_hour{dayPosition,hourPosition},:);
         for localRow = 1:height(hourRows)
             variableName = string(hourRows.variable_name(localRow));
             coefficient = double(ismember(variableName, ...
@@ -258,13 +284,11 @@ for rowNumber = 1:nEquality
         offset(rowNumber) = -data.timeseries.planMW(day,hour);
     elseif name == "soc_dynamics"
         dayPosition = locate_day_position(config.days,day);
+        hourPosition = locate_day_position(config.hours,hour);
         link = locate_soc_link(index.soc_link_map,day,hour,asset);
-        currentPch = locate_hour_variable( ...
-            variables,day,hour,"storage",asset,"Pch");
-        currentPdis = locate_hour_variable( ...
-            variables,day,hour,"storage",asset,"Pdis");
-        currentSoc = locate_hour_variable( ...
-            variables,day,hour,"storage",asset,"SOC");
+        currentPch = maps.storage_pch(dayPosition,hourPosition,asset);
+        currentPdis = maps.storage_pdis(dayPosition,hourPosition,asset);
+        currentSoc = maps.storage_soc(dayPosition,hourPosition,asset);
         if link.current_soc_global_index ~= currentSoc
             error("stageA:multiday:CurrentSocMap", ...
                 "soc_link_map current SOC index disagrees with variable_index.");
@@ -283,8 +307,10 @@ for rowNumber = 1:nEquality
             A(rowNumber,maps.q_day(12+asset,dayPosition)) = ...
                 -link.initial_energy_fraction;
         else
-            expectedPredecessor = locate_hour_variable(variables,day, ...
-                link.predecessor_hour,"storage",asset,"SOC");
+            predecessorPosition = locate_day_position( ...
+                config.hours,link.predecessor_hour);
+            expectedPredecessor = maps.storage_soc( ...
+                dayPosition,predecessorPosition,asset);
             if link.predecessor_soc_global_index ~= expectedPredecessor
                 error("stageA:multiday:SocPredecessorMap", ...
                     "SOC predecessor index is cross-day or nonadjacent.");
@@ -293,14 +319,14 @@ for rowNumber = 1:nEquality
         end
     elseif name == "terminal_soc"
         dayPosition = locate_day_position(config.days,day);
+        hourPosition = locate_day_position(config.hours,hour);
         link = locate_soc_link(index.soc_link_map,day,hour,asset);
         if ~link.terminal_equality || ...
                 ~isfinite(link.terminal_energy_fraction)
             error("stageA:multiday:TerminalSocMap", ...
                 "A terminal SOC row requires a terminal link record.");
         end
-        currentSoc = locate_hour_variable( ...
-            variables,day,hour,"storage",asset,"SOC");
+        currentSoc = maps.storage_soc(dayPosition,hourPosition,asset);
         A(rowNumber,currentSoc) = 1;
         A(rowNumber,maps.q_day(12+asset,dayPosition)) = ...
             -link.terminal_energy_fraction;
@@ -316,6 +342,10 @@ function [G,offset] = assemble_inequalities(variables,inequalities,maps, ...
 nInequality = height(inequalities);
 G = spalloc(nInequality,nPrimal,2*nInequality);
 offset = zeros(nInequality,1);
+hourlyVariableRows = find(variables.hour>0);
+assert(nInequality==28+2*numel(hourlyVariableRows), ...
+    "stageA:multiday:InequalityOrdering", ...
+    "Stage-A inequalities must be 28 global bounds followed by two bounds per active hourly variable.");
 for rowNumber = 1:nInequality
     row = inequalities(rowNumber,:);
     name = string(row.constraint_name);
@@ -334,10 +364,16 @@ for rowNumber = 1:nInequality
         continue;
     end
 
+    hourlyPosition = ceil((rowNumber-28)/2);
+    variable = variables(hourlyVariableRows(hourlyPosition),:);
+    variableName = string(variable.variable_name);
+    variableIndex = variable.global_index_start;
+    assert(variable.day==row.day && variable.hour==row.hour && ...
+        string(variable.asset_type)==string(row.asset_type) && ...
+        variable.asset_id==row.asset_id, ...
+        "stageA:multiday:InequalityVariableOrder", ...
+        "An hourly bound row does not match canonical variable order.");
     dayPosition = locate_day_position(config.days,row.day);
-    variableName = variable_name_for_constraint(row);
-    variableIndex = locate_hour_variable(variables,row.day,row.hour, ...
-        string(row.asset_type),row.asset_id,variableName);
     isLower = contains(name,"lower_bound");
     isUpper = contains(name,"upper_bound");
     if ~xor(isLower,isUpper)
@@ -614,29 +650,6 @@ elseif all(isfinite(values)) && isscalar(unique(values))
 else
     error("stageA:multiday:PredecessorHour", ...
         "Storage links in one hour must share one predecessor hour.");
-end
-end
-
-function name = variable_name_for_constraint(row)
-type = string(row.asset_type);
-constraintName = string(row.constraint_name);
-if type == "wind"
-    name = "PW";
-elseif type == "solar"
-    name = "PP";
-elseif type == "hydro"
-    name = "PH";
-elseif type == "thermal"
-    name = "PF";
-elseif type == "storage" && startsWith(constraintName,"pch_")
-    name = "Pch";
-elseif type == "storage" && startsWith(constraintName,"pdis_")
-    name = "Pdis";
-elseif type == "storage" && startsWith(constraintName,"soc_")
-    name = "SOC";
-else
-    error("stageA:multiday:ConstraintVariable", ...
-        "Could not identify the variable for constraint %s.",constraintName);
 end
 end
 

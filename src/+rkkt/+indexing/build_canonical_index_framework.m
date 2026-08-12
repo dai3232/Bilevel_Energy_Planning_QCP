@@ -43,17 +43,25 @@ else
     solvePass = "pass_2";
 end
 
-varRows = repmat(empty_variable_row(), 0, 1);
-conRows = repmat(empty_constraint_row(), 0, 1);
-fixedRows = repmat(empty_fixed_row(), 0, 1);
-blockRows = repmat(empty_block_row(), 0, 1);
-permRows = repmat(empty_permutation_row(), 0, 1);
-socLinkRows = repmat(empty_soc_link_row(), 0, 1);
+rowCounts = calculate_row_counts(data,days,hours,thermalMask,boundary);
+varRows = repmat(empty_variable_row(),rowCounts.variables,1);
+conRows = repmat(empty_constraint_row(),rowCounts.constraints,1);
+fixedRows = repmat(empty_fixed_row(),rowCounts.fixed,1);
+blockRows = repmat(empty_block_row(),rowCounts.blocks,1);
+permRows = repmat(empty_permutation_row(),rowCounts.permutations,1);
+socLinkRows = repmat(empty_soc_link_row(),rowCounts.soc_links,1);
 
 globalVariable = 0;
 globalConstraint = 0;
 equalityCanonical = 0;
 inequalityCanonical = 0;
+fixedCount = 0;
+blockCount = 0;
+permutationCount = 0;
+socLinkCount = 0;
+socVariableIndex = zeros(data.meta.nDays,data.meta.nHours, ...
+    data.meta.nStorage);
+dailyEnergyCapacityIndex = zeros(data.meta.nDays,data.meta.nStorage);
 
 capacityNames = ["QW1","QW2","QW3","QW4","QW5", ...
     "QP1","QP2","QP3","QP4","QP5", ...
@@ -68,9 +76,9 @@ capacityUnits = [repmat("MW",1,12),repmat("MWh",1,2)];
 globalStart = globalVariable + 1;
 for k = 1:numel(capacityNames)
     globalVariable = globalVariable + 1;
-    varRows(end+1) = make_variable_row(runId, 0, 0, capacityTypes(k), ...
+    varRows(globalVariable) = make_variable_row(runId, 0, 0, capacityTypes(k), ...
         capacityIds(k), capacityNames(k), capacityUnits(k), ...
-        "GLOBAL_CAPACITY", k, globalVariable); %#ok<AGROW>
+        "GLOBAL_CAPACITY", k, globalVariable);
 end
 globalEnd = globalVariable;
 
@@ -82,9 +90,12 @@ for d = days
     for k = 1:numel(capacityNames)
         globalVariable = globalVariable + 1;
         copyName = sprintf("%s_d%03d", capacityNames(k), d);
-        varRows(end+1) = make_variable_row(runId, d, 0, capacityTypes(k), ...
+        varRows(globalVariable) = make_variable_row(runId, d, 0, capacityTypes(k), ...
             capacityIds(k), copyName, capacityUnits(k), blockId, k, ...
-            globalVariable); %#ok<AGROW>
+            globalVariable);
+        if capacityTypes(k)=="storage_energy_capacity"
+            dailyEnergyCapacityIndex(d,capacityIds(k)) = globalVariable;
+        end
     end
     dayBlockRanges.(sprintf("d%d",d)).variable = [startIndex, globalVariable];
 end
@@ -99,47 +110,50 @@ for d = days
 
         for asset = 1:data.meta.nWind
             if data.timeseries.windAvailability(d,h,asset) == 0
-                fixedRows(end+1) = make_fixed_row(runId, solvePass, d, h, ...
+                fixedCount = fixedCount+1;
+                fixedRows(fixedCount) = make_fixed_row(runId, solvePass, d, h, ...
                     "wind", asset, "PW", sprintf("PW(%d,%d,%d)",d,asset,h), ...
-                    "zero_availability"); %#ok<AGROW>
+                    "zero_availability");
             else
                 localIndex = localIndex + 1;
                 globalVariable = globalVariable + 1;
-                varRows(end+1) = make_variable_row(runId,d,h,"wind",asset, ...
-                    "PW","MW",blockId,localIndex,globalVariable); %#ok<AGROW>
+                varRows(globalVariable) = make_variable_row(runId,d,h,"wind",asset, ...
+                    "PW","MW",blockId,localIndex,globalVariable);
             end
         end
 
         for asset = 1:data.meta.nSolar
             if data.timeseries.solarAvailability(d,h,asset) == 0
-                fixedRows(end+1) = make_fixed_row(runId, solvePass, d, h, ...
+                fixedCount = fixedCount+1;
+                fixedRows(fixedCount) = make_fixed_row(runId, solvePass, d, h, ...
                     "solar", asset, "PP", sprintf("PP(%d,%d,%d)",d,asset,h), ...
-                    "zero_availability"); %#ok<AGROW>
+                    "zero_availability");
             else
                 localIndex = localIndex + 1;
                 globalVariable = globalVariable + 1;
-                varRows(end+1) = make_variable_row(runId,d,h,"solar",asset, ...
-                    "PP","MW",blockId,localIndex,globalVariable); %#ok<AGROW>
+                varRows(globalVariable) = make_variable_row(runId,d,h,"solar",asset, ...
+                    "PP","MW",blockId,localIndex,globalVariable);
             end
         end
 
         for asset = 1:data.meta.nHydro
             localIndex = localIndex + 1;
             globalVariable = globalVariable + 1;
-            varRows(end+1) = make_variable_row(runId,d,h,"hydro",asset, ...
-                "PH","MW",blockId,localIndex,globalVariable); %#ok<AGROW>
+            varRows(globalVariable) = make_variable_row(runId,d,h,"hydro",asset, ...
+                "PH","MW",blockId,localIndex,globalVariable);
         end
 
         for asset = 1:data.meta.nThermal
             if ~thermalMask(d,h,asset)
-                fixedRows(end+1) = make_fixed_row(runId, solvePass, d, h, ...
+                fixedCount = fixedCount+1;
+                fixedRows(fixedCount) = make_fixed_row(runId, solvePass, d, h, ...
                     "thermal", asset, "PF", sprintf("PF(%d,%d,%d)",d,asset,h), ...
-                    "thermal_pass2_mask"); %#ok<AGROW>
+                    "thermal_pass2_mask");
             else
                 localIndex = localIndex + 1;
                 globalVariable = globalVariable + 1;
-                varRows(end+1) = make_variable_row(runId,d,h,"thermal",asset, ...
-                    "PF","MW",blockId,localIndex,globalVariable); %#ok<AGROW>
+                varRows(globalVariable) = make_variable_row(runId,d,h,"thermal",asset, ...
+                    "PF","MW",blockId,localIndex,globalVariable);
             end
         end
 
@@ -152,8 +166,11 @@ for d = days
         for k = 1:numel(storageNames)
             localIndex = localIndex + 1;
             globalVariable = globalVariable + 1;
-            varRows(end+1) = make_variable_row(runId,d,h,"storage",storageIds(k), ...
-                storageNames(k),storageUnits(k),blockId,localIndex,globalVariable); %#ok<AGROW>
+            varRows(globalVariable) = make_variable_row(runId,d,h,"storage",storageIds(k), ...
+                storageNames(k),storageUnits(k),blockId,localIndex,globalVariable);
+            if storageNames(k)=="SOC"
+                socVariableIndex(d,h,storageIds(k)) = globalVariable;
+            end
         end
 
         hourBlockRanges.(sprintf("d%d_h%d",d,h)).variable = ...
@@ -168,9 +185,9 @@ durationStart = globalConstraint + 1;
 for storage = 1:data.meta.nStorage
     globalConstraint = globalConstraint + 1;
     equalityCanonical = equalityCanonical + 1;
-    conRows(end+1) = make_constraint_row(runId, ...
+    conRows(globalConstraint) = make_constraint_row(runId, ...
         sprintf("EQ-DURATION-S%02d",storage),"equality",0,0,"storage", ...
-        storage,"storage_duration",storage,globalConstraint,"MWh"); %#ok<AGROW>
+        storage,"storage_duration",storage,globalConstraint,"MWh");
 end
 durationEnd = globalConstraint;
 
@@ -179,10 +196,10 @@ for d = days
     for k = 1:numel(capacityNames)
         globalConstraint = globalConstraint + 1;
         equalityCanonical = equalityCanonical + 1;
-        conRows(end+1) = make_constraint_row(runId, ...
+        conRows(globalConstraint) = make_constraint_row(runId, ...
             sprintf("EQ-QBIND-D%03d-%s",d,capacityNames(k)),"equality",d,0, ...
             capacityTypes(k),capacityIds(k),"daily_capacity_binding",k, ...
-            globalConstraint,capacityUnits(k)); %#ok<AGROW>
+            globalConstraint,capacityUnits(k));
     end
     dayBlockRanges.(sprintf("d%d",d)).equality = [eqStart, globalConstraint];
 
@@ -201,7 +218,7 @@ for d = days
             sprintf("EQ-BAL-D%03d-H%02d",d,h),"equality",d,h,"system",0, ...
             "hourly_power_balance",localRow,globalConstraint,"MW");
         constraintRow.window_position = windowPosition;
-        conRows(end+1) = constraintRow; %#ok<AGROW>
+        conRows(globalConstraint) = constraintRow;
         for storage = 1:data.meta.nStorage
             localRow = localRow + 1;
             globalConstraint = globalConstraint + 1;
@@ -213,17 +230,19 @@ for d = days
             constraintRow.window_position = windowPosition;
             constraintRow.predecessor_hour = predecessorHour;
             constraintRow.boundary_role = char(boundarySource);
-            conRows(end+1) = constraintRow; %#ok<AGROW>
+            conRows(globalConstraint) = constraintRow;
 
-            currentSocIndex = find_variable_global_index( ...
-                varRows, d, h, "storage", storage, "SOC", true);
+            currentSocIndex = socVariableIndex(d,h,storage);
             predecessorSocIndex = 0;
             if isfinite(predecessorHour)
-                predecessorSocIndex = find_variable_global_index( ...
-                    varRows, d, predecessorHour, "storage", storage, "SOC", false);
+                predecessorSocIndex = ...
+                    socVariableIndex(d,predecessorHour,storage);
             end
-            energyCapacityIndex = find_variable_global_index( ...
-                varRows, d, 0, "storage_energy_capacity", storage, "", true);
+            energyCapacityIndex = dailyEnergyCapacityIndex(d,storage);
+            assert(currentSocIndex>0 && energyCapacityIndex>0 && ...
+                (~isfinite(predecessorHour) || predecessorSocIndex>0), ...
+                "stage0:index:SocLookup", ...
+                "The preallocated SOC or daily-energy index is missing.");
             initialFraction = NaN;
             if ~isfinite(predecessorHour)
                 initialFraction = data.base.storage.initialSocFraction(storage);
@@ -232,10 +251,11 @@ for d = days
             if isTerminalHour
                 terminalFraction = data.base.storage.initialSocFraction(storage);
             end
-            socLinkRows(end+1) = make_soc_link_row(runId, d, h, ...
+            socLinkCount = socLinkCount+1;
+            socLinkRows(socLinkCount) = make_soc_link_row(runId, d, h, ...
                 windowPosition, storage, currentSocIndex, predecessorHour, ...
                 predecessorSocIndex, energyCapacityIndex, boundarySource, ...
-                initialFraction, isTerminalHour, terminalFraction); %#ok<AGROW>
+                initialFraction, isTerminalHour, terminalFraction);
         end
         if isTerminalHour
             for storage = 1:data.meta.nStorage
@@ -254,7 +274,7 @@ for d = days
                     globalConstraint,"MWh");
                 constraintRow.window_position = windowPosition;
                 constraintRow.boundary_role = char(boundary.terminal_role);
-                conRows(end+1) = constraintRow; %#ok<AGROW>
+                conRows(globalConstraint) = constraintRow;
             end
         end
         hourBlockRanges.(sprintf("d%d_h%d",d,h)).equality = ...
@@ -269,11 +289,11 @@ for k = 1:numel(capacityNames)
     for side = ["lower","upper"]
         globalConstraint = globalConstraint + 1;
         inequalityCanonical = inequalityCanonical + 1;
-        conRows(end+1) = make_constraint_row(runId, ...
+        conRows(globalConstraint) = make_constraint_row(runId, ...
             sprintf("INEQ-Q-%s-%s",upper(side),capacityNames(k)), ...
             "inequality",0,0,capacityTypes(k),capacityIds(k), ...
             sprintf("global_capacity_%s_bound",side),2*k-(side=="lower"), ...
-            globalConstraint,capacityUnits(k)); %#ok<AGROW>
+            globalConstraint,capacityUnits(k));
     end
 end
 globalBoundEnd = globalConstraint;
@@ -285,23 +305,25 @@ for idx = hourlyRows
         globalConstraint = globalConstraint + 1;
         inequalityCanonical = inequalityCanonical + 1;
         localRow = 2*row.local_index_start-(side=="lower");
-        conRows(end+1) = make_constraint_row(runId, ...
+        conRows(globalConstraint) = make_constraint_row(runId, ...
             sprintf("INEQ-%s-D%03d-H%02d-%s%02d",upper(side),row.day,row.hour, ...
             row.variable_name,row.asset_id),"inequality",row.day,row.hour, ...
             row.asset_type,row.asset_id,sprintf("%s_%s_bound", ...
-            lower(row.variable_name),side),localRow,globalConstraint,row.unit); %#ok<AGROW>
+            lower(row.variable_name),side),localRow,globalConstraint,row.unit);
     end
 end
 
 % Declarative block ranges.
-blockRows(end+1) = make_block_row(runId,"GLOBAL_CAPACITY",0,0,0, ...
-    globalStart,globalEnd,durationStart,durationEnd,globalEnd-globalStart+1); %#ok<AGROW>
+blockCount = blockCount+1;
+blockRows(blockCount) = make_block_row(runId,"GLOBAL_CAPACITY",0,0,0, ...
+    globalStart,globalEnd,durationStart,durationEnd,globalEnd-globalStart+1);
 for d = days
     key = sprintf("d%d",d);
     vr = dayBlockRanges.(key).variable;
     er = dayBlockRanges.(key).equality;
-    blockRows(end+1) = make_block_row(runId,sprintf("D%03d_CAPACITY",d),d,0,0, ...
-        vr(1),vr(2),er(1),er(2),vr(2)-vr(1)+1); %#ok<AGROW>
+    blockCount = blockCount+1;
+    blockRows(blockCount) = make_block_row(runId,sprintf("D%03d_CAPACITY",d),d,0,0, ...
+        vr(1),vr(2),er(1),er(2),vr(2)-vr(1)+1);
     for h = hours
         hr = hourBlockRanges.(sprintf("d%d_h%d",d,h));
         blockRow = make_block_row(runId,sprintf("D%03d_H%02d",d,h), ...
@@ -311,25 +333,39 @@ for d = days
         blockRow.terminal_equality_count = ...
             data.meta.nStorage * double(boundary.append_terminal_soc && ...
             h == boundary.terminal_hour);
-        blockRows(end+1) = blockRow; %#ok<AGROW>
+        blockCount = blockCount+1;
+        blockRows(blockCount) = blockRow;
     end
 end
 
 % Identity permutation is the stage-0 framework baseline.
 for k = 1:numel(varRows)
-    permRows(end+1) = make_permutation_row(runId,"variable",k,k, ...
-        "variable",varRows(k).variable_name); %#ok<AGROW>
+    permutationCount = permutationCount+1;
+    permRows(permutationCount) = make_permutation_row(runId, ...
+        "variable",k,k,"variable",varRows(k).variable_name);
 end
 eqRows = find(strcmp({conRows.constraint_type},"equality"));
 for k = 1:numel(eqRows)
-    permRows(end+1) = make_permutation_row(runId,"equality",k,k, ...
-        "constraint",conRows(eqRows(k)).constraint_id); %#ok<AGROW>
+    permutationCount = permutationCount+1;
+    permRows(permutationCount) = make_permutation_row(runId, ...
+        "equality",k,k,"constraint",conRows(eqRows(k)).constraint_id);
 end
 ineqRows = find(strcmp({conRows.constraint_type},"inequality"));
 for k = 1:numel(ineqRows)
-    permRows(end+1) = make_permutation_row(runId,"inequality",k,k, ...
-        "constraint",conRows(ineqRows(k)).constraint_id); %#ok<AGROW>
+    permutationCount = permutationCount+1;
+    permRows(permutationCount) = make_permutation_row(runId, ...
+        "inequality",k,k,"constraint",conRows(ineqRows(k)).constraint_id);
 end
+
+assert(globalVariable==rowCounts.variables && ...
+    globalConstraint==rowCounts.constraints && ...
+    fixedCount==rowCounts.fixed && blockCount==rowCounts.blocks && ...
+    permutationCount==rowCounts.permutations && ...
+    socLinkCount==rowCounts.soc_links && ...
+    equalityCanonical==rowCounts.equalities && ...
+    inequalityCanonical==rowCounts.inequalities, ...
+    "stage0:index:PreallocationCount", ...
+    "Canonical index row preallocation does not match emitted rows.");
 
 index = struct();
 index.version = "1.1-window-aware-framework";
@@ -353,6 +389,32 @@ index.counts = struct("variables",globalVariable, ...
     "global_capacity_bounds",globalBoundEnd-globalBoundStart+1, ...
     "full_kkt_dimension",globalVariable + equalityCanonical + ...
     2 * inequalityCanonical);
+end
+
+function counts = calculate_row_counts(data,days,hours,thermalMask,boundary)
+nDays = numel(days);
+nHours = numel(hours);
+windActive = nnz(data.timeseries.windAvailability(days,hours,:)~=0);
+solarActive = nnz(data.timeseries.solarAvailability(days,hours,:)~=0);
+thermalActive = nnz(thermalMask(days,hours,:));
+alwaysActivePerHour = data.meta.nHydro+3*data.meta.nStorage;
+hourlyActive = windActive+solarActive+thermalActive+ ...
+    nDays*nHours*alwaysActivePerHour;
+possibleAvailabilityRows = nDays*nHours*(data.meta.nWind+ ...
+    data.meta.nSolar+data.meta.nThermal);
+fixed = possibleAvailabilityRows-windActive-solarActive-thermalActive;
+variables = 14+14*nDays+hourlyActive;
+equalities = data.meta.nStorage+14*nDays+ ...
+    nDays*nHours*(1+data.meta.nStorage)+ ...
+    nDays*boundary.terminal_soc_equality_count;
+inequalities = 28+2*hourlyActive;
+constraints = equalities+inequalities;
+blocks = 1+nDays*(1+nHours);
+socLinks = nDays*nHours*data.meta.nStorage;
+counts = struct("variables",variables,"equalities",equalities, ...
+    "inequalities",inequalities,"constraints",constraints, ...
+    "fixed",fixed,"blocks",blocks, ...
+    "permutations",variables+constraints,"soc_links",socLinks);
 end
 
 function row = empty_variable_row()
@@ -558,35 +620,5 @@ elseif hour == 1
 else
     predecessorHour = hour - 1;
     boundarySource = "previous_physical_hour";
-end
-end
-
-function globalIndex = find_variable_global_index(varRows,day,hour,assetType, ...
-        assetId,variableName,required)
-matches = [varRows.day] == day & [varRows.hour] == hour & ...
-    strcmp(string({varRows.asset_type}),string(assetType)) & ...
-    [varRows.asset_id] == assetId;
-if strlength(string(variableName)) > 0
-    matches = matches & strcmp(string({varRows.variable_name}),string(variableName));
-end
-locations = find(matches);
-if numel(locations) > 1 || (required && numel(locations) ~= 1)
-    error("stage0:index:VariableLookupFailure", ...
-        "Expected %s canonical variable match for day=%d hour=%d type=%s asset=%d name=%s; found %d.", ...
-        conditional_text(required,"one","at most one"),day,hour,string(assetType), ...
-        assetId,string(variableName),numel(locations));
-end
-if isempty(locations)
-    globalIndex = 0;
-else
-    globalIndex = varRows(locations).global_index_start;
-end
-end
-
-function value = conditional_text(condition,trueValue,falseValue)
-if condition
-    value = trueValue;
-else
-    value = falseValue;
 end
 end

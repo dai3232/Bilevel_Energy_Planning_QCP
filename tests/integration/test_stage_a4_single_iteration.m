@@ -307,7 +307,7 @@ verifyNotEmpty(testCase,negative);
 [raw,local] = min(-values(negative)./direction(negative));
 verifyEqual(testCase,step.raw_boundary_step,raw,"AbsTol",0);
 verifyEqual(testCase,step.limiting_index,negative(local));
-verifyEqual(testCase,step.alpha,min(1,step.tau*raw),"AbsTol",0);
+verifyEqual(testCase,step.alpha,step.tau*min(raw,1),"AbsTol",0);
 end
 
 function globalIndex = locate_state_variable(variables,day,hour, ...

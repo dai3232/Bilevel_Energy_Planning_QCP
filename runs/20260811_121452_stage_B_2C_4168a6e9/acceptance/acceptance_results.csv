@@ -1,0 +1,5 @@
+run_id,test_id,category,requirement,blocking,status,actual_value,evidence_path,milestone
+20260811_121452_stage_B_2C_4168a6e9,SB-DATA-001,数据,第14—20日28组水量上下限数据有效,true,PASS,28/28 input rows PASS,diagnostics/water_input_audit.csv,B-2C
+20260811_121452_stage_B_2C_4168a6e9,SB-DER-001,导数,非零水量Hessian及56行精确余项中心性限幅校正通过,true,PASS,H_water nnz=672; min_beta=0.14372960534441986; final_beta=1; max_closure=3.879563337250147e-12; min_l=0.19968554820199369,diagnostics/nonzero_water_hessian_gate.csv,B-2C
+20260811_121452_stage_B_2C_4168a6e9,SB-EQ-001,方向等价,每轮递推与完整KKT方向及残差<=1e-10,true,PASS,worst_direction=1.3596442370269145e-11; worst_recursive_residual=5.0435480551951611e-12,diagnostics/direction_audit_history.csv,B-2C
+20260811_121452_stage_B_2C_4168a6e9,SB-PHY-001,物理,最终28项水量与Stage-A物理审计通过,true,PASS,28/28; maximum_violation=0,diagnostics/final_daily_water_constraint_audit.csv,B-2C

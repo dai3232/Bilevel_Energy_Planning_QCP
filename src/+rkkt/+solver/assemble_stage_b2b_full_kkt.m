@@ -67,7 +67,7 @@ assert(symmetry.lagrangian_hessian_relative<=1e-12 && ...
 
 assembly = struct();
 assembly.stage_id = "stage_B";
-assembly.milestone_id = "B-2B";
+assembly.milestone_id = contract.milestone_id;
 assembly.linearization_identity = contract.identity;
 assembly.matrix = matrix;
 assembly.rhs = rhs;

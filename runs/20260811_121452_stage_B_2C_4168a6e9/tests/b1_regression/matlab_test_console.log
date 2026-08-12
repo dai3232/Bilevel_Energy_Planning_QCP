@@ -1,0 +1,65 @@
+Test evidence initialized at 2026-08-11T20:33:18+08:00.
+Fixed stage_B_1 inventory (14 tests):
+    test_order                                           test_name                                                               source_file                   
+    __________    ________________________________________________________________________________________    _________________________________________________
+
+         1        "test_stage_b1_data_baseline/testStageBConfigurationAndCurrentStageGate"                    "tests/integration/test_stage_b1_data_baseline.m"
+         2        "test_stage_b1_data_baseline/testRawHydroWaterDataAre365By4AndFinite"                       "tests/integration/test_stage_b1_data_baseline.m"
+         3        "test_stage_b1_data_baseline/testStageBWindowHasSevenByFourAndTwentyEightRows"              "tests/integration/test_stage_b1_data_baseline.m"
+         4        "test_stage_b1_data_baseline/testDayAndHydroOrderingIsCanonical"                            "tests/integration/test_stage_b1_data_baseline.m"
+         5        "test_stage_b1_data_baseline/testWaterMinimumAndMaximumDirectionIsNotSwapped"               "tests/integration/test_stage_b1_data_baseline.m"
+         6        "test_stage_b_daily_hydro_water/testWaterValueFormula"                                      "tests/unit/test_stage_b_daily_hydro_water.m"    
+         7        "test_stage_b_daily_hydro_water/testConstantTermAccumulatesTwentyFourTimes"                 "tests/unit/test_stage_b_daily_hydro_water.m"    
+         8        "test_stage_b_daily_hydro_water/testAnalyticGradientMatchesIndependentCentralDifference"    "tests/unit/test_stage_b_daily_hydro_water.m"    
+         9        "test_stage_b_daily_hydro_water/testAnalyticHessianMatchesIndependentGradientDifference"    "tests/unit/test_stage_b_daily_hydro_water.m"    
+        10        "test_stage_b_daily_hydro_water/testUpperAndLowerDerivativeSigns"                           "tests/unit/test_stage_b_daily_hydro_water.m"    
+        11        "test_stage_b_daily_hydro_water/testHessianIsSparseDiagonalWithExactCrossHourZeros"         "tests/unit/test_stage_b_daily_hydro_water.m"    
+        12        "test_stage_b_daily_hydro_water/testCrossDayAndAssetEvaluationsAreIndependent"              "tests/unit/test_stage_b_daily_hydro_water.m"    
+        13        "test_stage_b_daily_hydro_water/testInputShapeFiniteAndRealGuards"                          "tests/unit/test_stage_b_daily_hydro_water.m"    
+        14        "test_stage_b_daily_hydro_water/testDeterministicRepeatIsBitwiseIdentical"                  "tests/unit/test_stage_b_daily_hydro_water.m"    
+
+Actual test command: run_stage_B_1_tests() [B-2C regression]
+ 正在运行 test_stage_b1_data_baseline
+  正在设置 test_stage_b1_data_baseline
+  设置 test_stage_b1_data_baseline 在 5.8206 秒内完成
+   正在运行 test_stage_b1_data_baseline/testStageBConfigurationAndCurrentStageGate
+   test_stage_b1_data_baseline/testStageBConfigurationAndCurrentStageGate 在 0.021663 秒内完成
+   正在运行 test_stage_b1_data_baseline/testRawHydroWaterDataAre365By4AndFinite
+   test_stage_b1_data_baseline/testRawHydroWaterDataAre365By4AndFinite 在 0.059265 秒内完成
+   正在运行 test_stage_b1_data_baseline/testStageBWindowHasSevenByFourAndTwentyEightRows
+   test_stage_b1_data_baseline/testStageBWindowHasSevenByFourAndTwentyEightRows 在 0.060115 秒内完成
+   正在运行 test_stage_b1_data_baseline/testDayAndHydroOrderingIsCanonical
+   test_stage_b1_data_baseline/testDayAndHydroOrderingIsCanonical 在 0.016186 秒内完成
+   正在运行 test_stage_b1_data_baseline/testWaterMinimumAndMaximumDirectionIsNotSwapped
+   test_stage_b1_data_baseline/testWaterMinimumAndMaximumDirectionIsNotSwapped 在 0.045158 秒内完成
+  正在拆解 test_stage_b1_data_baseline
+  拆解 test_stage_b1_data_baseline 在 1.74e-05 秒内完成
+ test_stage_b1_data_baseline 在 6.023 秒内完成
+__________
+
+ 正在运行 test_stage_b_daily_hydro_water
+  正在设置 test_stage_b_daily_hydro_water
+  设置 test_stage_b_daily_hydro_water 在 5.5106 秒内完成
+   正在运行 test_stage_b_daily_hydro_water/testWaterValueFormula
+   test_stage_b_daily_hydro_water/testWaterValueFormula 在 0.038267 秒内完成
+   正在运行 test_stage_b_daily_hydro_water/testConstantTermAccumulatesTwentyFourTimes
+   test_stage_b_daily_hydro_water/testConstantTermAccumulatesTwentyFourTimes 在 0.018188 秒内完成
+   正在运行 test_stage_b_daily_hydro_water/testAnalyticGradientMatchesIndependentCentralDifference
+   test_stage_b_daily_hydro_water/testAnalyticGradientMatchesIndependentCentralDifference 在 0.032838 秒内完成
+   正在运行 test_stage_b_daily_hydro_water/testAnalyticHessianMatchesIndependentGradientDifference
+   test_stage_b_daily_hydro_water/testAnalyticHessianMatchesIndependentGradientDifference 在 0.031386 秒内完成
+   正在运行 test_stage_b_daily_hydro_water/testUpperAndLowerDerivativeSigns
+   test_stage_b_daily_hydro_water/testUpperAndLowerDerivativeSigns 在 0.034732 秒内完成
+   正在运行 test_stage_b_daily_hydro_water/testHessianIsSparseDiagonalWithExactCrossHourZeros
+   test_stage_b_daily_hydro_water/testHessianIsSparseDiagonalWithExactCrossHourZeros 在 0.02571 秒内完成
+   正在运行 test_stage_b_daily_hydro_water/testCrossDayAndAssetEvaluationsAreIndependent
+   test_stage_b_daily_hydro_water/testCrossDayAndAssetEvaluationsAreIndependent 在 7.4596 秒内完成
+   正在运行 test_stage_b_daily_hydro_water/testInputShapeFiniteAndRealGuards
+   test_stage_b_daily_hydro_water/testInputShapeFiniteAndRealGuards 在 0.047343 秒内完成
+   正在运行 test_stage_b_daily_hydro_water/testDeterministicRepeatIsBitwiseIdentical
+   test_stage_b_daily_hydro_water/testDeterministicRepeatIsBitwiseIdentical 在 0.42229 秒内完成
+  正在拆解 test_stage_b_daily_hydro_water
+  拆解 test_stage_b_daily_hydro_water 在 6e-06 秒内完成
+ test_stage_b_daily_hydro_water 在 13.6209 秒内完成
+__________
+

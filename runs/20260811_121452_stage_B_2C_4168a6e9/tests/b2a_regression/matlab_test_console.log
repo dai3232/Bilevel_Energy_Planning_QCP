@@ -1,0 +1,88 @@
+Test evidence initialized at 2026-08-11T20:31:08+08:00.
+Fixed stage_B_2A inventory (19 tests):
+    test_order                                            test_name                                                              source_file                   
+    __________    _________________________________________________________________________________________    ________________________________________________
+
+         1        "test_stage_b2a_index/testStageBConfigurationIsAssembleOnly"                                 "tests/unit/test_stage_b2a_index.m"             
+         2        "test_stage_b2a_index/testExactlyFiftySixWaterRowsAndDerivedDimension"                       "tests/unit/test_stage_b2a_index.m"             
+         3        "test_stage_b2a_index/testStableDayHydroUpperLowerOrdering"                                  "tests/unit/test_stage_b2a_index.m"             
+         4        "test_stage_b2a_index/testEachWaterRowTouchesOnlyTwentyFourLocalHydroHours"                  "tests/unit/test_stage_b2a_index.m"             
+         5        "test_stage_b2a_index/testStageAPrefixFixedZeroAndSocMapsAreUnchanged"                       "tests/unit/test_stage_b2a_index.m"             
+         6        "test_stage_b2a_index/testExtendedInequalityPermutationIsBijection"                          "tests/unit/test_stage_b2a_index.m"             
+         7        "test_stage_b2a_linearization/testUnifiedDimensionsAndIdentity"                              "tests/unit/test_stage_b2a_linearization.m"     
+         8        "test_stage_b2a_linearization/testWaterGOffsetReproducesNonlinearValues"                     "tests/unit/test_stage_b2a_linearization.m"     
+         9        "test_stage_b2a_linearization/testUpperLowerJacobianSignsAreOpposite"                        "tests/unit/test_stage_b2a_linearization.m"     
+        10        "test_stage_b2a_linearization/testEveryConstraintHessianHasCorrectSignedLocalDiagonal"       "tests/unit/test_stage_b2a_linearization.m"     
+        11        "test_stage_b2a_linearization/testLagrangianHessianUsesNonlinearCurvature"                   "tests/unit/test_stage_b2a_linearization.m"     
+        12        "test_stage_b2a_linearization/testB1FiniteDifferenceDerivativeEvidenceRemainsAtThreshold"    "tests/unit/test_stage_b2a_linearization.m"     
+        13        "test_stage_b2a_linearization/testRepeatedLinearizationIsBitwiseDeterministic"               "tests/unit/test_stage_b2a_linearization.m"     
+        14        "test_stage_b2a_full_kkt_structure/testFullKktDimensionAndSparseNnz"                         "tests/unit/test_stage_b2a_full_kkt_structure.m"
+        15        "test_stage_b2a_full_kkt_structure/testBlockOffsetsAndNnzAreExact"                           "tests/unit/test_stage_b2a_full_kkt_structure.m"
+        16        "test_stage_b2a_full_kkt_structure/testTransposeAndComplementarityBlocksFollowContract"      "tests/unit/test_stage_b2a_full_kkt_structure.m"
+        17        "test_stage_b2a_full_kkt_structure/testWaterSlackAndDualRowsAreAddedWithoutSolving"          "tests/unit/test_stage_b2a_full_kkt_structure.m"
+        18        "test_stage_b2a_full_kkt_structure/testNoDirectionOrSolverFieldsAreProduced"                 "tests/unit/test_stage_b2a_full_kkt_structure.m"
+        19        "test_stage_b2a_full_kkt_structure/testAcceptanceBoundariesRemainNotRun"                     "tests/unit/test_stage_b2a_full_kkt_structure.m"
+
+Actual test command: run_stage_B_2A_tests() [B-2C regression]
+ 正在运行 test_stage_b2a_index
+  正在设置 test_stage_b2a_index
+  设置 test_stage_b2a_index 在 12.3369 秒内完成
+   正在运行 test_stage_b2a_index/testStageBConfigurationIsAssembleOnly
+   test_stage_b2a_index/testStageBConfigurationIsAssembleOnly 在 0.0077073 秒内完成
+   正在运行 test_stage_b2a_index/testExactlyFiftySixWaterRowsAndDerivedDimension
+   test_stage_b2a_index/testExactlyFiftySixWaterRowsAndDerivedDimension 在 0.005226 秒内完成
+   正在运行 test_stage_b2a_index/testStableDayHydroUpperLowerOrdering
+   test_stage_b2a_index/testStableDayHydroUpperLowerOrdering 在 0.040146 秒内完成
+   正在运行 test_stage_b2a_index/testEachWaterRowTouchesOnlyTwentyFourLocalHydroHours
+   test_stage_b2a_index/testEachWaterRowTouchesOnlyTwentyFourLocalHydroHours 在 0.39416 秒内完成
+   正在运行 test_stage_b2a_index/testStageAPrefixFixedZeroAndSocMapsAreUnchanged
+   test_stage_b2a_index/testStageAPrefixFixedZeroAndSocMapsAreUnchanged 在 5.5802 秒内完成
+   正在运行 test_stage_b2a_index/testExtendedInequalityPermutationIsBijection
+   test_stage_b2a_index/testExtendedInequalityPermutationIsBijection 在 0.030004 秒内完成
+  正在拆解 test_stage_b2a_index
+  拆解 test_stage_b2a_index 在 0.0002003 秒内完成
+ test_stage_b2a_index 在 18.3945 秒内完成
+__________
+
+ 正在运行 test_stage_b2a_linearization
+  正在设置 test_stage_b2a_linearization
+  设置 test_stage_b2a_linearization 在 35.2105 秒内完成
+   正在运行 test_stage_b2a_linearization/testUnifiedDimensionsAndIdentity
+   test_stage_b2a_linearization/testUnifiedDimensionsAndIdentity 在 0.042101 秒内完成
+   正在运行 test_stage_b2a_linearization/testWaterGOffsetReproducesNonlinearValues
+   test_stage_b2a_linearization/testWaterGOffsetReproducesNonlinearValues 在 0.0045497 秒内完成
+   正在运行 test_stage_b2a_linearization/testUpperLowerJacobianSignsAreOpposite
+   test_stage_b2a_linearization/testUpperLowerJacobianSignsAreOpposite 在 0.1246 秒内完成
+   正在运行 test_stage_b2a_linearization/testEveryConstraintHessianHasCorrectSignedLocalDiagonal
+   test_stage_b2a_linearization/testEveryConstraintHessianHasCorrectSignedLocalDiagonal 在 0.31724 秒内完成
+   正在运行 test_stage_b2a_linearization/testLagrangianHessianUsesNonlinearCurvature
+   test_stage_b2a_linearization/testLagrangianHessianUsesNonlinearCurvature 在 0.014001 秒内完成
+   正在运行 test_stage_b2a_linearization/testB1FiniteDifferenceDerivativeEvidenceRemainsAtThreshold
+   test_stage_b2a_linearization/testB1FiniteDifferenceDerivativeEvidenceRemainsAtThreshold 在 0.32796 秒内完成
+   正在运行 test_stage_b2a_linearization/testRepeatedLinearizationIsBitwiseDeterministic
+   test_stage_b2a_linearization/testRepeatedLinearizationIsBitwiseDeterministic 在 39.2646 秒内完成
+  正在拆解 test_stage_b2a_linearization
+  拆解 test_stage_b2a_linearization 在 0.000225 秒内完成
+ test_stage_b2a_linearization 在 75.3058 秒内完成
+__________
+
+ 正在运行 test_stage_b2a_full_kkt_structure
+  正在设置 test_stage_b2a_full_kkt_structure
+  设置 test_stage_b2a_full_kkt_structure 在 35.3268 秒内完成
+   正在运行 test_stage_b2a_full_kkt_structure/testFullKktDimensionAndSparseNnz
+   test_stage_b2a_full_kkt_structure/testFullKktDimensionAndSparseNnz 在 0.003841 秒内完成
+   正在运行 test_stage_b2a_full_kkt_structure/testBlockOffsetsAndNnzAreExact
+   test_stage_b2a_full_kkt_structure/testBlockOffsetsAndNnzAreExact 在 0.028481 秒内完成
+   正在运行 test_stage_b2a_full_kkt_structure/testTransposeAndComplementarityBlocksFollowContract
+   test_stage_b2a_full_kkt_structure/testTransposeAndComplementarityBlocksFollowContract 在 0.013094 秒内完成
+   正在运行 test_stage_b2a_full_kkt_structure/testWaterSlackAndDualRowsAreAddedWithoutSolving
+   test_stage_b2a_full_kkt_structure/testWaterSlackAndDualRowsAreAddedWithoutSolving 在 0.0061757 秒内完成
+   正在运行 test_stage_b2a_full_kkt_structure/testNoDirectionOrSolverFieldsAreProduced
+   test_stage_b2a_full_kkt_structure/testNoDirectionOrSolverFieldsAreProduced 在 0.0026399 秒内完成
+   正在运行 test_stage_b2a_full_kkt_structure/testAcceptanceBoundariesRemainNotRun
+   test_stage_b2a_full_kkt_structure/testAcceptanceBoundariesRemainNotRun 在 0.0019776 秒内完成
+  正在拆解 test_stage_b2a_full_kkt_structure
+  拆解 test_stage_b2a_full_kkt_structure 在 0.0005326 秒内完成
+ test_stage_b2a_full_kkt_structure 在 35.3835 秒内完成
+__________
+

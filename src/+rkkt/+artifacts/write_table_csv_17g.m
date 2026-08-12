@@ -61,6 +61,12 @@ function textValue = format_table_value(value, variableName)
         error('stage0:artifacts:NonScalarCsvValue', ...
             'Table variable %s contains a non-scalar row value.', variableName);
     end
+    % MATLAB's SPRINTF rejects even a 1-by-1 sparse numeric input.  CSV
+    % rows are scalar by contract, so materializing only that scalar is
+    % safe and does not relax the prohibition on densifying model matrices.
+    if isnumeric(value) && issparse(value)
+        value = full(value);
+    end
 
     if ischar(value)
         textValue = value;

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<testsuites>
+  <testsuite errors="0" failures="0" name="test_stage_b2b_direction_equivalence" skipped="0" tests="12" time="86.8721">
+    <testcase classname="test_stage_b2b_direction_equivalence" name="testEliminationFormulaMatchesResidualContract" time="42.0666"/>
+    <testcase classname="test_stage_b2b_direction_equivalence" name="testReducedSaddleIsSymmetricWithoutModification" time="0.0033943"/>
+    <testcase classname="test_stage_b2b_direction_equivalence" name="testBackSubstitutionClosesAllFourRawKktRows" time="0.0069049"/>
+    <testcase classname="test_stage_b2b_direction_equivalence" name="testDailyWaterBordersHaveEightTraceableRows" time="0.39146"/>
+    <testcase classname="test_stage_b2b_direction_equivalence" name="testWaterCurvatureStaysOutsidePureHourlyThomasBlocks" time="0.15282"/>
+    <testcase classname="test_stage_b2b_direction_equivalence" name="testDayResponsesAndGlobalCoreHaveContractDimensions" time="0.029721"/>
+    <testcase classname="test_stage_b2b_direction_equivalence" name="testStationarityFiniteDifferenceMatchesLagrangianHessian" time="22.1479"/>
+    <testcase classname="test_stage_b2b_direction_equivalence" name="testWaterHessianRebuildConsumesCurrentStateMultipliers" time="22.0565"/>
+    <testcase classname="test_stage_b2b_direction_equivalence" name="testFullAndRecursiveDirectionsAreStrictlyEquivalent" time="0.0037612"/>
+    <testcase classname="test_stage_b2b_direction_equivalence" name="testRecursiveDirectionReinsertsIntoIndependentFullKkt" time="0.002045"/>
+    <testcase classname="test_stage_b2b_direction_equivalence" name="testFixedZeroValuesAndDirectionsRemainExact" time="0.0037664"/>
+    <testcase classname="test_stage_b2b_direction_equivalence" name="testExecutionFlagsProveAuditOnlyAndNoFallback" time="0.0072894"/>
+  </testsuite>
+</testsuites>

@@ -34,7 +34,7 @@ basePartition = rkkt.solver.partition_stage_a_multiday_recursive_system( ...
 
 partition = basePartition;
 partition.stage_id = "stage_B";
-partition.milestone_id = "B-2B";
+partition.milestone_id = contract.milestone_id;
 partition.linearization_identity = contract.identity;
 partition.contract = contract;
 partition.base_partition = basePartition;

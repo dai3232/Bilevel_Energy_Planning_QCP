@@ -1,0 +1,30 @@
+Test evidence initialized at 2026-08-11T20:33:58+08:00.
+Fixed stage_B_2A_stage_A_regression inventory (5 tests):
+    test_order                                             test_name                                                                   source_file                      
+    __________    ___________________________________________________________________________________________    _______________________________________________________
+
+        1         "test_stage_b2a_stage_a_regression/testFrozenCountsRemainA4Values"                             "tests/integration/test_stage_b2a_stage_a_regression.m"
+        2         "test_stage_b2a_stage_a_regression/testFrozenVariablePrefixIsExact"                            "tests/integration/test_stage_b2a_stage_a_regression.m"
+        3         "test_stage_b2a_stage_a_regression/testFrozenEqualitySocAndBlockMapsAreExact"                  "tests/integration/test_stage_b2a_stage_a_regression.m"
+        4         "test_stage_b2a_stage_a_regression/testFrozenFixedZeroMapIsExact"                              "tests/integration/test_stage_b2a_stage_a_regression.m"
+        5         "test_stage_b2a_stage_a_regression/testFrozenBuildIsDeterministicAndNoStageASolverIsCalled"    "tests/integration/test_stage_b2a_stage_a_regression.m"
+
+Actual test command: run_stage_B_2A_stage_A_regressions() [B-2C]
+ 正在运行 test_stage_b2a_stage_a_regression
+  正在设置 test_stage_b2a_stage_a_regression
+  设置 test_stage_b2a_stage_a_regression 在 19.1388 秒内完成
+   正在运行 test_stage_b2a_stage_a_regression/testFrozenCountsRemainA4Values
+   test_stage_b2a_stage_a_regression/testFrozenCountsRemainA4Values 在 0.0018153 秒内完成
+   正在运行 test_stage_b2a_stage_a_regression/testFrozenVariablePrefixIsExact
+   test_stage_b2a_stage_a_regression/testFrozenVariablePrefixIsExact 在 0.015208 秒内完成
+   正在运行 test_stage_b2a_stage_a_regression/testFrozenEqualitySocAndBlockMapsAreExact
+   test_stage_b2a_stage_a_regression/testFrozenEqualitySocAndBlockMapsAreExact 在 0.022169 秒内完成
+   正在运行 test_stage_b2a_stage_a_regression/testFrozenFixedZeroMapIsExact
+   test_stage_b2a_stage_a_regression/testFrozenFixedZeroMapIsExact 在 0.0075014 秒内完成
+   正在运行 test_stage_b2a_stage_a_regression/testFrozenBuildIsDeterministicAndNoStageASolverIsCalled
+   test_stage_b2a_stage_a_regression/testFrozenBuildIsDeterministicAndNoStageASolverIsCalled 在 15.3794 秒内完成
+  正在拆解 test_stage_b2a_stage_a_regression
+  拆解 test_stage_b2a_stage_a_regression 在 1.16e-05 秒内完成
+ test_stage_b2a_stage_a_regression 在 34.5648 秒内完成
+__________
+

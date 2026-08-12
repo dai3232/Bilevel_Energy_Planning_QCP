@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<testsuites>
+  <testsuite errors="0" failures="0" name="test_stage0_data_reader" skipped="0" tests="3" time="6.1983">
+    <testcase classname="test_stage0_data_reader" name="testControlledHashesMatchManifest" time="0.119"/>
+    <testcase classname="test_stage0_data_reader" name="testLabelDrivenReaderNormalizesRealInputs" time="5.7617"/>
+    <testcase classname="test_stage0_data_reader" name="testLocatorRequiresUniqueLabelAndCompleteHeader" time="0.31758"/>
+  </testsuite>
+  <testsuite errors="0" failures="0" name="test_canonical_index_framework" skipped="0" tests="2" time="11.4714">
+    <testcase classname="test_canonical_index_framework" name="testRealDataFrameworkHasNoGapsOrOverlaps" time="5.8964"/>
+    <testcase classname="test_canonical_index_framework" name="testThermalMaskRemovesVariablesExactly" time="5.575"/>
+  </testsuite>
+</testsuites>

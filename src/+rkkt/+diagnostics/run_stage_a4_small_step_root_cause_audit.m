@@ -507,9 +507,9 @@ function [rows,record] = candidate_rows(chain,iteration,stepKind, ...
         values,direction,officialStep,inequalities,tau,tolerance)
 negative = find(direction<0);
 rawRatio = -values(negative)./direction(negative);
-candidateAlpha = min(ones(numel(negative),1),tau*rawRatio);
+candidateAlpha = tau*min(ones(numel(negative),1),rawRatio);
 if isempty(negative)
-    reconstructedAlpha = 1;
+    reconstructedAlpha = tau;
 else
     [~,order] = sortrows([candidateAlpha,negative],[1,2]);
     negative = negative(order);
@@ -1702,11 +1702,7 @@ end
 end
 
 function value = capped_candidate(rawRatio,tau)
-if isinf(rawRatio)
-    value = 1;
-else
-    value = min(1,tau*rawRatio);
-end
+value = tau*min(rawRatio,1);
 end
 
 function output = append_table(output,rows)

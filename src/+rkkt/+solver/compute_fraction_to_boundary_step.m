@@ -5,9 +5,11 @@ function step = compute_fraction_to_boundary_step(values,direction,tau)
 % positivity boundary is -values(i)/direction(i).  The returned step is
 % exactly
 %
-%   min(1, tau * min_i(-values(i)/direction(i))).
+%   tau * min(min_i(-values(i)/direction(i)), 1).
 %
-% No line search, centering adjustment, or regularization is performed.
+% This is the literal primal/dual step formula in Yang et al. equation
+% (19).  No line search, centering adjustment, or regularization is
+% performed.
 
 validate_positive_column(values,"values");
 validate_finite_column(direction,"direction");
@@ -25,7 +27,7 @@ negative = direction < 0;
 negativeIndices = find(negative);
 if isempty(negativeIndices)
     rawBoundaryStep = Inf;
-    alpha = 1;
+    alpha = tau;
     limitingIndex = 0;
     limitingValue = NaN;
     limitingDirection = NaN;
@@ -35,7 +37,7 @@ else
     limitingIndex = negativeIndices(localIndex);
     limitingValue = values(limitingIndex);
     limitingDirection = direction(limitingIndex);
-    alpha = min(1,tau*rawBoundaryStep);
+    alpha = tau*min(rawBoundaryStep,1);
 end
 
 if ~(isfinite(alpha) && alpha > 0 && alpha <= 1)
@@ -56,7 +58,7 @@ step.limiting_index = limitingIndex;
 step.limiting_value = limitingValue;
 step.limiting_direction = limitingDirection;
 step.negative_direction_count = nnz(negative);
-step.step_was_limited = alpha < 1;
+step.step_was_limited = rawBoundaryStep < 1;
 step.minimum_trial_value = min(updatedValues);
 end
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<testsuites>
+  <testsuite errors="0" failures="0" name="test_stage_b2a_stage_a_regression" skipped="0" tests="5" time="34.5648">
+    <testcase classname="test_stage_b2a_stage_a_regression" name="testFrozenCountsRemainA4Values" time="19.1406"/>
+    <testcase classname="test_stage_b2a_stage_a_regression" name="testFrozenVariablePrefixIsExact" time="0.015208"/>
+    <testcase classname="test_stage_b2a_stage_a_regression" name="testFrozenEqualitySocAndBlockMapsAreExact" time="0.022169"/>
+    <testcase classname="test_stage_b2a_stage_a_regression" name="testFrozenFixedZeroMapIsExact" time="0.0075014"/>
+    <testcase classname="test_stage_b2a_stage_a_regression" name="testFrozenBuildIsDeterministicAndNoStageASolverIsCalled" time="15.3794"/>
+  </testsuite>
+</testsuites>

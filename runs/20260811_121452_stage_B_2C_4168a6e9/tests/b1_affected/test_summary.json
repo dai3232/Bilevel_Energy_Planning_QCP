@@ -1,0 +1,15 @@
+{
+  "execution_status": "COMPLETE",
+  "suite_label": "stage_B_1_affected_regressions",
+  "test_total": 5,
+  "test_passed": 5,
+  "test_failed": 0,
+  "test_incomplete": 0,
+  "duration_seconds": 17.669721,
+  "wall_clock_seconds": 18.1256299,
+  "test_names_unique": true,
+  "expected_inventory_path": "H:\\Reproduction\\Hourly_Recursive_KKT_pkg\\tests\\stage_B_1_affected_regression_inventory.csv",
+  "expected_inventory_sha256": "9ea11d06589de7e99766fd6455a9daa2e50bc811ca920026668264a75c079969",
+  "error_identifier": "",
+  "error_message": ""
+}

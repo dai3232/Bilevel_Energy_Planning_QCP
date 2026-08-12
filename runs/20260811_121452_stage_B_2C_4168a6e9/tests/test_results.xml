@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<testsuites>
+  <testsuite errors="0" failures="0" name="test_stage_b2c_formal_ipm" skipped="0" tests="18" time="151.2204">
+    <testcase classname="test_stage_b2c_formal_ipm" name="testConfigurationFreezesFormalSevenDayScope" time="83.6546"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testNonzeroWaterHessianGatePasses" time="0.028053"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testWaterHessianSupportAndSignsAreTraceable" time="0.0046786"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testNonzeroHessianDirectionsAreEquivalent" time="0.015006"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testSingleStepUsesIndependentPrimalAndDualUpdates" time="0.18467"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testWaterHessianIsRebuiltFromCurrentMultiplier" time="22.3986"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testEachRecursivePassUsesOnePivotedDayFactor" time="0.067565"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testNoFactorOrLinearizationReuseAcrossIterations" time="0.04047"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testStrictSlackAndMultiplierPositivity" time="0.0058964"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testExactlyFourStoppingCriteria" time="0.0038053"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testMaximumIterationLimitIsFrozen" time="0.005848"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testCheckpointChainAndReplayAreDeterministic" time="23.5053"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testFinalPhysicalAuditHasTwentyEightIndependentRows" time="0.67629"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testFullDirectionIsAuditOnlyAndNeverConsumed" time="0.0033911"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testForbiddenAlgorithmFactorsRemainDisabled" time="0.0017938"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testStageAndExecutionBoundariesRemainFrozen" time="0.0029012"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testWaterStationarityFiniteDifferenceMatchesCurrentHessian" time="20.5348"/>
+    <testcase classname="test_stage_b2c_formal_ipm" name="testPivotedDayFactorSolvesAllColumnsJointly" time="0.086747"/>
+  </testsuite>
+</testsuites>

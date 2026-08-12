@@ -41,6 +41,7 @@ else
     congruenceScale = ones(n,1);
     scalingTrace = table();
 end
+
 factorizationSymmetryRelative = ...
     norm(factorizationMatrix-factorizationMatrix.',"fro") / ...
     max(1,norm(factorizationMatrix,"fro"));

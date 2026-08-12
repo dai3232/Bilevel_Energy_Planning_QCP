@@ -4,3 +4,4 @@
 %   stageB1  - Run the formal Stage B-1 workflow.
 %   stageB2A - Run the formal Stage B-2A workflow.
 %   stageB2B - Run the formal Stage B-2B workflow.
+%   stageB2C - Run the formal seven-day Stage B IPM workflow.

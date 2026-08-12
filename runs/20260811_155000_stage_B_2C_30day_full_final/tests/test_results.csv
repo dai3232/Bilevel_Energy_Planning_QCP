@@ -1,0 +1,9 @@
+run_id,test_id,status,passed
+20260811_155000_stage_B_2C_30day_full_final,EXP-DATA,PASS,true
+20260811_155000_stage_B_2C_30day_full_final,EXP-INDEX,PASS,true
+20260811_155000_stage_B_2C_30day_full_final,EXP-ROUTE,PASS,true
+20260811_155000_stage_B_2C_30day_full_final,EXP-FACTORS,PASS,true
+20260811_155000_stage_B_2C_30day_full_final,EXP-WATER-CORRECTION,PASS,true
+20260811_155000_stage_B_2C_30day_full_final,EXP-FIXED-ZERO,PASS,true
+20260811_155000_stage_B_2C_30day_full_final,EXP-CONVERGENCE,PASS,true
+20260811_155000_stage_B_2C_30day_full_final,EXP-PHYSICAL,PASS,true

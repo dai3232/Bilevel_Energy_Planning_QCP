@@ -11,7 +11,7 @@ assert(isfield(solved,"a") && isfield(solved,"U") && ...
     "stageB2B:response:Shape","Bordered day response has invalid fields.");
 response = solved;
 response.stage_id = "stage_B";
-response.milestone_id = "B-2B";
+response.milestone_id = rkkt.solver.stage_b2b_linearization_contract(lin).milestone_id;
 response.linearization_identity = lin.identity;
 response.c_gamma_distinct_formula = true;
 response.response_formula = ...

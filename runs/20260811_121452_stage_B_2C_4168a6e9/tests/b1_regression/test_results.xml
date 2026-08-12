@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<testsuites>
+  <testsuite errors="0" failures="0" name="test_stage_b1_data_baseline" skipped="0" tests="5" time="6.023">
+    <testcase classname="test_stage_b1_data_baseline" name="testStageBConfigurationAndCurrentStageGate" time="5.8423"/>
+    <testcase classname="test_stage_b1_data_baseline" name="testRawHydroWaterDataAre365By4AndFinite" time="0.059265"/>
+    <testcase classname="test_stage_b1_data_baseline" name="testStageBWindowHasSevenByFourAndTwentyEightRows" time="0.060115"/>
+    <testcase classname="test_stage_b1_data_baseline" name="testDayAndHydroOrderingIsCanonical" time="0.016186"/>
+    <testcase classname="test_stage_b1_data_baseline" name="testWaterMinimumAndMaximumDirectionIsNotSwapped" time="0.045175"/>
+  </testsuite>
+  <testsuite errors="0" failures="0" name="test_stage_b_daily_hydro_water" skipped="0" tests="9" time="13.6209">
+    <testcase classname="test_stage_b_daily_hydro_water" name="testWaterValueFormula" time="5.5488"/>
+    <testcase classname="test_stage_b_daily_hydro_water" name="testConstantTermAccumulatesTwentyFourTimes" time="0.018188"/>
+    <testcase classname="test_stage_b_daily_hydro_water" name="testAnalyticGradientMatchesIndependentCentralDifference" time="0.032838"/>
+    <testcase classname="test_stage_b_daily_hydro_water" name="testAnalyticHessianMatchesIndependentGradientDifference" time="0.031386"/>
+    <testcase classname="test_stage_b_daily_hydro_water" name="testUpperAndLowerDerivativeSigns" time="0.034732"/>
+    <testcase classname="test_stage_b_daily_hydro_water" name="testHessianIsSparseDiagonalWithExactCrossHourZeros" time="0.02571"/>
+    <testcase classname="test_stage_b_daily_hydro_water" name="testCrossDayAndAssetEvaluationsAreIndependent" time="7.4596"/>
+    <testcase classname="test_stage_b_daily_hydro_water" name="testInputShapeFiniteAndRealGuards" time="0.047343"/>
+    <testcase classname="test_stage_b_daily_hydro_water" name="testDeterministicRepeatIsBitwiseIdentical" time="0.4223"/>
+  </testsuite>
+</testsuites>

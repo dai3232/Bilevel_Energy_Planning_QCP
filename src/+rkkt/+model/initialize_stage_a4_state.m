@@ -20,10 +20,10 @@ state.fixed_zero_values = index.fixed_zero_map.fixed_value;
 state.fixed_zero_directions = index.fixed_zero_map.fixed_direction_value;
 state.initialization_version = "stageA4-deterministic-interior-v1.0";
 
-validate_state(state,index,initialized);
+validate_state(state,index,initialized,config);
 end
 
-function validate_state(state,index,linearization)
+function validate_state(state,index,linearization,config)
 nPrimal = height(index.variable_index);
 types = string(index.constraint_index.constraint_type);
 nEquality = nnz(types == "equality");
@@ -38,11 +38,11 @@ if any(~isfinite([state.xi;state.y;state.l;state.z])) || ...
     error("stageA4:state:StrictInterior", ...
         "A4 initial l and z must be finite and strictly positive.");
 end
-if numel(state.fixed_zero_values) ~= 422 || ...
+if numel(state.fixed_zero_values) ~= config.expected_fixed_zero_count || ...
         any(state.fixed_zero_values ~= 0) || ...
         any(state.fixed_zero_directions ~= 0)
     error("stageA4:state:FixedZero", ...
-        "All 422 removed renewable values and directions must be exact zero.");
+        "All configured removed renewable values and directions must be exact zero.");
 end
 if norm(linearization.r_ineq,inf) ~= 0 || ...
         norm(linearization.slack_consistency.audit_error,inf) ~= 0
@@ -50,7 +50,7 @@ if norm(linearization.r_ineq,inf) ~= 0 || ...
         "The deterministic initial slack must satisfy its equality exactly.");
 end
 links = index.soc_link_map;
-for day = 14:20
+for day = config.days
     first = links(links.day == day & links.hour == 1,:);
     terminal = links(links.day == day & links.terminal_equality,:);
     if height(first) ~= 2 || any(~isnan(first.predecessor_hour)) || ...

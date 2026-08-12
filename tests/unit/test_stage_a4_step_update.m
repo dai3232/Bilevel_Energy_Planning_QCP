@@ -9,9 +9,9 @@ addpath(genpath(fullfile(projectRoot,"src")));
 testCase.TestData.project_root = projectRoot;
 end
 
-function testNoNegativeDirectionUsesUnitStep(testCase)
+function testNoNegativeDirectionUsesPaperMaximumStep(testCase)
 step = rkkt.solver.compute_fraction_to_boundary_step([1;2;3],[0;4;1],0.9995);
-verifyEqual(testCase,step.alpha,1,"AbsTol",0);
+verifyEqual(testCase,step.alpha,0.9995,"AbsTol",0);
 verifyEqual(testCase,step.raw_boundary_step,Inf);
 verifyEqual(testCase,step.limiting_index,0);
 verifyTrue(testCase,isnan(step.limiting_value));
@@ -45,9 +45,9 @@ verifyGreaterThan(testCase,trial(1),0);
 verifyEqual(testCase,step.minimum_trial_value,trial(1),"AbsTol",0);
 end
 
-function testUnitStepStillReportsTightestNegativeComponent(testCase)
+function testPaperMaximumStepStillReportsTightestNegativeComponent(testCase)
 step = rkkt.solver.compute_fraction_to_boundary_step([4;10],[-1;-1],0.9995);
-verifyEqual(testCase,step.alpha,1,"AbsTol",0);
+verifyEqual(testCase,step.alpha,0.9995,"AbsTol",0);
 verifyEqual(testCase,step.raw_boundary_step,4,"AbsTol",0);
 verifyEqual(testCase,step.limiting_index,1);
 verifyEqual(testCase,step.limiting_value,4,"AbsTol",0);

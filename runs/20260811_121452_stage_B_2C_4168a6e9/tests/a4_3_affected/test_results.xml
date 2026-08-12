@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<testsuites>
+  <testsuite errors="0" failures="0" name="test_stage_a4_checkpoint" skipped="0" tests="10" time="4.4709">
+    <testcase classname="test_stage_a4_checkpoint" name="testRoundTripAtomicHashChainAndLatestLoad" time="1.4865"/>
+    <testcase classname="test_stage_a4_checkpoint" name="testNoncontiguousRevisionAndWrongStateFingerprintRejected" time="0.47563"/>
+    <testcase classname="test_stage_a4_checkpoint" name="testExpectedAndRebuiltLinearizationIdentityMismatchRejected" time="0.54812"/>
+    <testcase classname="test_stage_a4_checkpoint" name="testManifestHashTamperDetected" time="0.34851"/>
+    <testcase classname="test_stage_a4_checkpoint" name="testMatchingOrphanIsAdoptedWithoutOverwrite" time="0.39838"/>
+    <testcase classname="test_stage_a4_checkpoint" name="testWriterRejectsTerminalRun" time="0.20123"/>
+    <testcase classname="test_stage_a4_checkpoint" name="testStableV2AndEffectiveConfigIdentityAreMandatory" time="0.19212"/>
+    <testcase classname="test_stage_a4_checkpoint" name="testOrphanCheckpointAndSnapshotAreQuarantinedTogether" time="0.25774"/>
+    <testcase classname="test_stage_a4_checkpoint" name="testPostprocessRecoveryRecreatesMissingAndMovedDirectories" time="0.30819"/>
+    <testcase classname="test_stage_a4_checkpoint" name="testFullIpmExecutionMarkerIsOneWayAndCountsResume" time="0.25447"/>
+  </testsuite>
+  <testsuite errors="0" failures="0" name="test_stage_a4_report" skipped="0" tests="7" time="12.6807">
+    <testcase classname="test_stage_a4_report" name="testGeneratesThreeValidatedArtifactBackedReports" time="4.1611"/>
+    <testcase classname="test_stage_a4_report" name="testSupportsReportGatePreflightButFinalRequiresPass" time="2.1829"/>
+    <testcase classname="test_stage_a4_report" name="testRejectsNoncanonicalCapacityEvidence" time="0.24197"/>
+    <testcase classname="test_stage_a4_report" name="testRejectsIncompleteHourlyScope" time="1.2354"/>
+    <testcase classname="test_stage_a4_report" name="testRejectsFailedDirectionAndPhysicalEvidence" time="0.58286"/>
+    <testcase classname="test_stage_a4_report" name="testGeneratesTruthfulReportsForFailedRun" time="2.1031"/>
+    <testcase classname="test_stage_a4_report" name="testRefusesOverwriteAndIncompleteReportSet" time="2.1734"/>
+  </testsuite>
+</testsuites>

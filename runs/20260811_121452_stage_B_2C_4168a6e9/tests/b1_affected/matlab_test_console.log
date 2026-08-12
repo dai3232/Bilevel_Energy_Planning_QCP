@@ -1,0 +1,38 @@
+Test evidence initialized at 2026-08-11T20:33:39+08:00.
+Fixed stage_B_1_affected_regressions inventory (5 tests):
+    test_order                                    test_name                                                     source_file                 
+    __________    _________________________________________________________________________    _____________________________________________
+
+        1         "test_stage0_data_reader/testControlledHashesMatchManifest"                  "tests/unit/test_stage0_data_reader.m"       
+        2         "test_stage0_data_reader/testLabelDrivenReaderNormalizesRealInputs"          "tests/unit/test_stage0_data_reader.m"       
+        3         "test_stage0_data_reader/testLocatorRequiresUniqueLabelAndCompleteHeader"    "tests/unit/test_stage0_data_reader.m"       
+        4         "test_canonical_index_framework/testRealDataFrameworkHasNoGapsOrOverlaps"    "tests/unit/test_canonical_index_framework.m"
+        5         "test_canonical_index_framework/testThermalMaskRemovesVariablesExactly"      "tests/unit/test_canonical_index_framework.m"
+
+Actual test command: run_stage_B_1_affected_regressions() [B-2C]
+ 正在运行 test_stage0_data_reader
+  正在设置 test_stage0_data_reader
+  设置 test_stage0_data_reader 在 0.081763 秒内完成
+   正在运行 test_stage0_data_reader/testControlledHashesMatchManifest
+   test_stage0_data_reader/testControlledHashesMatchManifest 在 0.037235 秒内完成
+   正在运行 test_stage0_data_reader/testLabelDrivenReaderNormalizesRealInputs
+   test_stage0_data_reader/testLabelDrivenReaderNormalizesRealInputs 在 5.7617 秒内完成
+   正在运行 test_stage0_data_reader/testLocatorRequiresUniqueLabelAndCompleteHeader
+   test_stage0_data_reader/testLocatorRequiresUniqueLabelAndCompleteHeader 在 0.31757 秒内完成
+  正在拆解 test_stage0_data_reader
+  拆解 test_stage0_data_reader 在 1.23e-05 秒内完成
+ test_stage0_data_reader 在 6.1983 秒内完成
+__________
+
+ 正在运行 test_canonical_index_framework
+  正在设置 test_canonical_index_framework
+  设置 test_canonical_index_framework 在 0.092257 秒内完成
+   正在运行 test_canonical_index_framework/testRealDataFrameworkHasNoGapsOrOverlaps
+   test_canonical_index_framework/testRealDataFrameworkHasNoGapsOrOverlaps 在 5.8042 秒内完成
+   正在运行 test_canonical_index_framework/testThermalMaskRemovesVariablesExactly
+   test_canonical_index_framework/testThermalMaskRemovesVariablesExactly 在 5.575 秒内完成
+  正在拆解 test_canonical_index_framework
+  拆解 test_canonical_index_framework 在 2.43e-05 秒内完成
+ test_canonical_index_framework 在 11.4714 秒内完成
+__________
+

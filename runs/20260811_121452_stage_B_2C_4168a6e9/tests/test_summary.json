@@ -1,0 +1,15 @@
+{
+  "execution_status": "COMPLETE",
+  "suite_label": "stage_B_2C",
+  "test_total": 18,
+  "test_passed": 18,
+  "test_failed": 0,
+  "test_incomplete": 0,
+  "duration_seconds": 151.22042079999997,
+  "wall_clock_seconds": 153.3309675,
+  "test_names_unique": true,
+  "expected_inventory_path": "H:\\Reproduction\\Hourly_Recursive_KKT_pkg\\tests\\stage_B_2C_expected_test_inventory.csv",
+  "expected_inventory_sha256": "107e4a4a57191c039e787549deedc19abeea1b0d5f3692b58c1ea91b67b9a239",
+  "error_identifier": "",
+  "error_message": ""
+}

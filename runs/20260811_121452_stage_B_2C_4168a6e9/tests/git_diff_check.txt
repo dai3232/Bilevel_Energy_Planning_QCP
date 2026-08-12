@@ -1,0 +1,2 @@
+scope=src/+rkkt/+workflows/stageB2C.m|src/+rkkt/+solver/compute_stage_b2c_water_slack_second_order_correction.m|src/+rkkt/+solver/run_stage_b2c_full_ipm.m|src/+rkkt/+diagnostics/execute_stage_b2c_iteration.m|src/+rkkt/+diagnostics/execute_stage_b2c_water_corrected_iteration.m|src/+rkkt/+diagnostics/run_stage_b2c_static_checks.m|src/+rkkt/+reporting/generate_stage_b2c_report.m|src/+rkkt/+reporting/validate_stage_b2c_report.m|tests/integration/test_stage_b2c_formal_ipm.m|tests/unit/test_stage_b2c_water_slack_second_order_correction.m
+exit_code=0

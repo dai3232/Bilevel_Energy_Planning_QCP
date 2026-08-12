@@ -1,0 +1,9 @@
+run_id,test_id,requirement,actual_value,blocking,status
+20260811_155000_stage_B_2C_30day_full_final,EXP-DATA,120 water-input rows pass,120 rows,true,PASS
+20260811_155000_stage_B_2C_30day_full_final,EXP-INDEX,15910/2642/31220 and reconstructed dimension 80992,15910/2642/31220; reconstructed=80992,true,PASS
+20260811_155000_stage_B_2C_30day_full_final,EXP-ROUTE,recursive direction only; reconstructed KKT residual <= 1e-10,audit=false; worst residual=1.1752538128386851e-11,true,PASS
+20260811_155000_stage_B_2C_30day_full_final,EXP-FACTORS,30 daily LDL solves plus one 16-D core solve per iteration; no refactorization during residual correction,961 factor records; refinement triggers=5,true,PASS
+20260811_155000_stage_B_2C_30day_full_final,EXP-WATER-CORRECTION,240 exact second-order water-slack corrections per iteration,7440 correction records,true,PASS
+20260811_155000_stage_B_2C_30day_full_final,EXP-FIXED-ZERO,1804 removed renewable entries remain exact zero,1804 exact zeros,true,PASS
+20260811_155000_stage_B_2C_30day_full_final,EXP-CONVERGENCE,four stopping metrics <= 1e-6,converged=true; iterations=31,true,PASS
+20260811_155000_stage_B_2C_30day_full_final,EXP-PHYSICAL,"if converged, final water and Stage-A physical audit passes",passed=true; max water violation=0,true,PASS

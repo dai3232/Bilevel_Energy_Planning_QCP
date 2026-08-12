@@ -1,0 +1,8 @@
+run_id,check_id,component,blocking,expected,actual,status,available,checked_at,details
+20260811_121452_stage_B_2C_4168a6e9,MATLAB_RELEASE,MATLAB R2024a,true,2024a,2024a,PASS,true,2026-08-11T20:14:54+08:00,Required release
+20260811_121452_stage_B_2C_4168a6e9,SPARSE_LINEAR_ALGEBRA,sparse matrices,true,available,true,PASS,true,2026-08-11T20:14:54+08:00,No dense conversion of day/full KKT
+20260811_121452_stage_B_2C_4168a6e9,LDL_FACTORIZATION,sparse LDL,true,available,true,PASS,true,2026-08-11T20:14:54+08:00,Used only through retained symmetric block factors
+20260811_121452_stage_B_2C_4168a6e9,FULL_KKT_AUDIT,independent sparse audit solve,true,audit_only,audit_only,PASS,true,2026-08-11T20:14:54+08:00,Raw nonsymmetric KKT is solved by sparse backslash for audit only
+20260811_121452_stage_B_2C_4168a6e9,RECURSIVE_DIRECTION,daily bordered LDL/Thomas,true,one_direction,one_direction,PASS,true,2026-08-11T20:14:54+08:00,"Seven daily chains, eight-row borders, and one 16-D core"
+20260811_121452_stage_B_2C_4168a6e9,IPM_OPTIMIZATION,full IPM / optimization,true,not_executed,not_executed,PASS,true,2026-08-11T20:14:54+08:00,No state update or convergence loop
+20260811_121452_stage_B_2C_4168a6e9,PARALLEL_EXECUTION,parpool / parfor,true,off,off,PASS,true,2026-08-11T20:14:54+08:00,Serial execution only

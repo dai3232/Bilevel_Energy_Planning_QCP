@@ -144,7 +144,7 @@ for c = 1:2
             end
             negative = find(direction<0);
             raw = -state(negative)./direction(negative);
-            candidates = min(ones(numel(raw),1),tau*raw);
+            candidates = tau*min(ones(numel(raw),1),raw);
             [~,order] = sortrows([candidates,negative],[1,2]);
             negative = negative(order);
             raw = raw(order);
@@ -162,8 +162,8 @@ for c = 1:2
             verifyEqual(testCase,rows.reconstructed_candidate_alpha, ...
                 candidates,'AbsTol',0);
             verifyEqual(testCase,rows.rank,(1:numel(negative)).');
-            reconstructed = min(1,tau*min( ...
-                -state(direction<0)./direction(direction<0)));
+            reconstructed = tau*min(min( ...
+                -state(direction<0)./direction(direction<0)),1);
             verifyEqual(testCase,reconstructed,official,'AbsTol',0);
 
             summaryRow = summary( ...
@@ -922,9 +922,9 @@ end
 
 function candidate = local_candidate(value,direction,tau)
 if direction<0
-    candidate = min(1,tau*(-value/direction));
+    candidate = tau*min(-value/direction,1);
 else
-    candidate = 1;
+    candidate = tau;
 end
 end
 

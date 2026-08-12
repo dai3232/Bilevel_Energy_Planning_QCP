@@ -1,8 +1,18 @@
-
+%本函数不负责去原始建立完整KKT
 function result = solve_stage_a_multiday_recursive_direction(lin,options)
 %SOLVE_STAGE_A_MULTIDAY_RECURSIVE_DIRECTION Compute one seven-day direction.
 % This interface cannot receive a direction from the audit route.
 
+%lin是已经包含内点迭代需要的线性化信息。
+%%
+%H                 拉格朗日函数 Hessian
+%A                 等式约束 Jacobian
+%G                 不等式约束 Jacobian
+%r_dual            驻点残差
+%r_eq              等式约束残差
+%r_ineq            松弛等式残差
+%r_comp            互补残差
+%xi、y、l、z        当前原始—对偶状态
 arguments
     lin (1,1) struct
     options.AssemblyTolerance (1,1) double {mustBeNonnegative,mustBeFinite} = 1e-12
@@ -14,12 +24,48 @@ arguments
     options.EquilibrationPasses (1,1) double ...
         {mustBeInteger,mustBeNonnegative} = 8
 end
+%%
+%| 参数                            | 作用             |
+%| ----------------------------- | -------------- |
+%| `AssemblyTolerance`           | 分块和矩阵组装时使用的容差  |
+%| `SymmetryTolerance`           | 检查矩阵或日响应是否保持对称 |
+%| `ResponseInputOrder`          | 控制各天响应进入聚合器的顺序 |
+%| `ResidualRefinementMaxPasses` | LDL 求解后的残差修正次数 |
+%| `UseCongruenceScaling`        | 是否对矩阵进行合同缩放    |
+%| `EquilibrationPasses`         | 矩阵平衡缩放次数       |
+
 assert(options.ResidualRefinementMaxPasses<=3, ...
     "stageA:RNS1:MultidayRefinementPassLimit", ...
     "Stage-A retained-factor refinement permits at most three passes.");
-contract = rkkt.solver.stage_a_multiday_linearization_contract(lin);
+%%获取线性化契约和阶段身份
+contract = rkkt.solver.stage_a_multiday_linearization_contract(lin);%这个函数是检查 lin 是否满足多日递推求解器所要求的数据契约
+%获取id，当发生错误标明具体的错误
 stageId = contract.stage_id;
 
+%%
+%solve_stage_a_multiday_recursive_direction
+%│
+%├─ 1. stage_a_multiday_linearization_contract
+%│
+%├─ 2. eliminate_stage_a_multiday_inequality_directions
+%│
+%├─ 3. partition_stage_a_multiday_recursive_system
+%│
+%├─ 4. 对每一天循环
+%│    ├─ solve_block_thomas_ldl
+%│    └─ form_stage_a_multiday_day_response
+%│
+%├─ 5. aggregate_stage_a_multiday_day_responses
+%│
+%├─ 6. solve_stage_a_multiday_core16_ldl
+%│
+%├─ 7. recover_stage_a_multiday_recursive_direction
+%│
+%├─ 8. assemble_stage_a_multiday_full_kkt
+%│
+%└─ 9. 用完整 KKT 计算残差
+%%3. 记录求解当前执行到哪一层
+%%第1层：消去不等式变量方向
 layer = "inequality_elimination";
 try
     reduced = rkkt.solver.eliminate_stage_a_multiday_inequality_directions(lin);
@@ -85,6 +131,7 @@ catch cause
     wrapped = addCause(wrapped,cause);
     throw(wrapped);
 end
+
 
 relativeResidual = norm(residual,2)/max(1,norm(fullAssembly.rhs,2));
 [maxAbsoluteResidual,maxResidualRow] = max(abs(residual));

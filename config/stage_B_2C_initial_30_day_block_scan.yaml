@@ -1,0 +1,21 @@
+stage_id: "stage_B"
+status: "READY"
+milestone_id: "B-2C-INITIAL-30-DAY-BLOCK-SCAN"
+run_purpose: "stage_B_2C_initial_point_daily_joint_block_prevalence_scan"
+days: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+hours: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+observation_point: "deterministic_initialization"
+daily_joint_unknowns: "q_day_pi_day_hourly_primal_and_equality"
+water_inequality_elimination: "z_over_l_diagonal"
+pivot_reference_rule: "n*eps(max(1,max(abs(pivot_eigenvalues))))"
+numerical_zero_gate_action: "record_and_continue"
+structural_rank_action: "needs_model_decision"
+factor_warning_action: "needs_model_decision"
+full_kkt_executed: false
+newton_direction_executed: false
+full_ipm_executed: false
+optimization_executed: false
+state_update_executed: false
+regularization_enabled: false
+pseudoinverse_enabled: false
+production_gate_changed: false

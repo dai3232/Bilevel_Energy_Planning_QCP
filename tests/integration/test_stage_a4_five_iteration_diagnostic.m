@@ -90,7 +90,7 @@ for iteration = 1:5
         verifyLessThanOrEqual(testCase,step.alpha,1);
         verifyEqual(testCase,step.tau,0.9995,"AbsTol",0);
         if step.negative_direction_count==0
-            verifyEqual(testCase,step.alpha,1,"AbsTol",0);
+            verifyEqual(testCase,step.alpha,step.tau,"AbsTol",0);
             verifyEqual(testCase,step.limiting_index,0);
             verifyEmpty(testCase,step.limiting_constraint_id);
             verifyTrue(testCase,isinf(step.raw_boundary_step));

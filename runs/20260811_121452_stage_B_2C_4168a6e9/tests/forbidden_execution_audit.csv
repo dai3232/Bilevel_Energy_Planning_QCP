@@ -1,0 +1,12 @@
+factor_id,used,execution_status
+common_min,false,PASS
+dynamic_sigma,false,PASS
+predictor_corrector,false,PASS
+line_search,false,PASS
+regularization,false,PASS
+automatic_symmetrization,false,PASS
+parallel,false,PASS
+full_kkt_direction_fallback,false,PASS
+annual_scope,false,PASS
+thermal_second_pass,false,PASS
+stage_c1_implementation,false,PASS

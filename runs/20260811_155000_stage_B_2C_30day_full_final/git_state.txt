@@ -1,0 +1,143 @@
+git_available: true
+git_commit: 4168a6e9fd8b7f6984f40001b1cf004fcee950e6
+git_status:
+## refactor/pkg-interface
+ M RUN_PROJECT.m
+ M src/+rkkt/+artifacts/write_table_csv_17g.m
+ M src/+rkkt/+diagnostics/run_stage_a4_small_step_root_cause_audit.m
+ M src/+rkkt/+indexing/build_canonical_index_framework.m
+ M src/+rkkt/+indexing/build_stage_b2b_index.m
+ M src/+rkkt/+indexing/build_stage_b_index.m
+ M src/+rkkt/+ipm/execute_stage_a4_iteration.m
+ M src/+rkkt/+ipm/run_stage_a4_full_ipm.m
+ M src/+rkkt/+model/assemble_stage_b_water_linearization.m
+ M src/+rkkt/+model/build_stage_a_multiday_linearization.m
+ M src/+rkkt/+model/build_stage_b2b_multiday_linearization.m
+ M src/+rkkt/+model/build_stage_b_multiday_linearization.m
+ M src/+rkkt/+model/initialize_stage_a4_state.m
+ M src/+rkkt/+solver/Contents.m
+ M src/+rkkt/+solver/apply_stage_b2b_retained_chain_rhs.m
+ M src/+rkkt/+solver/assemble_stage_b2b_full_kkt.m
+ M src/+rkkt/+solver/compute_fraction_to_boundary_step.m
+ M src/+rkkt/+solver/compute_retained_residual_metrics.m
+ M src/+rkkt/+solver/eliminate_stage_a_multiday_inequality_directions.m
+ M src/+rkkt/+solver/factor_symmetric_ldl.m
+ M src/+rkkt/+solver/form_stage_b2b_day_response.m
+ M src/+rkkt/+solver/partition_stage_b2b_recursive_system.m
+ M src/+rkkt/+solver/recover_stage_b2b_recursive_direction.m
+ M src/+rkkt/+solver/solve_block_thomas_ldl.m
+ M src/+rkkt/+solver/solve_stage_a_multiday_recursive_direction.m
+ M src/+rkkt/+solver/solve_stage_b2b_core16_ldl.m
+ M src/+rkkt/+solver/solve_stage_b2b_day_border.m
+ M src/+rkkt/+solver/solve_stage_b2b_full_kkt_direction.m
+ M src/+rkkt/+solver/solve_stage_b2b_recursive_direction.m
+ M src/+rkkt/+solver/solve_with_ldl_factor.m
+ M src/+rkkt/+solver/stage_b2b_linearization_contract.m
+ M src/+rkkt/+solver/verify_stage_b2b_direction_equivalence.m
+ M src/+rkkt/+workflows/Contents.m
+ M src/+rkkt/+workflows/stageA4.m
+ M src/+rkkt/info.m
+ M src/+rkkt/run.m
+ M tests/integration/test_stage_a4_five_iteration_diagnostic.m
+ M tests/integration/test_stage_a4_single_iteration.m
+ M tests/integration/test_stage_a4_small_step_root_cause_audit.m
+ M tests/unit/test_stage_a4_step_update.m
+?? .codex_matlab_pref_b2c_water_formal/
+?? .codex_matlab_pref_b2c_water_main/
+?? .codex_matlab_temp/
+?? config/stage_B_2C.yaml
+?? config/stage_B_2C_30_day_experiment.yaml
+?? config/stage_B_2C_daily_joint_experiment.yaml
+?? config/stage_B_2C_initial_30_day_block_scan.yaml
+?? "docs/Stage_B2C_\345\205\250\344\270\215\347\255\211\345\274\217\346\266\210\345\205\203\344\270\216\344\270\211\347\272\247\351\200\222\346\216\250\350\247\243\350\200\246\347\255\226\347\225\245.md"
+?? "docs/Stage_B2C_\346\260\264\351\207\217\347\272\246\346\235\237\344\270\216\346\227\245\345\235\227\346\225\260\345\200\274\347\247\251\344\272\217\351\227\256\351\242\230\346\200\273\347\273\223.md"
+?? runs/20260727_170402_PKG-1_49a7c030/
+?? runs/20260727_170522_PKG-1_49a7c030/
+?? runs/20260727_170607_PKG-1_49a7c030/
+?? runs/20260727_170917_PKG-1_1be2f5a6/
+?? runs/20260805_052905_stage_A4_4a4f673d/
+?? runs/20260805_053805_stage_A4_44e444e7/
+?? runs/20260805_055757_stage_A4_ea9cc32f/
+?? runs/20260805_081018_stage_A4_4168a6e9/
+?? runs/20260807_092711_stage_B_2C_4168a6e9/
+?? runs/20260807_141756_stage_B_2C_4168a6e9/
+?? runs/20260807_145804_stage_B_2C_4168a6e9/
+?? runs/20260810_110408_stage_B_4168a6e9/
+?? runs/20260810_114300_stage_B_4168a6e9/
+?? runs/20260810_142915_stage_B_4168a6e9/
+?? runs/20260810_143834_stage_B_4168a6e9/
+?? runs/20260810_145622_stage_B_4168a6e9/
+?? runs/20260810_150850_stage_B_4168a6e9/
+?? runs/20260810_165014_stage_B_4168a6e9/
+?? runs/20260811_044116_stage_B_2C_4168a6e9/
+?? runs/20260811_050742_stage_B_2C_4168a6e9/
+?? runs/20260811_064946_stage_B_WARM_4168a6e9/
+?? runs/20260811_065255_stage_B_WARM_4168a6e9/
+?? runs/20260811_101510_stage_B_WATER2_4168a6e9/
+?? runs/20260811_111131_stage_B_WATERMAIN_SMOKE/
+?? runs/20260811_111730_stage_B_WATERMAIN_SMOKE/
+?? runs/20260811_111921_stage_B_2C_4168a6e9/
+?? runs/20260811_113331_stage_B_2C_4168a6e9/
+?? runs/20260811_115337_stage_B_2C_4168a6e9/
+?? runs/20260811_121452_stage_B_2C_4168a6e9/
+?? runs/20260811_150625_stage_B_2C_30day_smoke/
+?? runs/20260811_150942_stage_B_2C_30day_smoke/
+?? runs/20260811_151300_stage_B_2C_30day_full/
+?? runs/20260811_153000_stage_B_2C_30day_full_refined/
+?? runs/LATEST_PASS.json
+?? "runs/\350\277\220\350\241\214\347\264\242\345\274\225.csv"
+?? src/+rkkt/+artifacts/load_stage_b2c_checkpoint.m
+?? src/+rkkt/+artifacts/write_stage_b2c_checkpoint.m
+?? src/+rkkt/+diagnostics/build_stage_b2c_initial_day_scan_fixture.m
+?? src/+rkkt/+diagnostics/compute_stage_b2c_unitized_metrics.m
+?? src/+rkkt/+diagnostics/evaluate_stage_b2c_physical_audit.m
+?? src/+rkkt/+diagnostics/execute_stage_b2c_iteration.m
+?? src/+rkkt/+diagnostics/execute_stage_b2c_water_corrected_iteration.m
+?? src/+rkkt/+diagnostics/load_stage_b2c_daily_joint_frozen_points.m
+?? src/+rkkt/+diagnostics/run_stage_b2c_day16_to_day17_warm_start_experiment.m
+?? src/+rkkt/+diagnostics/run_stage_b2c_nonzero_hessian_gate.m
+?? src/+rkkt/+diagnostics/run_stage_b2c_static_checks.m
+?? src/+rkkt/+diagnostics/run_stage_b2c_water_correction_experiment.m
+?? src/+rkkt/+diagnostics/scan_stage_b2c_initial_day_pivots.m
+?? src/+rkkt/+diagnostics/stage_b2c_convergence_passed.m
+?? src/+rkkt/+indexing/build_stage_b2c_index.m
+?? src/+rkkt/+model/build_stage_b2c_multiday_linearization.m
+?? src/+rkkt/+model/build_stage_b2c_scaled_objective_linearization.m
+?? src/+rkkt/+model/initialize_stage_b2c_state.m
+?? src/+rkkt/+model/load_stage_b2c_configuration.m
+?? src/+rkkt/+reporting/generate_stage_b2c_30day_experiment_report.m
+?? src/+rkkt/+reporting/generate_stage_b2c_daily_joint_experiment_report.m
+?? src/+rkkt/+reporting/generate_stage_b2c_day16_to_day17_warm_start_report.m
+?? src/+rkkt/+reporting/generate_stage_b2c_initial_30_day_scan_report.m
+?? src/+rkkt/+reporting/generate_stage_b2c_report.m
+?? src/+rkkt/+reporting/generate_stage_b2c_water_correction_experiment_report.m
+?? src/+rkkt/+reporting/render_stage_b2c_report_external.m
+?? src/+rkkt/+reporting/validate_stage_b2c_report.m
+?? src/+rkkt/+reporting/validate_stage_b2c_water_correction_report.m
+?? src/+rkkt/+reporting/write_stage_b2c_docx.m
+?? src/+rkkt/+solver/compute_sparse_residual_double_double.m
+?? src/+rkkt/+solver/compute_stage_b2c_water_slack_second_order_correction.m
+?? src/+rkkt/+solver/eliminate_stage_b2c_all_inequality_directions.m
+?? src/+rkkt/+solver/partition_stage_b2c_daily_joint_system.m
+?? src/+rkkt/+solver/recover_stage_b2c_daily_joint_direction.m
+?? src/+rkkt/+solver/refine_stage_b2b_augmented_day_solution.m
+?? src/+rkkt/+solver/refine_stage_b2b_retained_chain_solution.m
+?? src/+rkkt/+solver/run_stage_b2c_30day_ipm.m
+?? src/+rkkt/+solver/run_stage_b2c_full_ipm.m
+?? src/+rkkt/+solver/solve_stage_b2c_daily_joint_block.m
+?? src/+rkkt/+solver/solve_stage_b2c_daily_joint_day.m
+?? src/+rkkt/+solver/solve_stage_b2c_daily_joint_direction.m
+?? src/+rkkt/+solver/solve_stage_b2c_day_ldl.m
+?? src/+rkkt/+workflows/stageB2C.m
+?? src/+rkkt/+workflows/stageB2C30DayExperiment.m
+?? src/+rkkt/+workflows/stageB2CDailyJointExperiment.m
+?? src/+rkkt/+workflows/stageB2CInitial30DayBlockScan.m
+?? tests/integration/test_stage_b2c_formal_ipm.m
+?? tests/run_stage_B_2C_A4_3_affected_regressions.m
+?? tests/run_stage_B_2C_tests.m
+?? tests/stage_B_2C_A4_3_affected_inventory.csv
+?? tests/stage_B_2C_daily_joint_experiment_inventory.csv
+?? tests/stage_B_2C_expected_test_inventory.csv
+?? tests/unit/test_stage_b2c_daily_joint_block.m
+?? tests/unit/test_stage_b2c_initial_day_pivot_scan.m
+?? tests/unit/test_stage_b2c_water_slack_second_order_correction.m

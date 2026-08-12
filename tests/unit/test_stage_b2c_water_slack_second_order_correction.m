@@ -1,0 +1,53 @@
+function tests = test_stage_b2c_water_slack_second_order_correction
+tests = functiontests(localfunctions);
+end
+
+function testCheckpoint27WaterRemainderIsRemovedExactly(testCase)
+root = rkkt.projectRoot();
+config = rkkt.model.load_stage_b2c_configuration(root);
+data = rkkt.data.load_project_data(root);
+index = rkkt.indexing.build_stage_b2c_index( ...
+    data,config,"RunId","WATER-CORRECTION-UNIT");
+sourceRoot = fullfile(root,"runs", ...
+    "20260811_050742_stage_B_2C_4168a6e9");
+context = struct( ...
+    "checkpoints_dir",fullfile(sourceRoot,"checkpoints"), ...
+    "checkpoint_manifest_path", ...
+        fullfile(sourceRoot,"checkpoints","checkpoint_manifest.csv"));
+[checkpoint,~] = rkkt.artifacts.load_stage_b2c_checkpoint(context,27);
+
+step = rkkt.diagnostics.execute_stage_b2c_water_corrected_iteration( ...
+    checkpoint.state,data,index,config);
+correction = step.water_slack_second_order_correction;
+waterRows = correction.water_rows;
+nonwater = true(numel(step.state_after.l),1);
+nonwater(waterRows) = false;
+ordinary = rkkt.solver.update_primal_dual_state( ...
+    step.linearization_before.state,step.recursive.components, ...
+    step.primal_step.alpha,step.dual_step.alpha);
+
+verifyEqual(testCase,step.state_after.xi,ordinary.xi);
+verifyEqual(testCase,step.state_after.y,ordinary.y);
+verifyEqual(testCase,step.state_after.z,ordinary.z);
+verifyEqual(testCase,step.state_after.l(nonwater),ordinary.l(nonwater));
+verifyEqual(testCase,step.state_after.l(waterRows), ...
+    ordinary.l(waterRows)-correction.second_order_remainder);
+verifyEqual(testCase,correction.correction_fraction,1);
+verifyFalse(testCase,correction.correction_fraction_limited);
+verifyTrue(testCase,correction.full_correction_centrality_safe);
+verifyTrue(testCase,correction.full_correction_feasible);
+verifyTrue(testCase,correction.all_strictly_positive);
+verifyGreaterThan(testCase,correction.minimum_corrected_l,0);
+verifyLessThanOrEqual(testCase,correction.maximum_closure_error,1e-10);
+verifyLessThanOrEqual(testCase,step.water_residual_rebuild_closure,1e-10);
+verifyEqual(testCase,step.uncorrected_metrics_after.primal_inequality_inf, ...
+    0.0040626074610372598,"AbsTol",1e-12);
+verifyEqual(testCase,step.metrics_after.primal_inequality_inf, ...
+    9.4557590273325332e-06,"AbsTol",1e-12);
+verifyLessThan(testCase,step.metrics_after.primal_inequality_inf, ...
+    step.uncorrected_metrics_after.primal_inequality_inf/400);
+day17 = step.recursive.responses([step.recursive.responses.day_id]==17);
+verifyEqual(testCase,day17.factor.inertia_zero,0);
+verifyTrue(testCase,step.direction_audit.all_pass);
+verifyTrue(testCase,step.only_water_slacks_corrected);
+end

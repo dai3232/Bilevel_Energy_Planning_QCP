@@ -1,0 +1,10 @@
+rule_id,pattern,matching_files,match_count,status
+NO_INV,(?i)\binv\s*\(,,0,PASS
+NO_PINV,(?i)\bpinv\s*\(,,0,PASS
+NO_LSQMINNORM,(?i)\blsqminnorm\s*\(,,0,PASS
+NO_PARFOR,(?i)\bparfor\b,,0,PASS
+NO_PARPOOL,(?i)\bparpool\s*\(,,0,PASS
+NO_REGULARIZATION,(?i)\bregulari[sz]\w*\s*\(,,0,PASS
+NO_DIRECT_LDL,(?i)(?<!factor_symmetric_)\bldl\s*\(,,0,PASS
+NO_AUTOMATIC_SYMMETRIZATION,\([^\r\n]+\+[^\r\n]+\.'\)\s*/\s*2,,0,PASS
+NO_DIRECT_CHAIN_BACKSLASH,(?i)\bday\.M\s*\\,,0,PASS

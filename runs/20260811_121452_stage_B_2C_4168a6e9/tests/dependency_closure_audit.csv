@@ -1,0 +1,5 @@
+role,entry_file,full_direction_consumed,fallback_available,audit_only,closure_status
+formal_recursive_direction,src/+rkkt/+solver/solve_stage_b2c_daily_joint_direction.m,false,false,false,PASS
+independent_full_kkt_audit,src/+rkkt/+solver/solve_stage_b2b_full_kkt_direction.m,false,false,true,PASS
+water_hessian_gate,src/+rkkt/+diagnostics/run_stage_b2c_nonzero_hessian_gate.m,false,false,true,PASS
+formal_state_update,src/+rkkt/+diagnostics/execute_stage_b2c_iteration.m,false,false,false,PASS
