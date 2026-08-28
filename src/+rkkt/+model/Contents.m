@@ -8,3 +8,6 @@
 %   linearizeStageB2A  - Build the explicit B-2A linearization.
 %   initializeStageB2B - Build the explicit B-2B initial state.
 %   linearizeStageB2B  - Build the explicit B-2B linearization.
+%   build_stage_b2c_linearization_template - Freeze invariant B-2C structure.
+%   evaluate_stage_b2c_water_template - Update all daily-water rows in bulk.
+%   update_stage_b2c_scaled_objective_linearization - Refresh dynamic values.

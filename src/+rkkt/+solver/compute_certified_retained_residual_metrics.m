@@ -1,0 +1,76 @@
+function metrics = compute_certified_retained_residual_metrics( ...
+        matrix,solution,rhs,residualTolerance)
+%COMPUTE_CERTIFIED_RETAINED_RESIDUAL_METRICS Certify or accurately rebuild.
+%
+% A binary64 sparse residual is accepted only when a conservative forward
+% error bound proves that the unchanged residual tolerance is met. If the
+% bound cannot certify the solve, the existing double-double residual is
+% evaluated without changing the matrix, factor, solution, or tolerance.
+
+arguments
+    matrix {mustBeNumeric,mustBeReal}
+    solution {mustBeNumeric,mustBeReal}
+    rhs {mustBeNumeric,mustBeReal}
+    residualTolerance (1,1) double {mustBePositive}
+end
+matrix = sparse(matrix);
+assert(size(matrix,1)==size(matrix,2) && ...
+    size(matrix,1)==size(solution,1) && ...
+    isequal(size(solution),size(rhs)) && ...
+    all(isfinite(nonzeros(matrix))) && ...
+    all(isfinite(solution),"all") && all(isfinite(rhs),"all"), ...
+    "stageB2C:certifiedResidual:Input", ...
+    "Certified residual inputs have incompatible or nonfinite values.");
+
+ordinaryResidual = rhs-matrix*solution;
+magnitude = abs(matrix)*abs(solution)+abs(rhs);
+rowNonzeros = full(sum(spones(matrix),2));
+unitRoundoff = eps/2;
+operationCount = 2*rowNonzeros+2;
+assert(all(operationCount.*unitRoundoff<1), ...
+    "stageB2C:certifiedResidual:OperationCount", ...
+    "The sparse dot-product error bound is not finite.");
+gamma = operationCount.*unitRoundoff./ ...
+    (1-operationCount.*unitRoundoff);
+absoluteErrorBound = gamma.*magnitude;
+
+rhsNorm = full(sqrt(sum(abs(rhs).^2,1)));
+ordinaryNorm = full(sqrt(sum(abs(ordinaryResidual).^2,1)));
+errorBoundNorm = full(sqrt(sum(abs(absoluteErrorBound).^2,1)));
+ordinaryColumnRelative = ordinaryNorm./max(1,rhsNorm);
+certifiedColumnUpper = ...
+    (ordinaryNorm+errorBoundNorm)./max(1,rhsNorm);
+certified = max(certifiedColumnUpper)<=residualTolerance;
+
+if certified
+    denominator = max(ones(size(ordinaryResidual)),magnitude);
+    residualMagnitudeUpper = abs(ordinaryResidual)+absoluteErrorBound;
+    metrics = struct( ...
+        "maximum_column_relative",full(max(certifiedColumnUpper)), ...
+        "column_relative",certifiedColumnUpper, ...
+        "frobenius_relative",full((norm(ordinaryResidual,"fro")+ ...
+            norm(absoluteErrorBound,"fro"))/max(1,norm(rhs,"fro"))), ...
+        "componentwise_backward_error", ...
+            full(max(residualMagnitudeUpper./denominator,[],"all")), ...
+        "maximum_absolute",full(max(residualMagnitudeUpper,[],"all")), ...
+        "extended_residual_used",false,"residual",ordinaryResidual);
+    validationMode = "certified_binary64";
+else
+    metrics = rkkt.solver.compute_retained_residual_metrics( ...
+        matrix,solution,rhs,UseExtendedResidual=true);
+    validationMode = "extended_double_double_fallback";
+end
+
+metrics.residual_validation_mode = validationMode;
+metrics.certified_binary64 = certified;
+metrics.extended_residual_fallback_used = ~certified;
+metrics.ordinary_maximum_column_relative = ...
+    full(max(ordinaryColumnRelative));
+metrics.certified_relative_upper_bound = ...
+    full(max(certifiedColumnUpper));
+metrics.certified_column_relative_upper_bound = certifiedColumnUpper;
+metrics.certification_error_bound_norm = errorBoundNorm;
+metrics.certification_maximum_operation_count = max(operationCount);
+metrics.certification_method = ...
+    "gamma_2nnz_plus_2_forward_error_bound";
+end

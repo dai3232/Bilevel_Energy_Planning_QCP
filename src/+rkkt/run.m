@@ -1,6 +1,13 @@
-function project = run()            %输出project，输入无
-%RUN Execute the complete seven-day Stage B-2C package workflow.
-%这个函数是整个项目的顶层总入口函数，按顺序调用两个工作流函数
-%当前正式入口直接调用包含水量约束的Stage B-2C完整工作流。
-project = rkkt.workflows.stageB2C();
+function project = run(options)
+%RUN Execute the Stage B-2C range configured by RUN_PROJECT.yaml.
+
+arguments
+    options.ConfigPath (1,1) string = ""
+end
+root = rkkt.projectRoot();
+settings = rkkt.config.read_run_project_configuration( ...
+    root,ConfigPath=options.ConfigPath);
+project = rkkt.workflows.stageB2CConfigured(settings, ...
+    ExplicitDaySet=settings.explicit_day_set, ...
+    JointMicroborderScanEnabled=false);
 end

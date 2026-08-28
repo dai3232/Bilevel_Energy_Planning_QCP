@@ -1,0 +1,39 @@
+stage_id: "stage_B"
+milestone_id: "B-2C"
+
+# continuous 使用下面的连续首尾日；screened_307 固定覆盖全年并剔除
+# 已确认的41个物理不可行日和17个数值病态日。
+day_scope: "screened_307"
+day_start: 1
+day_end: 365
+
+# 本次运行允许的最多接受迭代次数。
+max_iterations: 100
+require_convergence: true
+
+# full_kkt 仅允许 continuous 的恰好7日且必须关闭并行；screened_307
+# 必须使用 recursive_only。
+audit_mode: "recursive_only"
+
+# 日块LDL回代精化仍由阶段配置控制（递推模式为3次）。下面两项只控制
+# 16维核心与直接日回代之间的一致性校正；核心残差达到1e-10且重构
+# KKT残差达到1e-8时提前停止。
+core_consistency_max_passes: 10
+compensated_core_accumulation: true
+
+# 日块执行方式。false 表示串行；改回 true 时使用独立 MATLAB 进程，
+# 不改变16维核心、状态更新、检查点、审计和报告的串行顺序。
+parallel_enabled: false
+parallel_worker_count: 4
+parallel_pool_auto_resize: true
+parallel_pool_keep_alive: true
+
+# 两级缓存总开关；强制重建只重建对应缓存，不改变模型或初值。
+cache_enabled: true
+force_rebuild_data_cache: false
+force_rebuild_index_cache: false
+
+# 留空表示创建新运行；填写新的统一入口 RUNNING 运行目录可断点续算。
+# 旧版 365 日工作流检查点不兼容。
+run_id: ""
+resume_run_directory: ""

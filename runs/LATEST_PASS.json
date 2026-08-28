@@ -1,11 +1,11 @@
 {
-  "run_id": "20260811_155000_stage_B_2C_30day_full_final",
+  "run_id": "20260826_174547_stage_B_efa87898",
   "stage_id": "stage_B",
   "status": "PASS",
-  "git_commit": "4168a6e9fd8b7f6984f40001b1cf004fcee950e6",
-  "code_signature": "b15f554890cc592b767576229795ea665a0b0122302d599974a5421d8e767822",
-  "run_signature": "c146fc1742a8d2958ca983a04e3724b456822320ae6bbdbb0c3721721efbfe6b",
+  "git_commit": "efa8789869fc11146f66320f457fdd95ae2ecad8",
+  "code_signature": "a465599c60524be3ac889c07fe146ed00d7ef25977809c2f1cefd0e3df860dcd",
+  "run_signature": "d42ba60f26aecdc017dea5095914c940fc66c6f5a2dfc7b7bf5d28e668ba1e0b",
   "repeat_class": "ORIGINAL",
-  "run_path": "runs/20260811_155000_stage_B_2C_30day_full_final",
-  "ended_at": "2026-08-11T15:59:35.440Z"
+  "run_path": "runs/20260826_174547_stage_B_efa87898",
+  "ended_at": "2026-08-26T18:28:13.486Z"
 }

@@ -8,6 +8,28 @@ function result = stageA4(options)
 % after the numerical trajectory is complete.  CURRENT_STAGE.md is never
 % modified by this entry.
 
+%
+% ========================================================================
+% 文件功能总览（仅结构注释，不改变任何可执行逻辑）
+% ========================================================================
+% 本文件是 A4-3 正式七天数值运行的“工作流总编排器”。
+% 它不直接实现 KKT 组装或递推方向算法，而是负责按固定顺序调用：
+%   1) 前置门禁、环境与输入身份检查；
+%   2) 新运行创建或既有运行恢复；
+%   3) 七天索引构建与完整原始-对偶内点法求解；
+%   4) 数值终态持久化、结构证据导出与物理审计；
+%   5) 数值验收、问题日志、历史运行防覆盖审计；
+%   6) 更新仍为 RUNNING 的运行清单并返回数值阶段结果。
+%
+% 主数据流：
+%   options -> projectRoot/config/data -> runContext -> index
+%           -> solverResult -> acceptance/physicalAudit -> result
+%
+% 重要边界：
+%   本函数结束时不执行最终终态切换。测试、DOCX 渲染/视觉检查、
+%   证据哈希和最终 manifest 终态由 completePackageClosureA4 完成。
+% ========================================================================
+%% 0. 入口参数契约：选择新运行/恢复运行以及执行配置
 arguments
     options.ResumeRunId (1,1) string = ""
     options.ExecutionProfile (1,1) string {mustBeMember( ...
@@ -15,6 +37,9 @@ arguments
         "stage_a4_gate"
 end
 
+
+%% 1. 项目定位与运行前门禁
+% 目标：确认本次 A4 执行所依赖的阶段身份、代码环境和入口配置有效。
 projectRoot = rkkt.projectRoot();
 addpath(fullfile(projectRoot,"tests"));
 if options.ExecutionProfile=="package_closure"
@@ -26,6 +51,12 @@ end
 assert(preflight.passed && preflight.stage_status=="READY", ...
     "stageA4:a43:PreflightIdentity", ...
     "The A4-3 preflight identity is inconsistent.");
+
+%% 2. 加载正式配置，核验环境与受控输入
+% config         ：A4-3 有效配置。
+% environment    ：MATLAB、稀疏分解/求解等环境检查。
+% inputHashes    ：两个受控输入文件的哈希证据。
+% data           ：供索引和求解器使用的正式项目数据。
 config = rkkt.model.load_stage_a4_3_configuration(projectRoot);
 environment = rkkt.diagnostics.inspect_stage_a4_environment();
 [inputHashes,inputHashesPass] = rkkt.data.verify_input_hashes(projectRoot);
@@ -35,12 +66,19 @@ assert(environmentPass&&inputHashesPass, ...
     "stageA4:a43:BlockedExternal", ...
     "A4-3 requires MATLAB R2024a, sparse LDL/solve, and both controlled input hashes.");
 data = rkkt.data.load(projectRoot);
+
+%% 3. 禁止代码与依赖闭合审计
+% 目标：在求解前确认未启用 A4 契约禁止的算法因子或依赖路径。
 [forbiddenCodeAudit,dependencyClosure] = ...
     rkkt.diagnostics.scan_stage_a4_3_forbidden_code(projectRoot,config);
 assert(all(forbiddenCodeAudit.status=="PASS"), ...
     "stageA4:a43:ForbiddenExecution", ...
     "A4-3 dependency/config forbidden-factor audit failed.");
 
+
+%% 4. 运行生命周期分支：创建新运行或恢复既有运行
+% postprocessRecovery 表示“只恢复后处理”，不得再次运行数值求解器。
+% persistedPostprocess 保存已持久化的数值终态和最终状态。
 postprocessRecovery = false;
 persistedPostprocess = struct();
 if strlength(strip(options.ResumeRunId))==0
@@ -64,6 +102,7 @@ else
         inputHashes,historicalBefore);
     resumeManifest = jsondecode(fileread(runContext.run_manifest_path));
     resumePhase = read_postprocess_phase(resumeManifest);
+    % 已完成后处理：直接返回既有结果，不重跑求解器、不重写证据。
     if resumePhase=="COMPLETE"
         result = completed_postprocess_result(runContext,resumeManifest);
         fprintf("A4-3 run_id=%s postprocessing is already COMPLETE; "+ ...
@@ -71,6 +110,7 @@ else
             result.run_id);
         return
     end
+    % 后处理中断：先读取不可变数值终态，只恢复可丢弃的后处理产物。
     if resumePhase=="IN_PROGRESS"
         % A postprocess interruption must never cause the numerical solver
         % to run again.  Load the already-persisted numerical result first;
@@ -114,8 +154,14 @@ else
     end
 end
 
+%% 5. 构建正式七天索引
+% 索引模块负责变量、约束、小时块、固定零删除、置换与 SOC 链映射。
 index = rkkt.indexing.build( ...
     data,config,"RunId",string(runContext.run_id));
+
+%% 6. 获取求解器结果：正常执行 IPM，或仅重建后处理对象
+% 正常路径：run_stage_a4_full_ipm 执行完整数值轨迹。
+% 恢复路径：使用已保存的 final_state 重建派生对象，不推进任何迭代。
 if postprocessRecovery
     solverResult = rebuild_persisted_postprocess_result( ...
         persistedPostprocess,data,index,config);
@@ -124,6 +170,9 @@ else
         data,index,config,runContext,"Resume", ...
         strlength(strip(options.ResumeRunId))>0);
 end
+
+%% 7. 处理数值阶段的可恢复中断
+% 保持 manifest=RUNNING，记录恢复命令并立即返回；不进入结果导出。
 if solverResult.run_terminal_state=="INTERRUPTED_RECOVERABLE"
     rkkt.artifacts.update_running_run_manifest(runContext,struct( ...
         "a4_3_run_terminal_state","INTERRUPTED_RECOVERABLE", ...
@@ -146,6 +195,10 @@ if solverResult.run_terminal_state=="INTERRUPTED_RECOVERABLE"
         result.run_id,result.iteration_count);
     return
 end
+
+
+%% 8. 先持久化数值终态，建立后处理恢复锚点
+% a4_3_solver_result.mat 必须先于所有可重新生成的导出文件写入。
 % Persist the numerical terminal result before any disposable postprocess
 % export.  This is the recovery anchor if a later artifact/report write is
 % interrupted.  On a postprocess resume the old copy was archived first, so

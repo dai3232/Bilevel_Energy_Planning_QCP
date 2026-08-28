@@ -4,13 +4,13 @@
 
 ## Stage B 已归档的七日完整内点法入口
 
-根目录的 `RUN_PROJECT.m` 保留了已归档的 Stage B-2C 七日完整内点法调用链。它包含每日水量约束和水量松弛二阶校正，并会生成验收、中文报告和运行工件。
+根目录的 `RUN_PROJECT.m` 是 Stage B-2C 递推 IPM 的统一人工入口。`config/RUN_PROJECT.yaml` 的 `day_scope` 可选择连续区间 `continuous` 或冻结的全年307日筛选集合 `screened_307`；后者自动剔除41个物理不可行日和17个数值病态日。配置中还可修改最大迭代次数、审计模式、缓存、断点续算，以及串行/Processes 并行、worker 数和进程池复用策略；示例配置默认以4个worker计算 `screened_307`。常规方向使用16维核心，唯一确认的联合近零模态自动使用17维微边框，日恢复优先采用 `a-Ug` 响应组合。
 
-当前项目状态已经进入 `stage_D1 / READY`，但只开放方案讨论。由于 Stage B 配置加载器会严格检查 `CURRENT_STAGE.md`，此时直接点击 `RUN_PROJECT.m` 会被阶段门禁拒绝；不应为了复跑 Stage B 而手工回改当前状态。`RUN_PROJECT.m` 尚不是 D1 入口，在 `DECISION-D1-01` 关闭并完成 D1 设计前不得运行 D1。
+当前项目状态已经进入 `stage_D1 / READY`，但只开放方案讨论。用户已单独授权 Stage B-2C 统一入口重构、307日筛选预设、补充运行和普通日块并行执行优化，因此可直接点击 `RUN_PROJECT.m` 执行所配置的 Stage B-2C 日集合；它不是 D1 入口，在 `DECISION-D1-01` 关闭并完成 D1 设计前不得运行 D1。
 
 单击入口中的唯一生产链条为：
 
-`RUN_PROJECT.m` → `rkkt.run` → `rkkt.workflows.stageB2C` → `rkkt.data.load_project_data(root)` → `rkkt.model.load_stage_b2c_configuration(root)` → `rkkt.indexing.build_stage_b2c_index(data, config)` → `rkkt.solver.run_stage_b2c_full_ipm(data, index, config, runContext)` → Stage B 验收与报告
+`RUN_PROJECT.m` → `rkkt.run` → `rkkt.config.read_run_project_configuration` → `rkkt.workflows.stageB2CConfigured` → 年度数据缓存 → 日集合 index 缓存 → 七日完整 KKT 审计或配置日集合递推-only 求解 → Stage B 补充验收与中文报告
 
 `data`、`config`、`index`、`state` 和 `linearization` 在包内逐级显式传递；索引模块不会从路径反推或重新读取配置。正式运行器在每个接受迭代保存检查点和审计证据，递推方向是正式 Newton 方向，完整稀疏 KKT 仅作独立审计；不进行兼容分派或方向失败回退。实际算法均位于 `src/+rkkt`。
 

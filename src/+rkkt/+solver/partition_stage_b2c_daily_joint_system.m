@@ -1,44 +1,43 @@
-function partition = partition_stage_b2c_daily_joint_system(lin,reduced)
-%PARTITION_STAGE_B2C_DAILY_JOINT_SYSTEM Form configured independent day blocks.
+function partition = partition_stage_b2c_daily_joint_system(lin,reduced,options)
+%PARTITION_STAGE_B2C_DAILY_JOINT_SYSTEM Extract current numerical day blocks.
 %
-% The canonical reduced system is partitioned directly.  Each daily block
-% contains q_day, pi_day, and all hourly primal/equality directions.  The
-% only external variables are the 14 global capacity directions and the
-% two duration-multiplier directions.
+% The canonical structure is supplied by a once-per-run template. Only the
+% current reduced matrices, couplings, right-hand sides, and water ratios
+% are refreshed inside an IPM iteration.
 
 arguments
     lin (1,1) struct
     reduced (1,1) struct
+    options.StructureTemplate (1,1) struct = struct()
 end
 
-contract = rkkt.solver.stage_b2b_linearization_contract(lin);
+structureTemplate = options.StructureTemplate;
+structureTemplateReused = ~isempty(fieldnames(structureTemplate));
+if ~structureTemplateReused
+    structureTemplate = ...
+        rkkt.solver.build_stage_b2c_daily_joint_structure_template(lin);
+end
+contract = refresh_contract(lin,structureTemplate);
 assert(isequal(reduced.linearization_identity,contract.identity), ...
     "stageB2C:dailyJoint:PartitionIdentity", ...
     "Partition and elimination must use the same linearization.");
 
-nx = contract.nx;
-globalIndices = [contract.q_global;nx+contract.y_duration];
+globalIndices = structureTemplate.global_indices;
 globalMatrix = reduced.saddle(globalIndices,globalIndices);
 globalRhs = reduced.rhs(globalIndices);
 dayCells = cell(contract.n_days,1);
 
 for d = 1:contract.n_days
-    hourlyIndices = zeros(0,1);
-    for t = 1:contract.n_hours
-        hourlyIndices = [hourlyIndices; ...
-            contract.x_by_day_hour{d,t}; ...
-            nx+contract.y_by_day_hour{d,t}]; %#ok<AGROW>
-    end
-    localIndices = [contract.q_day_by_day{d}; ...
-        nx+contract.y_binding_by_day{d};hourlyIndices];
+    staticDay = structureTemplate.day(d);
+    localIndices = staticDay.canonical_reduced_indices;
     matrix = reduced.saddle(localIndices,localIndices);
     coupling = reduced.saddle(localIndices,globalIndices);
     rhs = reduced.rhs(localIndices);
-    waterRows = contract.water_by_day{d};
+    waterRows = staticDay.water_rows;
     waterRatio = contract.l(waterRows)./contract.z(waterRows);
 
     dayCells{d} = struct( ...
-        "day_id",contract.days(d), ...
+        "day_id",staticDay.day_id, ...
         "linearization_identity",contract.identity, ...
         "canonical_reduced_indices",localIndices, ...
         "matrix",sparse(matrix), ...
@@ -47,10 +46,10 @@ for d = 1:contract.n_days
         "rhs",rhs, ...
         "dimension",numel(localIndices), ...
         "nnz",nnz(matrix), ...
-        "q_day_local_positions",(1:14).', ...
-        "pi_day_local_positions",(15:28).', ...
-        "hourly_local_positions",(29:numel(localIndices)).', ...
-        "hourly_dimension",numel(hourlyIndices), ...
+        "q_day_local_positions",staticDay.q_day_local_positions, ...
+        "pi_day_local_positions",staticDay.pi_day_local_positions, ...
+        "hourly_local_positions",staticDay.hourly_local_positions, ...
+        "hourly_dimension",staticDay.hourly_dimension, ...
         "rho_coupling_nnz",nnz(coupling(:,15:16)), ...
         "symmetry_relative",relative_symmetry(matrix), ...
         "water_rows",waterRows, ...
@@ -60,37 +59,13 @@ for d = 1:contract.n_days
 end
 
 days = vertcat(dayCells{:});
-expectedDimensions = lin.layout.daily_chain_dimensions+28;
-if isfield(lin,"config") && isfield(lin.config,"expected_daily_joint_dimensions")
-    assert(isequal(expectedDimensions, ...
-        lin.config.expected_daily_joint_dimensions), ...
-        "stageB2C:dailyJoint:ConfiguredDayDimensions", ...
-        "Daily joint dimensions disagree with the active configuration.");
-end
-assert(isequal(reshape([days.dimension],1,[]),expectedDimensions) && ...
+templateDimensions = reshape(arrayfun(@(value) ...
+    numel(value.canonical_reduced_indices),structureTemplate.day),1,[]);
+assert(isequal(reshape([days.dimension],1,[]),templateDimensions) && ...
     all([days.rho_coupling_nnz]==0) && ...
     all([days.water_eta_dimension]==0), ...
     "stageB2C:dailyJoint:DayDimensions", ...
-    "Daily joint dimensions or external coupling do not match the contract.");
-
-crossDayNnz = 0;
-for d = 1:contract.n_days
-    for other = d+1:contract.n_days
-        crossDayNnz = crossDayNnz+nnz(reduced.saddle( ...
-            days(d).canonical_reduced_indices, ...
-            days(other).canonical_reduced_indices));
-    end
-end
-assert(crossDayNnz==0, ...
-    "stageB2C:dailyJoint:CrossDayCoupling", ...
-    "The fully eliminated reduced system contains direct cross-day coupling.");
-
-permutation = [globalIndices;vertcat(days.canonical_reduced_indices)];
-canonicalDimension = contract.nx+contract.neq;
-assert(numel(permutation)==canonicalDimension && ...
-    isequal(sort(permutation),(1:canonicalDimension).'), ...
-    "stageB2C:dailyJoint:Permutation", ...
-    "The daily-joint partition is not a canonical reduced-space bijection.");
+    "Daily joint dimensions or external coupling do not match the template.");
 
 partition = struct();
 partition.stage_id = "stage_B";
@@ -102,13 +77,42 @@ partition.global = struct("canonical_reduced_indices",globalIndices, ...
     "symmetry_relative",relative_symmetry(globalMatrix));
 partition.day = days;
 partition.days = contract.days;
-partition.permutation = permutation;
+partition.permutation = structureTemplate.permutation;
 partition.permutation_is_bijection = true;
-partition.cross_day_nnz = crossDayNnz;
-partition.total_daily_dimension = sum([days.dimension]);
-partition.canonical_reduced_dimension = canonicalDimension;
+partition.cross_day_nnz = structureTemplate.cross_day_nnz;
+partition.total_daily_dimension = structureTemplate.total_daily_dimension;
+partition.canonical_reduced_dimension = ...
+    structureTemplate.canonical_reduced_dimension;
 partition.water_eta_dimension = 0;
 partition.full_inequality_elimination = true;
+partition.structure_template_reused = structureTemplateReused;
+partition.structure_template_version = structureTemplate.template_version;
+end
+
+function contract = refresh_contract(lin,template)
+assert(template.nx==size(lin.H,1) && template.neq==size(lin.A,1) && ...
+    template.nineq==size(lin.G,1) && ...
+    isequal(template.days(:).',double(lin.layout.days(:).')) && ...
+    isequal(template.hours(:).',double(lin.layout.hours(:).')), ...
+    "stageB2C:dailyJoint:StructureTemplate", ...
+    "The cached daily-joint structure does not match this linearization.");
+contract = template.contract_static;
+contract.identity = lin.identity;
+contract.r_dual = double(lin.r_dual(:));
+contract.r_eq = double(lin.r_eq(:));
+contract.r_ineq = double(lin.r_ineq(:));
+contract.r_comp = double(lin.r_comp(:));
+contract.l = double(lin.l(:));
+contract.z = double(lin.z(:));
+contract.xi = double(lin.state.xi(:));
+contract.l_water = contract.l(contract.water_inequality);
+contract.z_water = contract.z(contract.water_inequality);
+contract.l_base = contract.l(contract.base_inequality);
+contract.z_base = contract.z(contract.base_inequality);
+contract.r_ineq_water = contract.r_ineq(contract.water_inequality);
+contract.r_comp_water = contract.r_comp(contract.water_inequality);
+contract.r_ineq_base = contract.r_ineq(contract.base_inequality);
+contract.r_comp_base = contract.r_comp(contract.base_inequality);
 end
 
 function value = relative_symmetry(matrix)

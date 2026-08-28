@@ -7,6 +7,7 @@ function result = run_stage_a4_full_ipm( ...
 % attempted iteration and is consumed only by the independent audit.
 % Cumulative evidence is persisted after every accepted update.
 
+%检查
 arguments
     data (1,1) struct
     index (1,1) struct

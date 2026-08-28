@@ -1,3 +1,5 @@
+%本函数是完成完整KKT写成既约矩阵kkt的功能
+%具体做法是：将完整
 function result = execute_stage_a4_iteration( ...
         stateBefore,data,index,config,options)
 %EXECUTE_STAGE_A4_ITERATION Execute one reusable A4 primal-dual transition.

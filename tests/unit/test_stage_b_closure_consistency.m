@@ -10,42 +10,31 @@ testCase.TestData.sourceRoot = fullfile(root,"src");
 end
 
 function testTerminalIndexSyncIsOutsideNumericalCatch(testCase)
-files = [ ...
-    "+rkkt/+workflows/stageB2C.m"
-    "+rkkt/+workflows/stageB2C30DayExperiment.m"];
-for relative = files.'
-    source = code_source(fullfile(testCase.TestData.sourceRoot, ...
-        replace(relative,"/",filesep)));
-    catchPosition = strfind(source,"catch cause");
-    finalizePosition = strfind(source, ...
-        "rkkt.artifacts.finalize_run_manifest(");
-    indexPosition = strfind(source,"rkkt.artifacts.update_run_index(");
-    verifyNumElements(testCase,catchPosition,1,relative);
-    verifyNumElements(testCase,finalizePosition,1,relative);
-    verifyNumElements(testCase,indexPosition,1,relative);
-    verifyGreaterThan(testCase,finalizePosition,catchPosition,relative);
-    verifyGreaterThan(testCase,indexPosition,finalizePosition,relative);
-end
+source = code_source(fullfile(testCase.TestData.sourceRoot, ...
+    "+rkkt","+workflows","stageB2CConfigured.m"));
+catchPosition = strfind(source,"catch cause");
+finalizePosition = strfind(source, ...
+    "rkkt.artifacts.finalize_run_manifest(");
+indexPosition = strfind(source,"rkkt.artifacts.update_run_index(");
+verifyNumElements(testCase,catchPosition,1);
+verifyNumElements(testCase,finalizePosition,1);
+verifyNumElements(testCase,indexPosition,1);
+verifyGreaterThan(testCase,finalizePosition,catchPosition);
+verifyGreaterThan(testCase,indexPosition,finalizePosition);
 end
 
-function testAcceptanceConsumesFiniteDifferenceEvidence(testCase)
-source = code_source(fullfile(testCase.TestData.sourceRoot, ...
-    "+rkkt","+workflows","stageB2C.m"));
-suitePosition = strfind(source, ...
-    "suites=run_test_and_static_evidence(context,root)");
-acceptancePosition = strfind(source,"acceptance=make_acceptance(");
-suitePosition = suitePosition(suitePosition<acceptancePosition(1));
-verifyNumElements(testCase,suitePosition,1);
-verifyNumElements(testCase,acceptancePosition,1);
-verifyLessThan(testCase,suitePosition,acceptancePosition);
-verifyTrue(testCase,contains(source, ...
-    "derivativePass=suites.derivative_finite_difference_pass"));
-verifyTrue(testCase,contains(source, ...
-    "test_stage_b_daily_hydro_water/testAnalyticGradientMatchesIndependentCentralDifference"));
-verifyTrue(testCase,contains(source, ...
-    "test_stage_b_daily_hydro_water/testAnalyticHessianMatchesIndependentGradientDifference"));
-verifyTrue(testCase,contains(source, ...
-    "test_stage_b2c_formal_ipm/testWaterStationarityFiniteDifferenceMatchesCurrentHessian"));
+function testPresetWrappersOnlyDelegateToCommonWorkflow(testCase)
+files = ["stageB2C.m";"stageB2C30DayExperiment.m"; ...
+    "stageB2C365DaySerialExperiment.m"];
+for file = files.'
+    source = code_source(fullfile(testCase.TestData.sourceRoot, ...
+        "+rkkt","+workflows",file));
+    verifyNumElements(testCase, ...
+        strfind(source,"rkkt.workflows.stageB2CConfigured("),1,file);
+    verifyFalse(testCase,contains(source,"catch cause"),file);
+    verifyFalse(testCase,contains(source, ...
+        "build_stage_b2c_scaled_objective_linearization"),file);
+end
 end
 
 function value = code_source(pathValue)

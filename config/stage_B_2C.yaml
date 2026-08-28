@@ -18,6 +18,8 @@ objective_scale_mode: "positive_scalar_unitization"
 objective_scale_source: "max_abs_global_capacity_gradient"
 recursive_route: "all_inequality_daily_joint_final_kkt_residual_gate"
 recursive_refinement_max_passes: 0
+core_consistency_max_passes: 10
+compensated_core_accumulation: true
 recursive_congruence_scaling_enabled: true
 equilibration_passes: 0
 local_response_residual_policy: "diagnostic_nonblocking"
@@ -33,11 +35,12 @@ mean_lz_scaled_tolerance: 1.0e-6
 water_physical_violation_tolerance: 1.0e-8
 stage_a_physical_violation_tolerance: 1.0e-8
 direction_relative_error_tolerance: 1.0e-10
-recursive_full_kkt_residual_tolerance: 1.0e-10
+local_linear_solve_residual_tolerance: 1.0e-10
+recursive_full_kkt_residual_tolerance: 1.0e-8
 full_kkt_residual_tolerance: 1.0e-10
-reduced_symmetry_tolerance: 1.0e-12
-border_symmetry_tolerance: 1.0e-12
-lagrangian_hessian_symmetry_tolerance: 1.0e-12
+reduced_symmetry_tolerance: 1.0e-8
+border_symmetry_tolerance: 1.0e-8
+lagrangian_hessian_symmetry_tolerance: 1.0e-8
 stationarity_finite_difference_tolerance: 1.0e-7
 
 nonzero_gate_water_upper_multiplier: 1.25

@@ -7,13 +7,22 @@
 .idea/
 
 # Large generated numerical artifacts
+cache/
+runs/**
 runs/**/checkpoints/*.mat
 runs/**/matrices/**/*.mat
 runs/**/matrices/**/*.mtx
 runs/**/matrices/**/*.npz
 runs/**/raw_console/*.log
 
-# Keep CSV/JSON/Word evidence under runs versionable if desired
+# Local MATLAB and Codex runtime state
+.codex_matlab_pref_*/
+.codex_matlab_temp/
+.matlab_temp/
+local_cluster_jobs/
+runtime_logs/
+
+# Existing tracked run evidence remains versioned; new run directories stay local.
 # Do not ignore inputs/raw or references/controlled.
 
 # OS

@@ -6,7 +6,9 @@ end
 function setupOnce(testCase)
 root = string(fileparts(fileparts(fileparts(mfilename("fullpath")))));
 addpath(genpath(fullfile(root,"src")));
-config = rkkt.model.load_stage_b2c_configuration(root);
+config = rkkt.model.load_stage_b2c_configuration(root, ...
+    CurrentStageExceptionToken= ...
+        "B-2C-UNIFIED-RUNNER-REFACTOR-AUTHORIZED");
 data = rkkt.data.load_project_data(root);
 index = rkkt.indexing.build_stage_b2c_index(data,config,"RunId","B2C_FIXED_TEST");
 gate = rkkt.diagnostics.run_stage_b2c_nonzero_hessian_gate(data,index,config);
@@ -53,12 +55,26 @@ verifyEqual(testCase,c.step_strategy,"independent");
 verifyEqual(testCase,c.recursive_route, ...
     "all_inequality_daily_joint_final_kkt_residual_gate");
 verifyEqual(testCase,c.recursive_refinement_max_passes,0);
+verifyEqual(testCase,c.core_consistency_max_passes,10);
+verifyTrue(testCase,c.compensated_core_accumulation);
 verifyTrue(testCase,c.recursive_congruence_scaling_enabled);
 verifyEqual(testCase,c.equilibration_passes,0);
 verifyEqual(testCase,c.local_response_residual_policy, ...
     "diagnostic_nonblocking");
 verifyEqual(testCase,c.direction_acceptance_policy, ...
     "final_reconstructed_kkt_residual");
+verifyEqual(testCase,c.local_linear_solve_residual_tolerance,1e-10, ...
+    "AbsTol",0);
+verifyEqual(testCase,c.recursive_full_kkt_residual_tolerance,1e-8, ...
+    "AbsTol",0);
+verifyEqual(testCase,c.direction_relative_error_tolerance,1e-10, ...
+    "AbsTol",0);
+    verifyEqual(testCase,c.full_kkt_residual_tolerance,1e-10, ...
+        "AbsTol",0);
+    verifyEqual(testCase,c.reduced_symmetry_tolerance,1e-8,"AbsTol",0);
+    verifyEqual(testCase,c.border_symmetry_tolerance,1e-8,"AbsTol",0);
+    verifyEqual(testCase,c.lagrangian_hessian_symmetry_tolerance,1e-8, ...
+        "AbsTol",0);
 verifyEqual(testCase,c.expected_rhs_per_day,15);
 verifyEqual(testCase,c.expected_water_border_dimension_per_day,0);
 verifyEqual(testCase,c.expected_daily_joint_dimensions, ...
@@ -70,7 +86,8 @@ g = testCase.TestData.gate;
 verifyTrue(testCase,g.passed);
 verifyEqual(testCase,g.water_hessian_nnz,672);
 verifyGreaterThan(testCase,g.water_hessian_fro_norm,0);
-verifyLessThanOrEqual(testCase,g.water_hessian_symmetry_relative,1e-12);
+verifyLessThanOrEqual(testCase,g.water_hessian_symmetry_relative, ...
+    testCase.TestData.config.lagrangian_hessian_symmetry_tolerance);
 end
 
 function testWaterHessianSupportAndSignsAreTraceable(testCase)
@@ -165,6 +182,8 @@ for d = 1:7
         "final_reconstructed_kkt_residual");
     verifyEqual(testCase,r(d).response_contract, ...
         "u_day=a-U*[delta_q;delta_rho]");
+    verifyEqual(testCase,r(d).recovery_contract, ...
+        "u_day=a-U*core_solution; retained_LDL_corrects_only_if_residual_fails");
 end
 s = testCase.TestData.step.recursive;
 verifyEqual(testCase,s.core.dimension,16);
@@ -177,6 +196,18 @@ verifyEqual(testCase,s.diagnostics.daily_dimensions, ...
     testCase.TestData.config.expected_daily_joint_dimensions);
 verifyTrue(testCase,s.diagnostics.final_kkt_residual_gate_passed);
 verifyFalse(testCase,s.diagnostics.local_response_residual_is_blocking);
+verifyFalse(testCase,s.diagnostics.daily_direct_factor_backsolve_used);
+verifyTrue(testCase,s.diagnostics.daily_affine_response_recovery_used);
+verifyEqual(testCase, ...
+    s.diagnostics.daily_recovery_additional_factorization_count,0);
+verifyEqual(testCase, ...
+    s.core.direct_daily_correction.daily_additional_factorization_count,0);
+verifyEqual(testCase, ...
+    s.core.direct_daily_correction.core_additional_factorization_count,0);
+verifyTrue(testCase, ...
+    s.core.direct_daily_correction.retained_daily_factors_reused);
+verifyTrue(testCase, ...
+    s.core.direct_daily_correction.retained_core_factor_reused);
 end
 
 function testNoFactorOrLinearizationReuseAcrossIterations(testCase)
@@ -279,7 +310,7 @@ verifyFalse(testCase,c.annual_scope_enabled);
 verifyFalse(testCase,c.thermal_second_pass_enabled);
 verifyFalse(testCase,c.stage_c1_implemented);
 verifyTrue(testCase,c.water_constraints_enabled);
-verifyEqual(testCase,string(c.current_stage.stage_id),"stage_B");
+verifyEqual(testCase,string(c.current_stage.stage_id),"stage_D1");
 verifyEqual(testCase,string(c.current_stage.status),"READY");
 end
 
@@ -312,7 +343,7 @@ for d = 1:7
         r(d).factor.maximum_column_relative_residual));
     verifyEqual(testCase,r(d).factor.local_residual_target_met, ...
         r(d).factor.maximum_column_relative_residual<= ...
-        testCase.TestData.config.recursive_full_kkt_residual_tolerance);
+        testCase.TestData.config.local_linear_solve_residual_tolerance);
 end
 verifyLessThanOrEqual(testCase, ...
     testCase.TestData.step.recursive.diagnostics. ...

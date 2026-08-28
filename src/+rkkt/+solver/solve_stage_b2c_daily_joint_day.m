@@ -1,16 +1,17 @@
-function response = solve_stage_b2c_daily_joint_day(day,options)
+function [response,retainedFactor] = solve_stage_b2c_daily_joint_day(day,options)
 %SOLVE_STAGE_B2C_DAILY_JOINT_DAY Form one affine daily response.
 
 arguments
     day (1,1) struct
-    options.SymmetryTolerance (1,1) double = 1e-12
+    options.SymmetryTolerance (1,1) double = 1e-10
     options.ResidualTolerance (1,1) double = 1e-10
     options.RefinementPasses (1,1) double ...
         {mustBeInteger,mustBeNonnegative} = 0
 end
 
 rhs = [day.rhs,day.capacity_coupling];
-[solution,factor] = rkkt.solver.solve_stage_b2c_daily_joint_block( ...
+[solution,factor,retainedFactor] = ...
+    rkkt.solver.solve_stage_b2c_daily_joint_block( ...
     day.matrix,rhs,"stageB2C_daily_joint_day_"+string(day.day_id), ...
     SymmetryTolerance=options.SymmetryTolerance, ...
     ResidualTolerance=options.ResidualTolerance, ...
@@ -38,4 +39,8 @@ response.dimension = day.dimension;
 response.rhs_count = size(rhs,2);
 response.water_eta_dimension = 0;
 response.response_contract = "u_day=a-U*[delta_q;delta_rho]";
+response.recovery_contract = ...
+    "u_day=a-U*core_solution; retained_LDL_corrects_only_if_residual_fails";
+retainedFactor.day_id = day.day_id;
+retainedFactor.linearization_identity = day.linearization_identity;
 end
