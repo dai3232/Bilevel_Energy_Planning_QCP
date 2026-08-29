@@ -84,18 +84,35 @@ end
 gBefore = linearizationBefore.constraints.water.constraint_value(:);
 gAfter = waterAfter.constraint_value(:);
 if acceptedDisplacementUsed
-    [linearIncrementHigh,linearIncrementLow] = ...
-        sparse_matvec_high_low( ...
-        linearizationBefore.G(waterRows,:), ...
-        options.AcceptedPrimalDisplacementHigh, ...
-        options.AcceptedPrimalDisplacementLow);
+    if isfield(linearizationBefore,"storage_mode") && ...
+            linearizationBefore.storage_mode=="recursive_daily_blocks"
+        [linearIncrementHigh,linearIncrementLow] = ...
+            water_matvec_high_low(linearizationBefore, ...
+                options.AcceptedPrimalDisplacementHigh, ...
+                options.AcceptedPrimalDisplacementLow);
+    else
+        [linearIncrementHigh,linearIncrementLow] = ...
+            sparse_matvec_high_low( ...
+            linearizationBefore.G(waterRows,:), ...
+            options.AcceptedPrimalDisplacementHigh, ...
+            options.AcceptedPrimalDisplacementLow);
+    end
     linearIncrement = linearIncrementHigh+linearIncrementLow;
     linearIncrementSource = "accepted_state_displacement_high_low";
 else
-    linearIncrement = alphaPrimal* ...
-        (linearizationBefore.G(waterRows,:)*directionXi);
+    if isfield(linearizationBefore,"storage_mode") && ...
+            linearizationBefore.storage_mode=="recursive_daily_blocks"
+        columns = linearizationBefore.constraints.water.columns;
+        gradient = linearizationBefore.constraints.water.gradient;
+        linearIncrement = alphaPrimal*sum( ...
+            gradient.*directionXi(columns),2);
+    else
+        linearIncrement = alphaPrimal* ...
+            (linearizationBefore.G(waterRows,:)*directionXi);
+    end
     linearIncrementSource = "scaled_binary64_newton_direction";
 end
+
 secondOrderRemainder = gAfter-gBefore-linearIncrement;
 
 lBefore = linearizationBefore.state.l(waterRows);
@@ -240,6 +257,29 @@ for row = 1:size(matrix,1)
         column = columnIndex(k);
         [firstHigh,firstLow] = two_product(entry(k),xHigh(column));
         [secondHigh,secondLow] = two_product(entry(k),xLow(column));
+        [productHigh,productLow] = add_pairs( ...
+            firstHigh,firstLow,secondHigh,secondLow);
+        [accumulatorHigh,accumulatorLow] = add_pairs( ...
+            accumulatorHigh,accumulatorLow,productHigh,productLow);
+    end
+    [resultHigh(row),resultLow(row)] = ...
+        two_sum(accumulatorHigh,accumulatorLow);
+end
+end
+
+function [resultHigh,resultLow] = water_matvec_high_low(lin,xHigh,xLow)
+columns = lin.constraints.water.columns;
+gradient = lin.constraints.water.gradient;
+nRows = size(columns,1);
+resultHigh = zeros(nRows,1);
+resultLow = zeros(nRows,1);
+for row = 1:nRows
+    accumulatorHigh = 0;
+    accumulatorLow = 0;
+    for k = 1:size(columns,2)
+        column = columns(row,k);
+        [firstHigh,firstLow] = two_product(gradient(row,k),xHigh(column));
+        [secondHigh,secondLow] = two_product(gradient(row,k),xLow(column));
         [productHigh,productLow] = add_pairs( ...
             firstHigh,firstLow,secondHigh,secondLow);
         [accumulatorHigh,accumulatorLow] = add_pairs( ...

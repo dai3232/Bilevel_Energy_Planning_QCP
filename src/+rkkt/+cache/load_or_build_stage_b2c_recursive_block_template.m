@@ -1,0 +1,109 @@
+function [template,info] = ...
+        load_or_build_stage_b2c_recursive_block_template( ...
+        projectRoot,data,index,config,options)
+%LOAD_OR_BUILD_STAGE_B2C_RECURSIVE_BLOCK_TEMPLATE Cache direct block structure.
+
+arguments
+    projectRoot (1,1) string
+    data (1,1) struct
+    index (1,1) struct
+    config (1,1) struct
+    options.Enabled (1,1) logical = true
+    options.ForceRebuild (1,1) logical = false
+end
+projectRoot = string(java.io.File(char(projectRoot)).getCanonicalPath());
+builderFiles = [ ...
+    fullfile(projectRoot,"src","+rkkt","+model", ...
+        "build_stage_b2c_recursive_block_template.m")
+    fullfile(projectRoot,"src","+rkkt","+model", ...
+        "stage_a_capacity_parameters.m")];
+builderHashes = strings(numel(builderFiles),1);
+for k = 1:numel(builderFiles)
+    builderHashes(k) = rkkt.data.compute_sha256_file(builderFiles(k));
+end
+identity = struct( ...
+    "schema","stage-b2c-recursive-block-template-cache-v1", ...
+    "days",config.days,"hours",config.hours, ...
+    "index_version",char(index.version), ...
+    "index_counts",[index.counts.variables,index.counts.equalities, ...
+        index.counts.inequalities,index.counts.fixed_zero], ...
+    "input_hashes",char(strjoin(lower(string( ...
+        data.hashes.actualSHA256)),"|")), ...
+    "builder_hashes",cellstr(builderHashes));
+key = hash_text(jsonencode(identity));
+if numel(config.days)==config.days(end)-config.days(1)+1
+    scopeName = compose("days_%03d_%03d",config.days(1),config.days(end));
+else
+    scopeName = compose("set_%03d_%03d_n%03d", ...
+        config.days(1),config.days(end),numel(config.days));
+end
+cachePath = fullfile(projectRoot,"cache","recursive_template", ...
+    scopeName+"_"+extractBefore(key,17)+".mat");
+info = new_info(options.Enabled,options.ForceRebuild,key,cachePath);
+
+timer = tic;
+if options.Enabled && ~options.ForceRebuild && isfile(cachePath)
+    loaded = load(cachePath,"template","identity");
+    assert(isfield(loaded,"template") && isfield(loaded,"identity") && ...
+        isequaln(loaded.identity,identity), ...
+        "rkkt:cache:RecursiveTemplateIdentity", ...
+        "The recursive block template cache identity changed.");
+    template = attach_runtime(loaded.template,index,config);
+    validate_template(template,index,config);
+    info.hit = true; info.status = "HIT";
+    info.load_seconds = toc(timer);
+    return
+end
+
+template = rkkt.model.build_stage_b2c_recursive_block_template( ...
+    data,index,config);
+validate_template(template,index,config);
+info.build_seconds = toc(timer);
+if options.Enabled
+    folder = fileparts(cachePath);
+    if ~isfolder(folder), mkdir(folder); end
+    writeTimer = tic;
+    cachedTemplate = rmfield(template,cellstr( ...
+        ["index","fixed_zero_map","permutation","config"]));
+    rkkt.artifacts.save_mat_artifact(cachePath, ...
+        "template",cachedTemplate,"identity",identity);
+    info.write_seconds = toc(writeTimer);
+    info.status = "BUILT";
+else
+    info.status = "DISABLED";
+end
+
+function value = attach_runtime(value,index,config)
+value.index = index;
+value.fixed_zero_map = index.fixed_zero_map;
+value.permutation = index.permutation_map;
+value.config = config;
+end
+end
+
+function validate_template(template,index,config)
+assert(string(template.version)== ...
+    "stage-B2C-recursive-block-template-v1.0" && ...
+    template.storage_mode=="recursive_daily_blocks" && ...
+    template.n_primal==index.counts.variables && ...
+    template.n_equalities==index.counts.equalities && ...
+    template.n_inequalities==index.counts.inequalities && ...
+    isequal(template.days,config.days) && ...
+    numel(template.day)==numel(config.days), ...
+    "rkkt:cache:RecursiveTemplatePayload", ...
+    "The cached recursive block template failed its active index contract.");
+end
+
+function info = new_info(enabled,force,key,pathValue)
+info = struct("cache_type","recursive_block_template", ...
+    "enabled",enabled,"force_rebuild",force,"hit",false, ...
+    "status","MISS","key",string(key),"path",string(pathValue), ...
+    "load_seconds",0,"build_seconds",0,"write_seconds",0);
+end
+
+function value = hash_text(textValue)
+engine = java.security.MessageDigest.getInstance("SHA-256");
+engine.update(unicode2native(char(textValue),"UTF-8"));
+bytes = mod(double(engine.digest()),256);
+value = lower(string(reshape(dec2hex(bytes,2).',1,[])));
+end

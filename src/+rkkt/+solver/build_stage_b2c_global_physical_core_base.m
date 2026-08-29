@@ -21,9 +21,20 @@ assert(numel(q)==14 && numel(yDuration)==2 && ...
     "stageB2C:globalPhysicalCore:Contract", ...
     "The global physical core does not match [14 capacity; 2 duration] order.");
 
-gGlobal = sparse(lin.G(:,q));
-touchingRows = find(any(gGlobal,2));
-g = gGlobal(touchingRows,:);
+directBlocks = isfield(lin,"storage_mode") && ...
+    lin.storage_mode=="recursive_daily_blocks";
+if directBlocks
+    touchingRows = lin.blocks.global_block.inequality_rows;
+    g = sparse(lin.blocks.global_block.G);
+    hGlobal = sparse(lin.blocks.global_block.H);
+    aDuration = full(sparse(lin.blocks.global_block.A));
+else
+    gGlobal = sparse(lin.G(:,q));
+    touchingRows = find(any(gGlobal,2));
+    g = gGlobal(touchingRows,:);
+    hGlobal = sparse(lin.H(q,q));
+    aDuration = full(sparse(lin.A(yDuration,q)));
+end
 l = contract.l(touchingRows);
 z = contract.z(touchingRows);
 rIneq = contract.r_ineq(touchingRows);
@@ -39,7 +50,7 @@ rComp = contract.r_comp(touchingRows);
 nq = numel(q);
 matrixHigh = zeros(nq+numel(yDuration));
 matrixLow = zeros(size(matrixHigh));
-[hRow,hColumn,hValue] = find(sparse(lin.H(q,q)));
+[hRow,hColumn,hValue] = find(hGlobal);
 for k = 1:numel(hValue)
     [matrixHigh(hRow(k),hColumn(k)),matrixLow(hRow(k),hColumn(k))] = ...
         add_pair(matrixHigh(hRow(k),hColumn(k)), ...
@@ -67,7 +78,6 @@ for localRow = 1:numel(touchingRows)
     end
 end
 
-aDuration = full(sparse(lin.A(yDuration,q)));
 matrixHigh(1:nq,nq+(1:numel(yDuration))) = aDuration.';
 matrixHigh(nq+(1:numel(yDuration)),1:nq) = aDuration;
 

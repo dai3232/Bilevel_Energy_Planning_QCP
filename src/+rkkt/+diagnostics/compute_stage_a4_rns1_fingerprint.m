@@ -16,16 +16,41 @@ switch kind
     case "state"
         update_state(messageDigest,value);
     case "linearization"
-        required = ["identity","H","A","G","r_eq","r_ineq", ...
-            "r_dual","r_comp","l","z","mu","state","objective", ...
-            "constraints"];
+        directBlocks = isfield(value,"storage_mode") && ...
+            string(value.storage_mode)=="recursive_daily_blocks";
+        required = ["identity","r_eq","r_ineq","r_dual","r_comp", ...
+            "l","z","mu","state","objective","constraints"];
+        if directBlocks
+            required = [required,"blocks"];
+        else
+            required = [required,"H","A","G"];
+        end
         assert(all(isfield(value,required)), ...
             "stageA4:rns1:LinearizationFingerprintFields", ...
             "The RNS linearization fingerprint is missing required fields.");
         update_text(messageDigest,string(value.identity));
-        update_numeric(messageDigest,value.H);
-        update_numeric(messageDigest,value.A);
-        update_numeric(messageDigest,value.G);
+        if directBlocks
+            update_text(messageDigest,"recursive_daily_blocks_v1");
+            update_numeric(messageDigest,value.blocks.global_block.H);
+            update_numeric(messageDigest,value.blocks.global_block.A);
+            update_numeric(messageDigest,value.blocks.global_block.G);
+            for d = 1:numel(value.blocks.day)
+                block = value.blocks.day(d);
+                update_numeric(messageDigest,block.primal_indices);
+                update_numeric(messageDigest,block.equality_indices);
+                update_numeric(messageDigest,block.base_inequality_rows);
+                update_numeric(messageDigest,block.water_rows);
+                update_numeric(messageDigest,block.H);
+                update_numeric(messageDigest,block.A_local);
+                update_numeric(messageDigest,block.A_global);
+                update_numeric(messageDigest,block.G_base);
+                update_numeric(messageDigest,block.G_water);
+            end
+        else
+            update_numeric(messageDigest,value.H);
+            update_numeric(messageDigest,value.A);
+            update_numeric(messageDigest,value.G);
+        end
         update_numeric(messageDigest,value.constraints.eq_offset);
         update_numeric(messageDigest,value.constraints.ineq_offset);
         update_numeric(messageDigest,value.objective.gradient);

@@ -10,7 +10,17 @@ else
     fprintf("\n准备计算：第 %d 日至第 %d 日，共 %d 天。\n", ...
         runSettings.day_start,runSettings.day_end,numel(runSettings.days));
 end
+runWallTimer = tic;
 projectResult = rkkt.run();
+resultReadyWallSeconds = toc(runWallTimer);
+
+fprintf("运行输出模式：%s\n",projectResult.run_output_mode);
+if isfield(projectResult,"recursive_template_cache") && ...
+        projectResult.settings.audit_mode=="recursive_only"
+    fprintf("递推矩阵存储：全局小块 + 逐日局部块（不生成全年 H/A/G）\n");
+    fprintf("递推块模板缓存：%s\n", ...
+        projectResult.recursive_template_cache.status);
+end
 
 if isfield(projectResult,"parallel_pool")
     pool = projectResult.parallel_pool;
@@ -50,3 +60,5 @@ disp(capacityResults(:,["capacity_index","capacity_name","value"]));
 fprintf("纯 IPM 优化求解总时长：%.3f 秒（%.3f 分钟）。\n", ...
     projectResult.recursive_ipm_seconds, ...
     projectResult.recursive_ipm_seconds/60);
+fprintf("从启动到容量与出力结果生成总时长：%.3f 秒（%.3f 分钟）。\n", ...
+    resultReadyWallSeconds,resultReadyWallSeconds/60);

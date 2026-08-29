@@ -15,6 +15,11 @@ require_convergence: true
 # 必须使用 recursive_only。
 audit_mode: "recursive_only"
 
+# lightweight：只保留最终容量/出力、最终状态MAT、逐轮收敛与计时历史、
+# 最终收敛指标和必要物理审计；不写逐轮检查点、矩阵工件和Word报告。
+# full_evidence：保留完整证据链和断点续算能力。
+run_output_mode: "lightweight"
+
 # 日块LDL回代精化仍由阶段配置控制（递推模式为3次）。下面两项只控制
 # 16维核心与直接日回代之间的一致性校正；核心残差达到1e-10且重构
 # KKT残差达到1e-8时提前停止。
@@ -28,12 +33,16 @@ parallel_worker_count: 4
 parallel_pool_auto_resize: true
 parallel_pool_keep_alive: true
 
-# 两级缓存总开关；强制重建只重建对应缓存，不改变模型或初值。
+# 三级缓存总开关：年度数据、日期索引、递推块模板。强制重建只重建
+# 对应缓存，不改变模型或初值。
 cache_enabled: true
 force_rebuild_data_cache: false
 force_rebuild_index_cache: false
+# 递推块模板缓存只保存“全局小块 + 逐日局部块”的固定结构；即使关闭
+# 该缓存，recursive_only 也会直接构造逐日块，不会退回完整全局 H/A/G。
+force_rebuild_recursive_template_cache: false
 
-# 留空表示创建新运行；填写新的统一入口 RUNNING 运行目录可断点续算。
-# 旧版 365 日工作流检查点不兼容。
+# 留空表示创建新运行；仅 full_evidence 可填写 RUNNING 目录断点续算。
+# lightweight 不生成逐轮检查点，不能断点续算。
 run_id: ""
 resume_run_directory: ""

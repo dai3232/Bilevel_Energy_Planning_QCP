@@ -11,3 +11,8 @@
 %   build_stage_b2c_linearization_template - Freeze invariant B-2C structure.
 %   evaluate_stage_b2c_water_template - Update all daily-water rows in bulk.
 %   update_stage_b2c_scaled_objective_linearization - Refresh dynamic values.
+%   build_stage_b2c_recursive_block_template - Build global/day operators.
+%   update_stage_b2c_recursive_block_linearization - Refresh block numerics.
+%   apply_stage_b2c_equality_jacobian - Apply block A or A'.
+%   apply_stage_b2c_inequality_jacobian - Apply block G or G'.
+%   apply_stage_b2c_lagrangian_hessian - Apply the block water Hessian.

@@ -71,8 +71,9 @@ balance = names=="hourly_power_balance";
 terminal = names=="terminal_soc";
 soc = names=="soc_dynamics" | terminal;
 baseRows = (1:config.expected_stage_a_inequality_dimension).';
-basePhysical = lin.G(baseRows,:)*state.xi+ ...
-    lin.constraints.ineq_offset(baseRows);
+allPhysical = rkkt.model.apply_stage_b2c_inequality_jacobian( ...
+    lin,state.xi)+lin.constraints.ineq_offset;
+basePhysical = allPhysical(baseRows);
 links = index.soc_link_map;
 noInterday = ~any(links.predecessor_hour==24 & links.hour==1);
 dailySoc = true;

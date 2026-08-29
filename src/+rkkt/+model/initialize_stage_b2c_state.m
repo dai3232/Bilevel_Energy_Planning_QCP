@@ -1,17 +1,55 @@
-function state = initialize_stage_b2c_state(data,index,config)
-%INITIALIZE_STAGE_B2C_STATE Extend the A4 state with daily water rows.
+function [state,recursiveTemplate] = ...
+        initialize_stage_b2c_state(data,index,config,options)
+%INITIALIZE_STAGE_B2C_STATE Build the B-2C interior without global H/A/G.
 
 arguments
     data (1,1) struct
     index (1,1) struct
     config (1,1) struct
+    options.RecursiveBlockTemplate (1,1) struct = struct()
 end
 assert(string(config.milestone_id)=="B-2C" && ...
     string(index.scope.milestone_id)=="B-2C", ...
     "stageB2C:state:Identity","B-2C state requires B-2C index/config.");
-base = rkkt.model.initialize_stage_a4_state( ...
+recursiveTemplate = options.RecursiveBlockTemplate;
+if isempty(fieldnames(recursiveTemplate))
+    recursiveTemplate = ...
+        rkkt.model.build_stage_b2c_recursive_block_template(data,index,config);
+else
+    assert(string(recursiveTemplate.version)== ...
+        "stage-B2C-recursive-block-template-v1.0" && ...
+        recursiveTemplate.n_primal==index.counts.variables && ...
+        isequal(recursiveTemplate.days,config.days), ...
+        "stageB2C:state:RecursiveTemplate", ...
+        "The supplied recursive block template does not match the index.");
+end
+base = rkkt.model.initialize_stage_a_multiday_state( ...
     data,index.stage_a_base_index,config.stage_a_compatibility);
-water = rkkt.model.assemble_stage_b_water_linearization(base.xi,data,index,config);
+base.iteration_index = 0;
+base.state_revision = 0;
+base.newton_direction_number = 0;
+base.completed_newton_direction_count = 0;
+base.fixed_zero_values = index.fixed_zero_map.fixed_value;
+base.fixed_zero_directions = index.fixed_zero_map.fixed_direction_value;
+base.initialization_version = "stageA4-deterministic-interior-v1.0";
+
+baseInequality = zeros(recursiveTemplate.n_base_inequalities,1);
+globalBlock = recursiveTemplate.global_block;
+baseInequality(globalBlock.inequality_rows) = ...
+    globalBlock.G*base.xi(globalBlock.q_indices)+ ...
+    globalBlock.inequality_offset;
+for d = 1:numel(recursiveTemplate.day)
+    block = recursiveTemplate.day(d);
+    baseInequality(block.base_inequality_rows) = ...
+        block.base_G*base.xi(block.primal_indices)+ ...
+        block.base_inequality_offset;
+end
+base.l = -baseInequality;
+assert(all(isfinite(base.l)) && all(base.l>0), ...
+    "stageB2C:state:BaseSlack", ...
+    "The direct base-inequality initialization is not strictly interior.");
+water = rkkt.model.evaluate_stage_b2c_recursive_water_template( ...
+    base.xi,recursiveTemplate);
 nWater = height(index.water_constraint_index);
 waterSlack = max(ones(nWater,1),-water.constraint_value);
 waterMultiplier = repmat(config.initialization.inequality_multiplier,nWater,1);
