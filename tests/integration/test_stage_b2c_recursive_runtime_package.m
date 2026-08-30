@@ -1,11 +1,14 @@
 function tests = test_stage_b2c_recursive_runtime_package
-%TEST_STAGE_B2C_RECURSIVE_RUNTIME_PACKAGE Direct structural-route contract.
+%TEST_STAGE_B2C_RECURSIVE_RUNTIME_PACKAGE Legacy audit vs formal structure.
 tests = functiontests(localfunctions);
 end
 
 function setupOnce(testCase)
 root = string(fileparts(fileparts(fileparts(mfilename("fullpath")))));
 addpath(fullfile(root,"src"));
+legacyTools = fullfile(root,"tools","Stage-B2C","legacy");
+addpath(legacyTools);
+addTeardown(testCase,@()rmpath(legacyTools));
 settings = rkkt.config.build_stage_b2c_run_settings(root, ...
     DayStart=14,DayEnd=20,AuditMode="recursive_only", ...
     RunOutputMode="lightweight",ParallelEnabled=false,CacheEnabled=true);
@@ -21,16 +24,18 @@ config = rkkt.model.build_stage_b2c_runtime_configuration( ...
 numericalPayload = ...
     rkkt.model.build_stage_b2c_recursive_numerical_payload( ...
         data,recursiveStructureAgain,config);
+[legacyAuditBaseline,legacyAuditInfo] = ...
+    load_or_build_stage_b2c_legacy_runtime_audit_baseline( ...
+        root,data,config,BootstrapCanonicalIndexAllowed=true);
 [index,~] = rkkt.cache.load_or_build_stage_b2c_index( ...
     root,data,config,Enabled=true);
-[legacyTemplate,~] = ...
-    rkkt.cache.load_or_build_stage_b2c_recursive_block_template( ...
-        root,data,index,config,Enabled=true);
 testCase.TestData.root = root;
 testCase.TestData.data = data;
 testCase.TestData.config = config;
 testCase.TestData.index = index;
-testCase.TestData.legacy_template = legacyTemplate;
+testCase.TestData.legacy_template = legacyAuditBaseline.template;
+testCase.TestData.legacy_audit_baseline = legacyAuditBaseline;
+testCase.TestData.legacy_audit_info = legacyAuditInfo;
 testCase.TestData.recursive_structure = recursiveStructure;
 testCase.TestData.numerical_payload = numericalPayload;
 testCase.TestData.first_structure_info = firstStructureInfo;
@@ -72,6 +77,8 @@ config = testCase.TestData.config;
 index = testCase.TestData.index;
 legacyTemplate = testCase.TestData.legacy_template;
 runtimePackage = testCase.TestData.numerical_payload;
+verifyEqual(testCase,runtimePackage.runtime.physical_map, ...
+    testCase.TestData.legacy_audit_baseline.runtime.physical_map);
 [legacyState,~] = rkkt.model.initialize_stage_b2c_state( ...
     data,index,config,RecursiveBlockTemplate=legacyTemplate);
 runtimeState = rkkt.model.initialize_stage_b2c_runtime_state( ...

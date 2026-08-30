@@ -50,7 +50,7 @@ if options.Enabled && ~options.ForceRebuild && isfile(cachePath)
         isequaln(loaded.identity,identity), ...
         "rkkt:cache:RecursiveTemplateIdentity", ...
         "The recursive block template cache identity changed.");
-    template = attach_runtime(loaded.template,data,index,config);
+    template = attach_runtime(loaded.template,data,config);
     validate_template(template,index,config);
     info.hit = true; info.status = "HIT";
     info.load_seconds = toc(timer);
@@ -74,10 +74,10 @@ else
     info.status = "DISABLED";
 end
 
-function value = attach_runtime(value,data,index,config)
+function value = attach_runtime(value,data,config)
 value.config = config;
-value.runtime = rkkt.model.build_stage_b2c_recursive_runtime_maps( ...
-    data,index,value,config);
+value.runtime = ...
+    rkkt.model.build_stage_b2c_recursive_direct_runtime_maps(data,config);
 end
 
 function value = remove_fields(value,names)

@@ -11,12 +11,11 @@
 %   build_stage_b2c_linearization_template - Freeze invariant B-2C structure.
 %   evaluate_stage_b2c_water_template - Update all daily-water rows in bulk.
 %   update_stage_b2c_scaled_objective_linearization - Refresh dynamic values.
-%   build_stage_b2c_recursive_block_template - Build global/day operators.
-%   build_stage_b2c_recursive_runtime_maps - Compress audit indices to maps.
+%   build_stage_b2c_recursive_block_template - Build audit block operators.
+%   build_stage_b2c_recursive_direct_runtime_maps - Build maps without index.
 %   build_stage_b2c_structural_topology_fingerprint - Hash active topology.
 %   build_stage_b2c_recursive_structure - Build compact topology directly.
 %   build_stage_b2c_recursive_numerical_payload - Fill current coefficients.
-%   build_stage_b2c_recursive_runtime_package - Audit baseline only.
 %   initialize_stage_b2c_runtime_state - Initialize without canonical index.
 %   recover_stage_b2c_runtime_physical_arrays - Restore from compact maps.
 %   update_stage_b2c_recursive_block_linearization - Refresh block numerics.

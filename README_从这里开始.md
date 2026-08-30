@@ -14,6 +14,8 @@
 
 `data`、`config`、`index`、`state` 和 `linearization` 在包内逐级显式传递；索引模块不会从路径反推或重新读取配置。正式运行器在每个接受迭代保存检查点和审计证据，递推方向是正式 Newton 方向，完整稀疏 KKT 仅作独立审计；不进行兼容分派或方向失败回退。实际算法均位于 `src/+rkkt`。
 
+`recursive_only` 的正式生产实现仅使用 Structural Cache + Numerical Payload。历史 canonical index → compact runtime 对照实现位于 `tools/Stage-B2C/legacy`，只供显式 legacy audit 与等价性测试使用，不属于生产路径。
+
 每次点击都会创建不可覆盖的 `runs/<run_id>`。为避免目录视觉上杂乱，只需查看 `runs/运行索引.csv` 和 `runs/LATEST_PASS.json`：前者汇总每次运行，后者指向最近一次 PASS。运行签名由包内 MATLAB 源码、阶段、有效配置和受控输入共同确定；相同签名的后续运行标为 `REPEAT` 并指向第一次 PASS。历史运行不自动删除或覆盖。
 
 ## 最先执行
