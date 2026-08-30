@@ -1,0 +1,143 @@
+function [structure,info] = ...
+        load_or_build_stage_b2c_recursive_structure( ...
+        projectRoot,data,config,options)
+%LOAD_OR_BUILD_STAGE_B2C_RECURSIVE_STRUCTURE Cache compact topology only.
+
+% This production recursive-only cache has no canonical-index bootstrap.
+
+arguments
+    projectRoot (1,1) string
+    data (1,1) struct
+    config (1,1) struct
+    options.Enabled (1,1) logical = true
+    options.ForceRebuild (1,1) logical = false
+    options.CacheDirectory (1,1) string = ""
+end
+projectRoot = string(java.io.File(char(projectRoot)).getCanonicalPath());
+fingerprint = ...
+    rkkt.model.build_stage_b2c_structural_topology_fingerprint( ...
+        projectRoot,data,config);
+identity = struct( ...
+    "schema","stage-b2c-recursive-structure-cache-v1", ...
+    "structural_schema_version","stage-B2C-recursive-structure-v1.0", ...
+    "topology_fingerprint",char(fingerprint.sha256), ...
+    "structural_builder_hashes", ...
+        {fingerprint.descriptor.structural_builder_hashes});
+key = hash_text(jsonencode(identity));
+if numel(config.days)==config.days(end)-config.days(1)+1
+    scopeName = string(compose("days_%03d_%03d", ...
+        config.days(1),config.days(end)));
+else
+    scopeName = string(compose("set_%03d_%03d_n%03d", ...
+        config.days(1),config.days(end),numel(config.days)));
+end
+cacheDirectory = options.CacheDirectory;
+if strlength(strip(cacheDirectory))==0
+    cacheDirectory = fullfile(projectRoot,"cache","recursive_structure");
+else
+    cacheDirectory = string(java.io.File(char(cacheDirectory)).getCanonicalPath());
+end
+cachePath = fullfile(cacheDirectory, ...
+    scopeName+"_"+extractBefore(key,17)+".mat");
+info = new_info(options.Enabled,options.ForceRebuild,key,cachePath, ...
+    fingerprint.sha256);
+
+timer = tic;
+if options.Enabled && ~options.ForceRebuild && isfile(cachePath)
+    loaded = load(cachePath,"structure","identity");
+    assert(isfield(loaded,"structure") && isfield(loaded,"identity") && ...
+        isequaln(loaded.identity,identity), ...
+        "rkkt:cache:RecursiveStructureIdentity", ...
+        "The recursive structural cache identity changed.");
+    structure = loaded.structure;
+    validate_structure(structure,config,fingerprint.sha256);
+    info.hit = true;
+    info.status = "HIT";
+    info.load_seconds = toc(timer);
+    info.bytes = file_bytes(cachePath);
+    return
+end
+
+buildTimer = tic;
+structure = rkkt.model.build_stage_b2c_recursive_structure( ...
+    data,config,fingerprint);
+info.build_seconds = toc(buildTimer);
+validate_structure(structure,config,fingerprint.sha256);
+if options.Enabled
+    if ~isfolder(cacheDirectory), mkdir(cacheDirectory); end
+    writeTimer = tic;
+    rkkt.artifacts.save_mat_artifact(cachePath, ...
+        "structure",structure,"identity",identity);
+    info.write_seconds = toc(writeTimer);
+    info.status = "BUILT";
+    info.bytes = file_bytes(cachePath);
+else
+    info.status = "DISABLED_BUILT";
+end
+end
+
+function validate_structure(value,config,fingerprint)
+assert(string(value.version)=="stage-B2C-recursive-structure-v1.0" && ...
+    string(value.topology_fingerprint)==string(fingerprint) && ...
+    isequal(double(value.scope.days),double(config.days)) && ...
+    isequal(double(value.scope.hours),double(config.hours)) && ...
+    value.counts.variables==config.expected_stage_a_primal_dimension && ...
+    value.counts.equalities==config.expected_stage_a_equality_dimension && ...
+    value.counts.base_inequalities== ...
+        config.expected_stage_a_inequality_dimension && ...
+    value.counts.water_inequalities== ...
+        config.expected_water_inequality_count && ...
+    value.counts.fixed_zero==config.expected_stage_a_fixed_zero_count && ...
+    value.counts.full_kkt_dimension==config.expected_full_kkt_dimension && ...
+    ~contains_forbidden(value), ...
+    "rkkt:cache:RecursiveStructurePayload", ...
+    "The compact recursive structure failed its configured contract.");
+end
+
+function found = contains_forbidden(value)
+found = false;
+if istable(value), found=true; return; end
+if ~isstruct(value), return; end
+for item = reshape(value,1,[])
+    names = string(fieldnames(item));
+    if any(ismember(names,["index","stage_a_base_index", ...
+            "variable_index","constraint_index","permutation_map", ...
+            "equality_offset","base_G","water_bound", ...
+            "capacity_parameters","objective_original_gradient"]))
+        found = true;
+        return
+    end
+    for k = 1:numel(names)
+        child = item.(names(k));
+        if isstruct(child) && contains_forbidden(child)
+            found = true;
+            return
+        end
+    end
+end
+end
+
+function info = new_info(enabled,force,key,pathValue,fingerprint)
+info = struct( ...
+    "cache_type","recursive_structure", ...
+    "enabled",enabled,"force_rebuild",force,"hit",false, ...
+    "status","MISS","key",string(key),"path",string(pathValue), ...
+    "topology_fingerprint",string(fingerprint), ...
+    "load_seconds",0,"build_seconds",0,"write_seconds",0,"bytes",0, ...
+    "canonical_index_loaded",false,"canonical_index_load_seconds",0, ...
+    "canonical_index_built",false,"canonical_index_build_seconds",0);
+end
+
+function value = file_bytes(pathValue)
+listing = dir(pathValue);
+assert(isscalar(listing),"rkkt:cache:RecursiveStructureFile", ...
+    "The recursive structural cache file is missing after write.");
+value = double(listing.bytes);
+end
+
+function value = hash_text(textValue)
+engine = java.security.MessageDigest.getInstance("SHA-256");
+engine.update(unicode2native(char(textValue),"UTF-8"));
+bytes = mod(double(engine.digest()),256);
+value = lower(string(reshape(dec2hex(bytes,2).',1,[])));
+end

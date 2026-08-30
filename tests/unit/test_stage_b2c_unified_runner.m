@@ -14,22 +14,13 @@ end
 function testDefaultRunProjectConfiguration(testCase)
 settings = rkkt.config.read_run_project_configuration( ...
     testCase.TestData.root);
-verifyEqual(testCase,settings.day_scope,"screened_307");
+verifyEqual(testCase,settings.day_scope,"continuous");
 verifyEqual(testCase,[settings.day_start,settings.day_end],[1,365]);
-verifyTrue(testCase,settings.explicit_day_set);
-verifyEqual(testCase,numel(settings.days),307);
-verifyEqual(testCase,numel(settings.excluded_days),58);
-verifyEmpty(testCase,intersect(settings.days,settings.excluded_days));
-verifyEqual(testCase,numel(settings.physical_infeasible_days),41);
-verifyEqual(testCase,numel(settings.numerically_pathological_days),17);
-frozenPreset = string(fileread(fullfile(testCase.TestData.root,"config", ...
-    "stage_B_2C_full365_screened_307day_experiment.yaml")));
-verifyEqual(testCase,settings.excluded_days, ...
-    read_yaml_integer_array(frozenPreset,"excluded_days"));
-verifyEqual(testCase,settings.physical_infeasible_days, ...
-    read_yaml_integer_array(frozenPreset,"physical_infeasible_days"));
-verifyEqual(testCase,settings.numerically_pathological_days, ...
-    read_yaml_integer_array(frozenPreset,"numerically_pathological_days"));
+verifyFalse(testCase,settings.explicit_day_set);
+verifyEqual(testCase,numel(settings.days),365);
+verifyEmpty(testCase,settings.excluded_days);
+verifyEmpty(testCase,settings.physical_infeasible_days);
+verifyEmpty(testCase,settings.numerically_pathological_days);
 verifyTrue(testCase,ismember(settings.audit_mode, ...
     ["full_kkt","recursive_only"]));
 verifyTrue(testCase,settings.audit_mode~="full_kkt" || ...
@@ -38,25 +29,54 @@ verifyEqual(testCase,settings.max_iterations,100);
 verifyEqual(testCase,settings.core_consistency_max_passes,10);
 verifyTrue(testCase,settings.compensated_core_accumulation);
 verifyTrue(testCase,settings.cache_enabled);
-verifyFalse(testCase,settings.force_rebuild_recursive_template_cache);
+verifyFalse(testCase,settings.force_rebuild_recursive_structure_cache);
 verifyEqual(testCase,settings.run_output_mode,"lightweight");
 verifyFalse(testCase,settings.parallel_enabled);
 verifyEqual(testCase,settings.parallel_worker_count,4);
 verifyTrue(testCase,settings.parallel_pool_auto_resize);
 verifyTrue(testCase,settings.parallel_pool_keep_alive);
+verifyTrue(testCase,settings.load_correction_enabled);
+verifyEqual(testCase,settings.load_correction_path,fullfile( ...
+    testCase.TestData.root,"config", ...
+    "stage_B_2C_365day_manual_load_corrections.csv"));
 config = rkkt.model.build_stage_b2c_runtime_configuration( ...
     testCase.TestData.root,settings,testCase.TestData.data);
 verifyFalse(testCase,config.parallel_enabled);
 verifyEqual(testCase,config.parallel_worker_count,4);
 verifyEqual(testCase,config.parallel_mode,"off");
 verifyEqual(testCase,config.time_scope_type, ...
-    "configured_explicit_day_scope");
+    "configured_contiguous_day_scope");
 verifyEqual(testCase,[config.expected_stage_a_primal_dimension, ...
     config.expected_stage_a_equality_dimension, ...
     config.expected_stage_a_inequality_dimension, ...
     config.expected_stage_a_fixed_zero_count, ...
     config.expected_full_kkt_dimension], ...
-    [162696,27018,316796,18448,828218]);
+    [193431,32122,376642,21933,984677]);
+end
+
+function testReviewedLoadCorrectionOverlayAndCacheIdentity(testCase)
+root = testCase.TestData.root;
+pathValue = fullfile(root,"config", ...
+    "stage_B_2C_365day_manual_load_corrections.csv");
+[raw,rawInfo] = rkkt.cache.load_or_build_project_data(root,Enabled=true);
+[corrected,firstInfo] = rkkt.cache.load_or_build_project_data(root, ...
+    Enabled=true,LoadCorrectionPath=pathValue);
+[correctedAgain,secondInfo] = rkkt.cache.load_or_build_project_data(root, ...
+    Enabled=true,LoadCorrectionPath=pathValue);
+verifyFalse(testCase,raw.load_correction.enabled);
+verifyTrue(testCase,corrected.load_correction.enabled);
+verifyEqual(testCase,corrected.load_correction.day_count,41);
+verifyEqual(testCase,corrected.load_correction.row_count,67);
+verifyEqual(testCase,corrected.load_correction.total_reduction_mwh,10580, ...
+    "AbsTol",1e-9);
+verifyEqual(testCase,raw.timeseries.planMW(62,3),3540);
+verifyEqual(testCase,corrected.timeseries.planMW(62,3),3360);
+verifyEqual(testCase,corrected.timeseries.planPerUnit(62,3),0.336, ...
+    "AbsTol",1e-15);
+verifyNotEqual(testCase,rawInfo.key,firstInfo.key);
+verifyTrue(testCase,secondInfo.hit);
+verifyEqual(testCase,correctedAgain.timeseries.planMW, ...
+    corrected.timeseries.planMW);
 end
 
 function testKnownRuntimeDimensions(testCase)
@@ -348,7 +368,8 @@ settings = struct("stage_id","stage_B","milestone_id","B-2C", ...
     "parallel_pool_keep_alive",true, ...
     "force_rebuild_data_cache",false, ...
     "force_rebuild_index_cache",false, ...
-    "force_rebuild_recursive_template_cache",false,"run_id","", ...
+    "force_rebuild_recursive_structure_cache",false,"run_id","", ...
+    "load_correction_enabled",false,"load_correction_path","", ...
     "resume_run_directory","", ...
     "config_path",fullfile(root,"config","RUN_PROJECT.yaml"), ...
     "project_root",root);
@@ -409,7 +430,9 @@ document = [ ...
     "cache_enabled: true"
     "force_rebuild_data_cache: false"
     "force_rebuild_index_cache: false"
-    "force_rebuild_recursive_template_cache: false"
+    "force_rebuild_recursive_structure_cache: false"
+    "load_correction_enabled: false"
+    "load_correction_file: """""
     "run_id: """""
     "resume_run_directory: """+replace(resumeDirectory,"\","/")+""""];
 rkkt.artifacts.write_text_utf8(pathValue,strjoin(document,newline)+newline);
@@ -419,12 +442,4 @@ function value = fake_input_hashes()
 hash = [string(repmat('1',1,64));string(repmat('2',1,64))];
 value = table(["基础参数.xlsx";"输入数据.xlsx"],hash, ...
     'VariableNames',{'fileName','actualSHA256'});
-end
-
-function value = read_yaml_integer_array(document,key)
-pattern = ['(?m)^',regexptranslate('escape',char(key)), ...
-    ':[ \t]*\[(.*?)\][ \t]*$'];
-tokens = regexp(char(document),pattern,'tokens');
-assert(isscalar(tokens));
-value = reshape(str2double(split(string(tokens{1}{1}),",")),1,[]);
 end

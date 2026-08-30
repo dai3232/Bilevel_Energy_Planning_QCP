@@ -3,7 +3,7 @@ milestone_id: "B-2C"
 
 # continuous 使用下面的连续首尾日；screened_307 固定覆盖全年并剔除
 # 已确认的41个物理不可行日和17个数值病态日。
-day_scope: "screened_307"
+day_scope: "continuous"
 day_start: 1
 day_end: 365
 
@@ -33,14 +33,19 @@ parallel_worker_count: 4
 parallel_pool_auto_resize: true
 parallel_pool_keep_alive: true
 
-# 三级缓存总开关：年度数据、日期索引、递推块模板。强制重建只重建
-# 对应缓存，不改变模型或初值。
+# 缓存总开关：年度数据、full_kkt 审计索引、递推结构缓存。
+# recursive_only 无论结构缓存 HIT/MISS 都不会读取 canonical index。
 cache_enabled: true
 force_rebuild_data_cache: false
 force_rebuild_index_cache: false
-# 递推块模板缓存只保存“全局小块 + 逐日局部块”的固定结构；即使关闭
-# 该缓存，recursive_only 也会直接构造逐日块，不会退回完整全局 H/A/G。
-force_rebuild_recursive_template_cache: false
+# 结构缓存只保存拓扑、位置、排列和恢复映射；负荷、风光系数、水量边界
+# 等数值由每次运行的 numerical payload 直接刷新。
+force_rebuild_recursive_structure_cache: false
+
+# 经过人工确认的负荷修正覆盖层。false 时完全使用原始 Excel；true 时
+# 仅用下表覆盖指定日/小时，并把修正表 SHA256 纳入数据与递推缓存身份。
+load_correction_enabled: true
+load_correction_file: "config/stage_B_2C_365day_manual_load_corrections.csv"
 
 # 留空表示创建新运行；仅 full_evidence 可填写 RUNNING 目录断点续算。
 # lightweight 不生成逐轮检查点，不能断点续算。

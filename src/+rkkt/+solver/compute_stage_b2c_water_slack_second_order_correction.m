@@ -1,7 +1,7 @@
 function [correction,waterAfter] = ...
         compute_stage_b2c_water_slack_second_order_correction( ...
         linearizationBefore,directionXi,alphaPrimal,trialState, ...
-        data,index,config,options)
+        data,modelIndex,config,options)
 %COMPUTE_STAGE_B2C_WATER_SLACK_SECOND_ORDER_CORRECTION Correct water l.
 %
 % The accepted primal point and Newton direction are left unchanged.  For
@@ -23,7 +23,7 @@ arguments
     alphaPrimal (1,1) double
     trialState (1,1) struct
     data (1,1) struct
-    index (1,1) struct
+    modelIndex (1,1) struct
     config (1,1) struct
     options.PrecomputedWaterAfter (1,1) struct = struct()
     options.AcceptedPrimalDisplacementHigh (:,1) double = zeros(0,1)
@@ -44,7 +44,16 @@ assert(numel(directionXi)==linearizationBefore.counts.primal && ...
     "The direction or trial state has an invalid dimension.");
 
 waterRows = linearizationBefore.maps.ineq_water(:);
-waterIndex = index.water_constraint_index;
+runtimeRoute = isfield(modelIndex,"version") && ...
+    ismember(string(modelIndex.version),[ ...
+        "stage-B2C-recursive-runtime-package-v1.0", ...
+        "stage-B2C-recursive-numerical-payload-v1.0"]);
+if runtimeRoute
+    waterIndex = rkkt.model.stage_b2c_recursive_runtime_water_index( ...
+        modelIndex.runtime);
+else
+    waterIndex = modelIndex.water_constraint_index;
+end
 nWater = height(waterIndex);
 assert(numel(waterRows)==nWater && ...
     nWater==config.expected_water_inequality_count && ...
@@ -76,8 +85,11 @@ assert(xiClosure<=16*eps, ...
     "The trial primal point is not the accepted Newton update.");
 
 if isempty(fieldnames(options.PrecomputedWaterAfter))
+    assert(~runtimeRoute, ...
+        "stageB2C:waterCorrection:RuntimeWaterRequired", ...
+        "The compact runtime route requires its precomputed water update.");
     waterAfter = rkkt.model.assemble_stage_b_water_linearization( ...
-        trialState.xi,data,index,config);
+        trialState.xi,data,modelIndex,config);
 else
     waterAfter = options.PrecomputedWaterAfter;
 end

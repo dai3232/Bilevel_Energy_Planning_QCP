@@ -1,10 +1,10 @@
 function audit = evaluate_stage_b2c_physical_audit( ...
-        runResult,index,data,config)
+        runResult,modelIndex,data,config)
 %EVALUATE_STAGE_B2C_PHYSICAL_AUDIT Rebuild water and Stage-A feasibility.
 
 arguments
     runResult (1,1) struct
-    index (1,1) struct
+    modelIndex (1,1) struct
     data (1,1) struct
     config (1,1) struct
 end
@@ -14,8 +14,17 @@ assert(runResult.convergence_achieved && ...
     "SB-PHY-001 may run only after formal B-2C convergence.");
 state = runResult.final_state;
 lin = runResult.final_linearization;
-physical = rkkt.model.recover_stage_a_physical_arrays( ...
-    state.xi,zeros(size(state.xi)),index,data);
+runtimeRoute = isfield(modelIndex,"version") && ...
+    ismember(string(modelIndex.version),[ ...
+        "stage-B2C-recursive-runtime-package-v1.0", ...
+        "stage-B2C-recursive-numerical-payload-v1.0"]);
+if runtimeRoute
+    physical = rkkt.model.recover_stage_b2c_runtime_physical_arrays( ...
+        state.xi,zeros(size(state.xi)),modelIndex,data);
+else
+    physical = rkkt.model.recover_stage_a_physical_arrays( ...
+        state.xi,zeros(size(state.xi)),modelIndex,data);
+end
 
 nWaterAudit = numel(config.days)*numel(config.hydro_ids);
 day = zeros(nWaterAudit,1); hydro_id = zeros(nWaterAudit,1);
@@ -63,31 +72,48 @@ assert(height(water)==config.expected_final_water_audit_rows && ...
     "stageB2C:physical:WaterRows", ...
     "The final water audit has an invalid ordered day-station inventory.");
 
-constraintIndex = index.constraint_index;
-eqIndex = constraintIndex( ...
-    string(constraintIndex.constraint_type)=="equality",:);
-names = string(eqIndex.constraint_name);
-balance = names=="hourly_power_balance";
-terminal = names=="terminal_soc";
-soc = names=="soc_dynamics" | terminal;
+if runtimeRoute
+    equality = modelIndex.runtime.equality_map;
+    balance = false(runResult.final_linearization.counts.equalities,1);
+    terminal = balance; soc = balance;
+    balance(double(equality.power_balance_rows)) = true;
+    terminal(double(equality.terminal_soc_rows)) = true;
+    soc(double(equality.soc_rows)) = true;
+else
+    constraintIndex = modelIndex.constraint_index;
+    eqIndex = constraintIndex( ...
+        string(constraintIndex.constraint_type)=="equality",:);
+    names = string(eqIndex.constraint_name);
+    balance = names=="hourly_power_balance";
+    terminal = names=="terminal_soc";
+    soc = names=="soc_dynamics" | terminal;
+end
 baseRows = (1:config.expected_stage_a_inequality_dimension).';
 allPhysical = rkkt.model.apply_stage_b2c_inequality_jacobian( ...
     lin,state.xi)+lin.constraints.ineq_offset;
 basePhysical = allPhysical(baseRows);
-links = index.soc_link_map;
-noInterday = ~any(links.predecessor_hour==24 & links.hour==1);
-dailySoc = true;
-for actualDay = config.days
-    first = links(links.day==actualDay & links.hour==1,:);
-    last = links(links.day==actualDay & links.terminal_equality,:);
-    dailySoc = dailySoc && height(first)==2 && ...
-        all(isnan(first.predecessor_hour)) && ...
-        all(first.predecessor_soc_global_index==0) && ...
-        all(first.initial_energy_fraction==0.5) && ...
-        height(last)==2 && all(last.hour==24) && ...
-        all(last.terminal_energy_fraction==0.5);
+if runtimeRoute
+    boundary = modelIndex.runtime.soc_boundary;
+    noInterday = boundary.no_interday && ...
+        all(boundary.first_hour_row_count==2) && ...
+        all(boundary.terminal_row_count==2) && ...
+        boundary.initial_fraction==0.5 && boundary.terminal_fraction==0.5;
+else
+    links = modelIndex.soc_link_map;
+    noInterday = ~any(links.predecessor_hour==24 & links.hour==1);
+    dailySoc = true;
+    for actualDay = config.days
+        first = links(links.day==actualDay & links.hour==1,:);
+        last = links(links.day==actualDay & links.terminal_equality,:);
+        dailySoc = dailySoc && height(first)==2 && ...
+            all(isnan(first.predecessor_hour)) && ...
+            all(first.predecessor_soc_global_index==0) && ...
+            all(first.initial_energy_fraction==0.5) && ...
+            height(last)==2 && all(last.hour==24) && ...
+            all(last.terminal_energy_fraction==0.5);
+    end
+    noInterday = noInterday && dailySoc;
 end
-noInterday = noInterday && dailySoc;
 fixedDirection = max(runResult.iteration_history. ...
     fixed_zero_maximum_absolute_direction);
 values = [norm(lin.r_eq,inf);max_abs(lin.r_eq,balance); ...

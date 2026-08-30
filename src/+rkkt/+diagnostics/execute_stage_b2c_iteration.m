@@ -322,6 +322,19 @@ comparison = struct("executed",false,"all_pass",true, ...
 end
 
 function step = annotate_limiter(step,index)
+if isfield(index,"version") && ...
+        ismember(string(index.version),[ ...
+            "stage-B2C-recursive-runtime-package-v1.0", ...
+            "stage-B2C-recursive-numerical-payload-v1.0"])
+    description = rkkt.model.describe_stage_b2c_runtime_inequality( ...
+        index.runtime,step.limiting_index);
+    step.limiting_constraint_id = description.constraint_id;
+    step.limiting_day = description.day;
+    step.limiting_hour = description.hour;
+    step.limiting_asset_type = description.asset_type;
+    step.limiting_asset_id = description.asset_id;
+    return
+end
 rows = index.constraint_index( ...
     string(index.constraint_index.constraint_type)=="inequality",:);
 if step.limiting_index==0

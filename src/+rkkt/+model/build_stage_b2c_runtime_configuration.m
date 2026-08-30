@@ -78,6 +78,8 @@ for k = 1:numel(names)
 end
 config.stage_a_compatibility = synchronize_stage_a(config);
 config.source_paths.run_project = settings.config_path;
+config.source_paths.load_correction = settings.load_correction_path;
+config.load_correction = data.load_correction;
 config.runtime_configuration_version = ...
     "stage-B2C-configured-runtime-v2";
 validate_runtime(config,settings,data,explicitDaySet);

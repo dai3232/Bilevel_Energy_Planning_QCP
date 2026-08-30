@@ -29,6 +29,8 @@ identity = struct( ...
         index.counts.inequalities,index.counts.fixed_zero], ...
     "input_hashes",char(strjoin(lower(string( ...
         data.hashes.actualSHA256)),"|")), ...
+    "load_correction_sha256",char(lower(string( ...
+        data.load_correction.sha256))), ...
     "builder_hashes",cellstr(builderHashes));
 key = hash_text(jsonencode(identity));
 if numel(config.days)==config.days(end)-config.days(1)+1
@@ -48,7 +50,7 @@ if options.Enabled && ~options.ForceRebuild && isfile(cachePath)
         isequaln(loaded.identity,identity), ...
         "rkkt:cache:RecursiveTemplateIdentity", ...
         "The recursive block template cache identity changed.");
-    template = attach_runtime(loaded.template,index,config);
+    template = attach_runtime(loaded.template,data,index,config);
     validate_template(template,index,config);
     info.hit = true; info.status = "HIT";
     info.load_seconds = toc(timer);
@@ -63,8 +65,7 @@ if options.Enabled
     folder = fileparts(cachePath);
     if ~isfolder(folder), mkdir(folder); end
     writeTimer = tic;
-    cachedTemplate = rmfield(template,cellstr( ...
-        ["index","fixed_zero_map","permutation","config"]));
+    cachedTemplate = remove_fields(template,["runtime","config"]);
     rkkt.artifacts.save_mat_artifact(cachePath, ...
         "template",cachedTemplate,"identity",identity);
     info.write_seconds = toc(writeTimer);
@@ -73,11 +74,15 @@ else
     info.status = "DISABLED";
 end
 
-function value = attach_runtime(value,index,config)
-value.index = index;
-value.fixed_zero_map = index.fixed_zero_map;
-value.permutation = index.permutation_map;
+function value = attach_runtime(value,data,index,config)
 value.config = config;
+value.runtime = rkkt.model.build_stage_b2c_recursive_runtime_maps( ...
+    data,index,value,config);
+end
+
+function value = remove_fields(value,names)
+present = names(isfield(value,cellstr(names)));
+if ~isempty(present), value=rmfield(value,cellstr(present)); end
 end
 end
 

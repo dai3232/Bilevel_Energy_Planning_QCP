@@ -15,11 +15,32 @@ projectResult = rkkt.run();
 resultReadyWallSeconds = toc(runWallTimer);
 
 fprintf("运行输出模式：%s\n",projectResult.run_output_mode);
-if isfield(projectResult,"recursive_template_cache") && ...
+if projectResult.settings.load_correction_enabled
+    correction = projectResult.config.load_correction;
+    fprintf("负荷修正覆盖：ENABLED（%d 日、%d 小时、共下调 %.3f MWh）\n", ...
+        correction.day_count,correction.row_count, ...
+        correction.total_reduction_mwh);
+    fprintf("负荷修正表 SHA256：%s\n",correction.sha256);
+else
+    fprintf("负荷修正覆盖：DISABLED（使用原始 Excel 负荷）\n");
+end
+if isfield(projectResult,"recursive_structure_cache") && ...
         projectResult.settings.audit_mode=="recursive_only"
-    fprintf("递推矩阵存储：全局小块 + 逐日局部块（不生成全年 H/A/G）\n");
-    fprintf("递推块模板缓存：%s\n", ...
-        projectResult.recursive_template_cache.status);
+    fprintf("递推矩阵存储：结构缓存 + 当前数值载荷（不生成全年 H/A/G）\n");
+    structureCache = projectResult.recursive_structure_cache;
+    fprintf("递推 structural cache：%s\n",structureCache.status);
+    fprintf("topology fingerprint：%s\n", ...
+        structureCache.topology_fingerprint);
+    fprintf("structural cache load seconds：%.3f 秒\n", ...
+        structureCache.load_seconds);
+    fprintf("structural cache build seconds：%.3f 秒\n", ...
+        structureCache.build_seconds);
+    fprintf("structural cache file size：%.3f MB\n", ...
+        structureCache.bytes/1024^2);
+    fprintf("numerical payload build seconds：%.3f 秒\n", ...
+        projectResult.numerical_payload_build_seconds);
+    fprintf("canonical index loaded：false\n");
+    fprintf("canonical index built：false\n");
 end
 
 if isfield(projectResult,"parallel_pool")

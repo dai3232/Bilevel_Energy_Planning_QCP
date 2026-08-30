@@ -1,11 +1,11 @@
 function [capacity,hourly,daily] = build_stage_b2c_physical_results( ...
-        runId,ipm,index,physical)
+        runId,ipm,modelIndex,physical)
 %BUILD_STAGE_B2C_PHYSICAL_RESULTS Build common capacity/dispatch tables.
 
 arguments
     runId (1,1) string
     ipm (1,1) struct
-    index (1,1) struct
+    modelIndex (1,1) struct
     physical (1,1) struct
 end
 names = string(ipm.final_linearization.capacity_parameters.names(:));
@@ -39,8 +39,15 @@ variableNames = ["PW_1","PW_2","PW_3","PW_4","PW_5", ...
 hourly = table(repmat(runId,n,1),day,hour, ...
     'VariableNames',{'run_id','day','hour'});
 for k = 1:numel(variableNames), hourly.(variableNames(k)) = arrays{k}; end
+if isfield(modelIndex,"version") && ismember(string(modelIndex.version),[ ...
+        "stage-B2C-recursive-runtime-package-v1.0", ...
+        "stage-B2C-recursive-numerical-payload-v1.0"])
+    primalCount = modelIndex.counts.variables;
+else
+    primalCount = height(modelIndex.variable_index);
+end
 assert(height(hourly)==n && width(hourly)==27 && ...
-    height(index.variable_index)==ipm.final_linearization.counts.primal, ...
+    primalCount==ipm.final_linearization.counts.primal, ...
     "stageB2C:results:Shape", ...
     "The configured physical result table is incomplete.");
 

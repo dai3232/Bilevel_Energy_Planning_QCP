@@ -10,7 +10,7 @@
 
 单击入口中的唯一生产链条为：
 
-`RUN_PROJECT.m` → `rkkt.run` → `rkkt.config.read_run_project_configuration` → `rkkt.workflows.stageB2CConfigured` → 年度数据缓存 → 日集合 index 缓存 → 递推块模板缓存 → 七日完整 KKT 审计或配置日集合递推-only 求解 → Stage B 补充验收与中文报告
+`RUN_PROJECT.m` → `rkkt.run` → `rkkt.config.read_run_project_configuration` → `rkkt.workflows.stageB2CConfigured` → 年度数据缓存 → `recursive_only` 读取 compact structural cache 并按本次数据刷新 numerical payload（结构 HIT/MISS 均不加载 canonical index）/ `full_kkt` 读取完整 canonical index → 配置日集合递推求解或七日完整 KKT 审计 → Stage B 补充验收与中文报告
 
 `data`、`config`、`index`、`state` 和 `linearization` 在包内逐级显式传递；索引模块不会从路径反推或重新读取配置。正式运行器在每个接受迭代保存检查点和审计证据，递推方向是正式 Newton 方向，完整稀疏 KKT 仅作独立审计；不进行兼容分派或方向失败回退。实际算法均位于 `src/+rkkt`。
 
