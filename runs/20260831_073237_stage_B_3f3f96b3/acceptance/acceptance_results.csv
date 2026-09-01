@@ -1,0 +1,4 @@
+run_id,test_id,requirement,actual_value,blocking,status
+20260831_073237_stage_B_3f3f96b3,LIGHT-CONVERGENCE,configured stopping metrics pass,converged=true; iterations=23,true,PASS
+20260831_073237_stage_B_3f3f96b3,LIGHT-RECONSTRUCTED-KKT,all reconstructed KKT relative residuals <= 1e-08,worst residual=3.2749019744837548e-10,true,PASS
+20260831_073237_stage_B_3f3f96b3,LIGHT-FINAL-PHYSICAL,final Stage-A and daily water physical audit passes,passed=true; max water violation=0,true,PASS
