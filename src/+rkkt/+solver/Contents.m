@@ -26,7 +26,6 @@
 %   compute_fraction_to_boundary_step_high_low - Step along a retained twofold direction.
 %   update_primal_dual_state_high_low - Consume a retained high/low direction.
 %   run_stage_b2c_full_ipm - Run a seven-day IPM with full-KKT audit.
-%   run_stage_b2c_30day_ipm - Run a recursive-only contiguous-range IPM.
 %   run_stage_b2c_365day_serial_ipm - Run/resume a serial range IPM.
 %   prepare_stage_b2c_parallel_pool - Create/reuse the configured process pool.
 %   close_stage_b2c_parallel_pool - Close the configured process pool.
